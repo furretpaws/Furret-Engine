@@ -1,0 +1,91 @@
+
+{
+    "offsets":[
+        {
+            "name":"bf",
+            "x":200
+            
+        },
+        {
+            "name":"bfCamera",
+            "y":-200
+        }
+    ],
+
+    "cameraZoom":0.8,
+    "assets":[
+            {
+                "name":"bgWalls",
+                "animated":false,
+                "x":-1000,
+                "y":-500,
+                "scrollFactorX":0.2,
+                "scrollFactorY":0.2,
+                "size":0.8
+            },{
+                "name":"upperBop",
+                "animated":true,
+                "x":-240,
+                "y":-90,
+                "scrollFactorX":0.33,
+                "scrollFactorY":0.33,
+                "beatAnimation":"Upper Crowd Bob",
+                "beatAnimationFrequency":4,
+                "beatAnimationFramerate":24,
+                "idleAnimation":"",
+                "beatAnimationSize":0.85,
+                "size":0.85
+            },
+
+            {
+                "name":"bgEscalator",
+                "animated":false,
+                "x":-1100,
+                "y":-600,
+                "scrollFactorX":0.3,
+                "scrollFactorY":0.3,
+                "size":0.9
+            },
+
+            {
+                "name":"christmasTree",
+                "animated":false,
+                "x":370,
+                "y":-250,
+                "scrollFactorX":0.4,
+                "scrollFactorY":0.4
+            },
+
+            {
+                "name":"bottomBop",
+                "animated":true,
+                "x":-300,
+                "y":140,
+                "scrollFactorX":0.9,
+                "beatAnimationFramerate":24,
+                "beatAnimationFrequency":4,
+                "scrollFactorY":0.9,
+                "beatAnimation":"Bottom Level Boppers"
+            },
+
+            {
+                "name":"fgSnow",
+                "animated":false,
+                "x":-600,
+                "y":700,
+                "scrollFactorX":1,
+                "scrollFactorY":1
+            },
+
+            {
+                "name":"santa",
+                "animated":true,
+                "x":-850,
+                "y":150,
+                "beatAnimation":"santa idle in fear",
+                "scrollFactorX":1,
+                "scrollFactorY":1
+            }
+    ]
+        
+}

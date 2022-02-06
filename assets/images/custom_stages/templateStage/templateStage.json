@@ -1,0 +1,25 @@
+[
+    {
+        "name":"stageback",
+        "animated":false,
+        "playerLayer":0,
+        "x":0,
+        "y":0
+    },
+
+    {
+        "name":"stagefront",
+        "animated":false,
+        "playerLayer":0,
+        "x":0,
+        "y":0
+    },
+    {
+        "name":"stagecurtains",
+        "animated":false,
+        "playerLayer":2,
+        "x":0,
+        "y":0
+    }
+    
+]

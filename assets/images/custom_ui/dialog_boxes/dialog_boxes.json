@@ -1,0 +1,14 @@
+{
+  "template": {
+    "like": "senpai"
+  },
+  "templateEvil": {
+    "like": "spirit"
+  },
+  "templateMad": {
+    "like": "senpai-angry"
+  },
+  "templateDialog": {
+    "like": "dialog"
+  }
+}

@@ -1,0 +1,4 @@
+normal
+pixel
+templatePixel
+template
