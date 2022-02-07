@@ -51,6 +51,8 @@ class ChartingState extends MusicBeatState
 
 	var UI_box:FlxUITabMenu;
 
+	public var playClaps:Bool = false;
+
 	/**
 	 * Array of notes showing when each section STARTS in STEPS
 	 * Usually rounded up??
@@ -67,6 +69,8 @@ class ChartingState extends MusicBeatState
 	var bullshitUI:FlxGroup;
 
 	var highlight:FlxSprite;
+
+	var claps:Array<Note> = [];
 
 	var GRID_SIZE:Int = 40;
 	var S_GRID_SIZE:Int = 40;
@@ -216,28 +220,11 @@ class ChartingState extends MusicBeatState
 			trace('CHECKED!');
 		};
 
-		var m_check = new FlxUICheckBox(10, 45, null, null, "6", 100);
-		m_check.checked = (_song.mania == 1);
-		m_check.callback = function()
+		var hitsounds = new FlxUICheckBox(10, 300, null, null, "Play hitsounds", 100);
+		hitsounds.checked = false;
+		hitsounds.callback = function()
 		{
-			_song.mania = 0;
-			if (m_check.checked)
-			{
-				_song.mania = 1;
-			}
-			trace('vos sos puto');
-		};
-
-		var m_check2 = new FlxUICheckBox(60, 45, null, null, "9", 100);
-		m_check2.checked = (_song.mania == 2);
-		m_check2.callback = function()
-		{
-			_song.mania = 0;
-			if (m_check2.checked)
-			{
-				_song.mania = 2;
-			}
-			trace('vos sos puto otra vez no weí');
+			playClaps = hitsounds.checked;
 		};
 
 		var check_mute_inst = new FlxUICheckBox(10, 200, null, null, "Mute Instrumental (in editor)", 100);
@@ -273,6 +260,13 @@ class ChartingState extends MusicBeatState
 		stepperSpeed.value = _song.speed;
 		stepperSpeed.name = 'song_speed';
 
+		var hitsounds = new FlxUICheckBox(10, 300, null, null, "Play hitsounds", 100);
+		hitsounds.checked = false;
+		hitsounds.callback = function()
+		{
+			playClaps = hitsounds.checked;
+		};
+
 		var stepperBPM:FlxUINumericStepper = new FlxUINumericStepper(10, 65, 1, 1, 1, 339, 0);
 		stepperBPM.value = Conductor.bpm;
 		stepperBPM.name = 'song_bpm';
@@ -297,8 +291,6 @@ class ChartingState extends MusicBeatState
 		tab_group_song.add(UI_songTitle);
 
 		tab_group_song.add(check_voices);
-		tab_group_song.add(m_check);
-		tab_group_song.add(m_check2);
 		tab_group_song.add(check_mute_inst);
 		tab_group_song.add(isMoodyCheck);
 		tab_group_song.add(isSpookyCheck);
@@ -309,6 +301,7 @@ class ChartingState extends MusicBeatState
 		tab_group_song.add(loadAutosaveBtn);
 		tab_group_song.add(stepperBPM);
 		tab_group_song.add(stepperSpeed);
+		tab_group_song.add(hitsounds);
 
 		UI_box.addGroup(tab_group_song);
 		UI_box.scrollFactor.set();
@@ -892,6 +885,7 @@ class ChartingState extends MusicBeatState
 				if (FlxG.sound.music.playing)
 				{
 					FlxG.sound.music.pause();
+					claps.splice(0, claps.length);
 					if (_song.needsVoices) {
 						vocals.pause();
 					}
@@ -985,6 +979,24 @@ class ChartingState extends MusicBeatState
 		}
 
 		_song.bpm = tempBpm;
+
+		if (playClaps)
+			{
+				curRenderedNotes.forEach(function(note:Note)
+				{
+					if (FlxG.sound.music.playing)
+					{
+						FlxG.overlap(strumLine, note, function(_, _)
+						{
+							if(!claps.contains(note))
+							{
+								claps.push(note);
+								FlxG.sound.play(Paths.sound('note_click'));
+							}
+						});
+					}
+				});
+			}
 
 		/* if (FlxG.keys.justPressed.UP)
 				Conductor.changeBPM(Conductor.bpm + 1);
