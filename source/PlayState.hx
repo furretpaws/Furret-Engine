@@ -2502,11 +2502,7 @@ case 'stageZoomOut1':
 				trace("Lua version: " + Lua.version());
 				trace("LuaJIT version: " + Lua.versionJIT());
 				Lua.init_callbacks(lua);
-				if (FlxG.save.data.middlescroll) //checks if middlescroll is enabled so it will give you a warning
-				{
-					LoadingState.loadAndSwitchState(new MiddleScrollWarningState());
-				}
-
+				
 				var result = LuaL.dofile(lua, Paths.lua(PlayState.SONG.song.toLowerCase() + "/modchart")); // execute le file
 	
 				if (result != 0)
@@ -2700,10 +2696,6 @@ case 'stageZoomOut1':
 				trace(Lua_helper.add_callback(lua,"getActorScaleY", function (id:String) {
 					return getActorByName(id).scale.y;
 				}));
-
-				trace(Lua_helper.add_callback(lua,"executeCode", function (id:String) {
-					id;
-				}));
 	
 				// tweens
 				
@@ -2749,7 +2741,7 @@ case 'stageZoomOut1':
 			}
 		#end
 		
-		#if windows
+		/*#if windows
 		if (FlxG.save.data.middlescroll) // osu!mana pog
 			{
 				trace('Middlescroll is on, executing modchart');
@@ -2995,7 +2987,7 @@ case 'stageZoomOut1':
 	
 				trace('return: ' + Lua.tostring(lua,callLua('start', [PlayState.SONG.song])));
 			}
-		#end
+		#end*/
 
 		talking = false;
 		startedCountdown = true;
@@ -3513,9 +3505,16 @@ case 'stageZoomOut1':
 			babyArrow.ID = i;
 
 			switch (player)
-			{
-				case 0:
-					cpuStrums.add(babyArrow);
+			{	case 0:
+					if (FlxG.save.data.middlescroll)
+					{
+						trace("do nothing");
+					}
+					else
+					{
+						cpuStrums.add(babyArrow);
+						babyArrow.alpha = 0;
+					}
 				case 1:
 					playerStrums.add(babyArrow);
 			}
@@ -3523,6 +3522,10 @@ case 'stageZoomOut1':
 			babyArrow.animation.play('static');
 			babyArrow.x += 50;
 			babyArrow.x += ((FlxG.width / 2) * player);
+			if (FlxG.save.data.middlescroll && player == 1)
+				babyArrow.x -= 275;
+			if (FlxG.save.data.middlescroll && player == 0)
+				babyArrow.alpha = 0;
 			if (player == 1)
 			{
 				hudArrXPos.push(babyArrow.x);
@@ -3758,6 +3761,13 @@ case 'stageZoomOut1':
 
 		if(controls.RESET && FlxG.save.data.resetKey){
 			FlxG.resetState();
+		}
+		if (FlxG.save.data.middlescroll)
+		{
+			for (i in 0...keyAmmo[mania])
+			{
+				strumLineNotes.members[i].visible = false;
+			}
 		}
 		#if !debug
 		perfectMode = false;
