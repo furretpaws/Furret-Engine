@@ -261,6 +261,8 @@ class PlayState extends MusicBeatState
 
 	private var executeModchart = false;
 
+	public static var videoJson:VideoJsonPath;
+
 	// hi
 
 	// LUA SHIT
@@ -3134,6 +3136,15 @@ case 'stageZoomOut1':
 
 	var songStarted = false;
 
+	public static var playstateVideoPath:String;
+
+	public static function playVideo(videoPath:String):Void
+	{
+		FlxG.switchState(new FurretEngineMP4Handler());
+		playstateVideoPath = videoPath;
+		FurretEngineMP4Handler.playCutscene(videoPath);
+	}
+
 	function startSong():Void
 	{
 		startingSong = false;
@@ -4682,6 +4693,18 @@ case 'stageZoomOut1':
 
 					trace('LOADING NEXT SONG');
 					trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
+
+					if (FileSystem.exists('assets/' + curSong.toLowerCase() + '/video.json')) {
+						trace("VIDEO JSON FOUND, EPIC MOMENT INCOMING!!11!1!");
+						videoJson = Json.parse(openfl.utils.Assets.getText('assets/' + curSong.toLowerCase() + '/video.json'));
+						playVideo(videoJson.videoPath);
+					}
+
+					/*switch(curSong.toLowerCase()) //just in case you want to hard code it, uncomment-it then change bopeebo with the name of your song
+					{
+						case 'bopeebo':
+						playVideo('videopath');
+					}*/
 
 					/*if (curSong.toLowerCase() == 'bopeebo')
 					{
@@ -6844,4 +6867,8 @@ class StageAsset extends FlxSprite{
 		beatAnimationSize = beatAnimationSizes;
 		idleAnimationSize = idleAnimationSizes;
 	}
+}
+typedef VideoJsonPath =
+{
+	var videoPath:String;
 }
