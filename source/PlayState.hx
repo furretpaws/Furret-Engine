@@ -91,6 +91,8 @@ using StringTools;
 
 class PlayState extends MusicBeatState
 {
+	static inline final BOPEEBO = 'bopeebo';
+
 	public var hasCreated:Bool = false;
 	public var hasCreatedgf:Bool = false;
 	public static var curStage:String = '';
@@ -2456,6 +2458,33 @@ case 'stageZoomOut1':
 	var startTimer:FlxTimer;
 	var perfectMode:Bool = false;
 
+	var video:MP4Handler;
+
+	function playCutscene(name:String)
+	{
+		inCutscene = true;
+
+		video = new MP4Handler();
+		video.finishCallback = function()
+		{
+			startCountdown();
+		}
+		video.playVideo(Paths.video(name));
+	}
+
+	function playEndCutscene(name:String)
+	{
+		inCutscene = true;
+
+		video = new MP4Handler();
+		video.finishCallback = function()
+		{
+			SONG = Song.loadFromJson(storyPlaylist[0].toLowerCase());
+			LoadingState.loadAndSwitchState(new PlayState());
+		}
+		video.playVideo(Paths.video(name));
+	}
+
 	function startCountdown():Void
 	{
 		inCutscene = false;
@@ -4643,6 +4672,16 @@ case 'stageZoomOut1':
 
 					trace('LOADING NEXT SONG');
 					trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
+
+					/*if (curSong.toLowerCase() == 'bopeebo')
+					{
+						var video:MP4Handler = new MP4Handler();
+						video.playVideo(Paths.video('elpepe'));
+						video.finishCallback = function()
+						{
+							LoadingState.loadAndSwitchState(new PlayState());
+						}
+					}*/
 
 					if (SONG.song.toLowerCase() == 'eggnog')
 					{
