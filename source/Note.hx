@@ -37,6 +37,8 @@ class Note extends FlxSprite
 
 	public var mania:Int = 0;
 
+	public static var scales:Array<Float> = [0.7, 0.6, 0.46];
+
 	public var noteScore:Float = 1;
 
 	public static var swagWidth:Float;

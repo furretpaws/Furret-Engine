@@ -62,6 +62,11 @@ class Paths
 		return getPath('data/$key.lua', TEXT, library);
 	}
 
+	inline static public function videojson(key:String,?library:String)
+	{
+		return getPath('data/$key.json', TEXT, library);
+	}
+
 	inline static public function luaImage(key:String, ?library:String)
 	{
 		return getPath('data/$key.png', IMAGE, library);
@@ -84,6 +89,12 @@ class Paths
 	inline static public function xml(key:String, ?library:String)
 	{
 		return getPath('data/$key.xml', TEXT, library);
+	}
+
+	inline static public function video(key:String, ?library:String)
+	{
+		trace('assets/videos/$key.mp4');
+		return getPath('videos/$key.mp4', BINARY, library);
 	}
 
 	inline static public function json(key:String, ?library:String)
