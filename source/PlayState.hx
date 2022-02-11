@@ -196,6 +196,8 @@ class PlayState extends MusicBeatState
 
 	public static var offsetTesting:Bool = false;
 
+	public static var postPlayed:Bool = false;
+
 	var notesHitArray:Array<Date> = [];
 	var currentFrames:Int = 0;
 
@@ -3358,17 +3360,9 @@ case 'stageZoomOut1':
 	{
 		return FlxSort.byValues(FlxSort.ASCENDING, Obj1.strumTime, Obj2.strumTime);
 	}
-	var hudArrows:Array<FlxSprite>;
-	var hudArrXPos:Array<Float>;
-	var hudArrYPos:Array<Float>;
 
 	private function generateStaticArrows(player:Int):Void
 	{var flippedNotes = false;
-		if (player == 1)
-		{
-			hudArrXPos = [];
-			hudArrYPos = [];
-		}
 		for (i in 0...keyAmmo[mania])
 		{
 			// FlxG.log.add(i);
@@ -3516,16 +3510,9 @@ case 'stageZoomOut1':
 			babyArrow.ID = i;
 
 			switch (player)
-			{	case 0:
-					if (FlxG.save.data.middlescroll)
-					{
-						trace("do nothing");
-					}
-					else
-					{
-						cpuStrums.add(babyArrow);
-						babyArrow.alpha = 0;
-					}
+			{
+				case 0:
+					cpuStrums.add(babyArrow);
 				case 1:
 					playerStrums.add(babyArrow);
 			}
@@ -3537,12 +3524,6 @@ case 'stageZoomOut1':
 				babyArrow.x -= 275;
 			if (FlxG.save.data.middlescroll && player == 0)
 				babyArrow.alpha = 0;
-			if (player == 1)
-			{
-				hudArrXPos.push(babyArrow.x);
-				hudArrYPos.push(babyArrow.y);
-				playerStrums.add(babyArrow);
-			}
 
 			cpuStrums.forEach(function(spr:FlxSprite)
 			{					
@@ -3829,7 +3810,7 @@ case 'stageZoomOut1':
 			var p1 = getVar("strumLine1Visible",'bool');
 			var p2 = getVar("strumLine2Visible",'bool');
 
-			for (i in 0...4)
+			for (i in 0...keyAmmo[mania])
 			{
 				strumLineNotes.members[i].visible = p1;
 				if (i <= playerStrums.length)
@@ -3852,18 +3833,6 @@ case 'stageZoomOut1':
 		}
 		else
 			currentFrames++;
-
-		playerStrums.forEach(function(spr:FlxSprite)
-		{
-			spr.x = hudArrXPos[spr.ID];//spr.offset.set(spr.frameWidth / 2, spr.frameHeight / 2);
-			spr.y = hudArrYPos[spr.ID];
-			if (spr.animation.curAnim.name == 'confirm' )
-			{
-				var jj:Array<Float> = [0, 3, 9];
-				spr.x = hudArrXPos[spr.ID] + jj[mania];
-				spr.y = hudArrYPos[spr.ID] + jj[mania];
-			}
-		});
 
 		if (FlxG.keys.justPressed.NINE)
 		{
@@ -4694,26 +4663,24 @@ case 'stageZoomOut1':
 					trace('LOADING NEXT SONG');
 					trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
 
-					if (FileSystem.exists('assets/' + curSong.toLowerCase() + '/video.json')) {
+					if (FileSystem.exists(Paths.videojson(PlayState.SONG.song.toLowerCase()  + "/video"))) {
 						trace("VIDEO JSON FOUND, EPIC MOMENT INCOMING!!11!1!");
-						videoJson = Json.parse(openfl.utils.Assets.getText('assets/' + curSong.toLowerCase() + '/video.json'));
-						playVideo(videoJson.videoPath);
+						videoJson = Json.parse(openfl.utils.Assets.getText(Paths.videojson(PlayState.SONG.song.toLowerCase()  + "/video")));
+						if (postPlayed)
+						{
+							trace("A video has been detected, but postplay is enabled and it has been postplayed!");
+						}
+						else
+						{
+							playVideo(videoJson.videoPath);
+						}
 					}
+					trace(Paths.videojson(PlayState.SONG.song.toLowerCase()  + "/video"));
 
 					/*switch(curSong.toLowerCase()) //just in case you want to hard code it, uncomment-it then change bopeebo with the name of your song
 					{
 						case 'bopeebo':
 						playVideo('videopath');
-					}*/
-
-					/*if (curSong.toLowerCase() == 'bopeebo')
-					{
-						var video:MP4Handler = new MP4Handler();
-						video.playVideo(Paths.video('elpepe'));
-						video.finishCallback = function()
-						{
-							LoadingState.loadAndSwitchState(new PlayState());
-						}
 					}*/
 
 					if (SONG.song.toLowerCase() == 'eggnog')
@@ -6871,4 +6838,5 @@ class StageAsset extends FlxSprite{
 typedef VideoJsonPath =
 {
 	var videoPath:String;
+	var postPlay:Bool;
 }
