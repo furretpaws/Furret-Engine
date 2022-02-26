@@ -16,6 +16,8 @@ class FurretEngineMP4Handler extends MusicBeatState
 
 	public var playingCutscene:Bool = true;
 
+	public var wasPlayed:Bool = false;
+
 	public static function playCutscene(name:String)
 	{
 		var playingCutscene:Bool = true;
@@ -28,8 +30,9 @@ class FurretEngineMP4Handler extends MusicBeatState
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
 		var txt:FlxText = new FlxText(0, 0, FlxG.width,
-			"This is the MP4 handler state, if you are reading this\n"
-			+ "please restart the game!",
+			"[!] The selected video in the video.json file was not found\n"
+			+ "please, check the video name and correct it.\n"
+			+ "Press ENTER to continue",
 			32);
 		txt.setFormat("VCR OSD Mono", 32, FlxColor.RED, CENTER);
 		txt.screenCenter();
@@ -43,18 +46,26 @@ class FurretEngineMP4Handler extends MusicBeatState
 			{
 				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + StoryMenuState.diffic, PlayState.storyPlaylist[0].toLowerCase());
 				LoadingState.loadAndSwitchState(new PlayState());
+				wasPlayed = true;
 			}
 			video.playVideo(Paths.video(PlayState.playstateVideoPath));
+		}
+		else if(PlayState.videoNotFound)
+		{
+			add(txt);
 		}
 	}
 
 	override function update(elapsed:Float)
 		{
-			if (controls.ACCEPT)
+			if (PlayState.videoNotFound)
 			{
-				FlxG.switchState(new PlayState());
-				trace("fuck it");
+				if (controls.ACCEPT)
+				{
+					FlxG.switchState(new PlayState());
+					trace("fuck it");
+				}
+				super.update(elapsed);
 			}
-			super.update(elapsed);
 		}
     }	

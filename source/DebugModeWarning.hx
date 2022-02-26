@@ -15,9 +15,13 @@ class DebugModeWarning extends MusicBeatState
 
 	override function create()
 	{
+		#if mobileC
+		addVirtualPad(NONE, A);
+		#end
 		super.create();
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
+		#if !(android)
 		var txt:FlxText = new FlxText(0, 0, FlxG.width,
 			"WARNING!\n"
 			+ "Furret Engine is in debug mode!\n"
@@ -26,6 +30,17 @@ class DebugModeWarning extends MusicBeatState
 			+ "the -debug argument\n"
 			+ "Press ENTER to continue",
 			32);
+		#end
+		#if android
+		var txt:FlxText = new FlxText(0, 0, FlxG.width,
+			"WARNING!\n"
+			+ "Furret Engine is in debug mode!\n"
+			+ "\n"
+			+ "If you are seeing this in the final build. Recompile the game without\n"
+			+ "the -debug argument\n"
+			+ "Press A to continue",
+			32);
+		#end
 		txt.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
 		txt.screenCenter();
 		add(txt);
