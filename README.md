@@ -10,8 +10,6 @@
 
 ![GitHub issues](https://img.shields.io/github/issues/FurretLol/furret-engine?style=flat-square)
 
-![Lines of code](https://img.shields.io/tokei/lines/github.com/FurretLol/furret-engine?style=flat-square)
-
 Furret Engine is an FNF Engine based on Fusion Engine (KE 1.4.2) that lets you make mod without coding knowledge!
 
 Features:
