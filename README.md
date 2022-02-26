@@ -29,6 +29,8 @@ Features:
 	Custom stages (without coding)
 
 	Custom characters (without coding)
+	
+	MP4 Cutscenes (only works with code)
 
 Credits:
 
