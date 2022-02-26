@@ -1,10 +1,19 @@
 # Friday Night Funkin': Furret Engine
-Furret Engine is an FNF Engine based on Fusion Engine that lets you make mod without coding knowledge!
+Furret Engine is an FNF Engine based on Fusion Engine (KE 1.4.2) that lets you make mod without coding knowledge!
 
--> Based on KE 1.4.2
+Features:
 
--> Extra keys
+Features:
+		
+	Misses info;
+	
+	Accuracy info;
+		
+	Extra keys;
 
--> Note splashes
+	Lua modcharts;
 
--> MP4 Cutscenes (not working atm)
+	Note splashes;
+
+  Lua modcharts;
+
