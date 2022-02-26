@@ -52,6 +52,7 @@ Build:
 	- Windows SDK (10.0.17763.0)
 
 	2. Install Haxe and the following components:
+	- haxelib install tjson
 	- haxelib install lime 7.9.0
 	- haxelib install openfl
 	- haxelib install flixel
