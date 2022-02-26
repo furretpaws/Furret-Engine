@@ -26,9 +26,9 @@ Features:
 
   	Lua modcharts
 
-	Custom stages (without coding)
+	Custom stages (without coding, based on FNF Modding +)
 
-	Custom characters (without coding)
+	Custom characters (without coding, based on FNF Modding +)
 	
 	MP4 Cutscenes (only works with code)
 
