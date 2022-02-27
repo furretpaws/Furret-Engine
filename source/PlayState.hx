@@ -3147,6 +3147,12 @@ case 'stageZoomOut1':
 		FurretEngineMP4Handler.playCutscene(videoPath);
 	}
 
+	public static function parseJSONshit(videoCutsceneJson:String):VideoJsonPath
+	{
+		var swagShit:VideoJsonPath = cast CoolUtil.parseJson(videoCutsceneJson);
+		return swagShit;
+	}
+
 	function startSong():Void
 	{
 		startingSong = false;
@@ -4512,6 +4518,17 @@ case 'stageZoomOut1':
 								}
 							});
 						}
+
+					if(cpuControlled) {
+						boyfriend.holdTimer = 0;
+					}
+					
+					if(cpuControlled) {
+						var targetHold:Float = Conductor.stepCrochet * 0.001 * 4;
+						if(boyfriend.holdTimer + 0.2 > targetHold) {
+							boyfriend.holdTimer = targetHold - 0.2;
+						}
+					}
 	
 					if (FlxG.save.data.downscroll)
 						daNote.y = (strumLine.y - (Conductor.songPosition - daNote.strumTime) * (-0.45 * FlxMath.roundDecimal(FlxG.save.data.scrollSpeed == 1 ? SONG.speed : FlxG.save.data.scrollSpeed, 2)));
@@ -4556,10 +4573,20 @@ case 'stageZoomOut1':
 							}
 							else
 							{
+								if (!cpuControlled)
 								health -= 0.075;
 								vocals.volume = 0;
 
 								noteMiss();
+							}
+
+							if (!cpuControlled) {
+								daNote.active = false;
+								daNote.visible = false;
+			
+								daNote.kill();
+								notes.remove(daNote, true);
+								daNote.destroy();
 							}
 						
 						daNote.active = false;
@@ -4663,18 +4690,16 @@ case 'stageZoomOut1':
 					trace('LOADING NEXT SONG');
 					trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
 
-					if (FileSystem.exists(Paths.videojson(PlayState.SONG.song.toLowerCase()  + "/video"))) {
-						trace("VIDEO JSON FOUND, EPIC MOMENT INCOMING!!11!1!");
-						videoJson = Json.parse(openfl.utils.Assets.getText(Paths.videojson(PlayState.SONG.song.toLowerCase()  + "/video")));
-						if (postPlayed)
-						{
-							trace("A video has been detected, but postplay is enabled and it has been postplayed!");
-						}
-						else
-						{
-							playVideo(videoJson.videoPath);
-						}
+					var videoCutsceneJson:String = "";
+
+					if(FileSystem.exists("assets/data/" + PlayState.SONG.song.toLowerCase() + "/video.txt"))
+					{
+						trace("A video txt file has been found, the cutscene will begin");
+						var videoJsonContent:String;
+						videoJsonContent = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/video.txt");
+						playVideo(videoJsonContent);
 					}
+
 					trace(Paths.videojson(PlayState.SONG.song.toLowerCase()  + "/video"));
 
 					/*switch(curSong.toLowerCase()) //just in case you want to hard code it, uncomment-it then change bopeebo with the name of your song
@@ -5178,33 +5203,75 @@ case 'stageZoomOut1':
 		var n7R = controls.N7_R;
 		var n8R = controls.N8_R;
 
-		if (cpuControlled) // botplay code
-			{
-				// disable input
-				up = false;
-				down = false;
-				right = false;
-				left = false;
-				
-				if (repPresses < rep.replay.keyPresses.length && repReleases < rep.replay.keyReleases.length)
-				{
-					upP = rep.replay.keyPresses[repPresses].time + 1 <= Conductor.songPosition  && rep.replay.keyPresses[repPresses].key == "up";
-					rightP = rep.replay.keyPresses[repPresses].time + 1 <= Conductor.songPosition && rep.replay.keyPresses[repPresses].key == "right";
-					downP = rep.replay.keyPresses[repPresses].time + 1 <= Conductor.songPosition && rep.replay.keyPresses[repPresses].key == "down";
-					leftP = rep.replay.keyPresses[repPresses].time + 1 <= Conductor.songPosition  && rep.replay.keyPresses[repPresses].key == "left";	
+		if (cpuControlled)
+		{
+			up = false; //UP;
+			right = false; //RIGHT;
+			down = false; //DOWN;
+			left = false; //LEFT;
 	
-					upR = rep.replay.keyPresses[repReleases].time - 1 <= Conductor.songPosition && rep.replay.keyReleases[repReleases].key == "up";
-					rightR = rep.replay.keyPresses[repReleases].time - 1 <= Conductor.songPosition  && rep.replay.keyReleases[repReleases].key == "right";
-					downR = rep.replay.keyPresses[repReleases].time - 1<= Conductor.songPosition && rep.replay.keyReleases[repReleases].key == "down";
-					leftR = rep.replay.keyPresses[repReleases].time - 1<= Conductor.songPosition && rep.replay.keyReleases[repReleases].key == "left";
+			upP = false; //UP_P;
+			rightP = false; //RIGHT_P;
+			downP = false; //DOWN_P;
+			leftP = false; //LEFT_P;
 	
-					upHold = upP ? true : upR ? false : true;
-					rightHold = rightP ? true : rightR ? false : true;
-					downHold = downP ? true : downR ? false : true;
-					leftHold = leftP ? true : leftR ? false : true;
-				}
-			}
-
+			upR = false; //UP_R;
+			rightR = false; //RIGHT_R;
+			downR = false; //DOWN_R;
+			leftR = false; //LEFT_R;
+	
+			l1 = false; //L1;
+			u = false; //U1;
+			r1 = false; //R1;
+			l2 = false; //L2;
+			d = false; //D1;
+			r2 = false; //R2;
+	
+			l1P = false; //L1_P;
+			uP = false; //U1_P;
+			r1P = false; //R1_P;
+			l2P = false; //L2_P;
+			dP = false; //D1_P;
+			r2P = false; //R2_P;
+	
+			l1R = false; //L1_R;
+			uR = false; //U1_R;
+			r1R = false; //R1_R;
+			l2R = false; //L2_R;
+			dR = false; //D1_R;
+			r2R = false; //R2_R;
+	
+	
+			n0 = false; //N0;
+			n1 = false; //N1;
+			n2 = false; //N2;
+			n3 = false; //N3;
+			n4 = false; //N4;
+			n5 = false; //N5;
+			n6 = false; //N6;
+			n7 = false; //N7;
+			n8 = false; //N8;
+	
+			n0P = false; //N0_P;
+			n1P = false; //N1_P;
+			n2P = false; //N2_P;
+			n3P = false; //N3_P;
+			n4P = false; //N4_P;
+			n5P = false; //N5_P;
+			n6P = false; //N6_P;
+			n7P = false; //N7_P;
+			n8P = false; //N8_P;
+	
+			n0R = false; //N0_R;
+			n1R = false; //N1_R;
+			n2R = false; //N2_R;
+			n3R = false; //N3_R;
+			n4R = false; //N4_R;
+			n5R = false; //N5_R;
+			n6R = false; //N6_R;
+			n7R = false; //N7_R;
+			n8R = false; //N8_R;
+		}
 		if (loadRep) // replay code
 		{
 			// disable input
@@ -6838,5 +6905,4 @@ class StageAsset extends FlxSprite{
 typedef VideoJsonPath =
 {
 	var videoPath:String;
-	var postPlay:Bool;
 }
