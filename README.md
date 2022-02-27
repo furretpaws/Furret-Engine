@@ -30,7 +30,7 @@ Features:
 
 	Custom characters (without coding, based on FNF Modding +)
 	
-	MP4 Cutscenes (only works with code)
+	MP4 Cutscenes
 
 Credits:
 
