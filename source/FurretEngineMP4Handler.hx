@@ -50,22 +50,10 @@ class FurretEngineMP4Handler extends MusicBeatState
 			}
 			video.playVideo(Paths.video(PlayState.playstateVideoPath));
 		}
-		else if(PlayState.videoNotFound)
-		{
-			add(txt);
-		}
 	}
 
 	override function update(elapsed:Float)
 		{
-			if (PlayState.videoNotFound)
-			{
-				if (controls.ACCEPT)
-				{
-					FlxG.switchState(new PlayState());
-					trace("fuck it");
-				}
-				super.update(elapsed);
-			}
+			
 		}
     }	
