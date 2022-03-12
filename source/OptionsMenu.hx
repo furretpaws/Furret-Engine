@@ -1,4 +1,4 @@
-	package;
+package;
 
 import openfl.Lib;
 import Options;
@@ -13,83 +13,50 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.utils.Assets;
+import flixel.FlxG;
+import flixel.FlxObject;
+import flixel.util.FlxTimer;
 
 class OptionsMenu extends MusicBeatState
 {
-	public static var instance:OptionsMenu;
-	
 	var selector:FlxText;
 	var curSelected:Int = 0;
 
 	var options:Array<OptionCatagory> = [
-		new OptionCatagory("Gameplay", [
-			#if desktop
-			new DFJKOption(controls),
-			#else
-			new MobileControlsOption("Change your mobile controls!"),
-			#end
-			new NewInputOption("Swaps the input system"),
-			new ResetKey("Press R to reset the sound"),
-			new Judgement("Customize your Hit Timings (LEFT or RIGHT)"),
-			new BotplayOption("The game will play the song automatically."),
-			#if desktop
-			new FPSCapOption("Cap your FPS (Left for -10, Right for +10. SHIFT to go faster)"),
-			#end
-			new ScrollSpeedOption("Change your scroll speed (Left for -0.1, right for +0.1. If its at 1, it will be chart dependent)"),
-			new AccuracyDOption("Change how accuracy is calculated. (Accurate = Simple, Complex = Milisecond Based, Binary = Either Hit or Miss)"),
-			// new OffsetMenu("Get a note offset based off of your inputs!"),
-			new CustomizeGameplay("Drag'n'Drop Gameplay Modules around to your preference"),
-			new Credits("no need to explain")
+		new OptionCatagory("Preferences", [
+			new DownscrollOption(),
+			new MiddlescrollOption(),
+			new HitsoundsOption(),
+			new NewInputOption(),
+			new JudgementOption(),
+			new BotOption(),
+			new FramerateOption(),
+			new FPSOption(),
+			new FullscreenOption(),
+			new NoteSplashOption()
 		]),
-		new OptionCatagory("Appearence", [
-			new SongPositionOption("Show the songs current position (as a bar)"),
-			new JudgementOption("Shows all the sicks, goods, bads, shits you made in a song"),
-			new DownscrollOption("Change the layout of the strumline."),
-			#if windows
-			new MiddlescrollOption("Move the strums to the middle (osu!mania style)"),
-			#end
-			#if desktop
-			new RainbowFPSOption("Make the FPS Counter Rainbow (Only works with the FPS Counter toggled on)"),
-			new LightCpuStrumsOption("CPU's strumline lights up when a note hits it."),
-			#end
-			new AccuracyOption("Display accuracy information."),
-			new NPSDisplayOption("Shows your current Notes Per Second.")
-		]),
-		
-		new OptionCatagory("Misc", [
-			#if desktop
-			new FPSOption("Toggle the FPS Counter"),
-			new ReplayOption("View replays"),
-			#end
-			new WatermarkOption("Turn off all watermarks from the engine."),
-			new FurretToFnfOption("Change all Furret Engine watermarks to FNF watermarks."),
-			new HideHudOption("If checked, hides most of the hud elements"),
-			new HideNoteHitTimeOption("If checked, hides the note hit time")
-		]),
-		new OptionCatagory("Extra", [
-			new HitsoundOption("Play a hit sound when you press a note"),
-			new ChangeScoreColors("Change the score text based on your health"),
-			new NoteSplashOption("The arrow will show a splash effect every time you get a sick")
-		])
-		
+		new OptionCatagory("Controls",[]),
+		new OptionCatagory("Exit",[]),
+		new OptionCatagory("Customize Gameplay",[]),
 	];
-
-	public var acceptInput:Bool = true;
-
-	private var currentDescription:String = "";
+	
 	private var grpControls:FlxTypedGroup<Alphabet>;
-	public static var versionShit:FlxText;
+	
+	private var checkBoxesArray:Array<CheckboxThingie> = [];
 
 	var currentSelectedCat:OptionCatagory;
 
+	var camFollow:FlxObject;
+
 	override function create()
 	{
-		instance = this;
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.image("menuDesat"));
 
 		menuBG.color = 0xFFea71fd;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();
+		menuBG.scrollFactor.x = 0;
+        menuBG.scrollFactor.y = 0.18;
 		menuBG.screenCenter();
 		menuBG.antialiasing = true;
 		add(menuBG);
@@ -97,30 +64,31 @@ class OptionsMenu extends MusicBeatState
 		grpControls = new FlxTypedGroup<Alphabet>();
 		add(grpControls);
 
+		camFollow = new FlxObject(0, 0, 1, 1);
+		camFollow.screenCenter(X);
+		add(camFollow);
+
+		
+
 		for (i in 0...options.length)
 		{
-			var controlLabel:Alphabet = new Alphabet(0, (70 * i) + 30, options[i].getName(), true, false);
-			controlLabel.isMenuItem = true;
-			controlLabel.targetY = i;
+			var controlLabel:Alphabet = new Alphabet(0, (100 * i) + 105, options[i].getName(), true, false);
 			grpControls.add(controlLabel);
+
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 		}
 
-		currentDescription = "none";
+		FlxG.camera.follow(camFollow, null, 0.06);
 
-		versionShit = new FlxText(5, FlxG.height - 18, 0, "Offset (Left, Right): " + FlxG.save.data.offset + " - Description - " + currentDescription, 12);
-		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		add(versionShit);
-
-		#if mobileC
-		addVirtualPad(UP_DOWN, A_B);
-		#end
+		changeSelection(0);
+		
 
 		super.create();
 	}
 
 	var isCat:Bool = false;
+
+	
 	
 	public static function truncateFloat( number : Float, precision : Int): Float {
 		var num = number;
@@ -133,25 +101,53 @@ class OptionsMenu extends MusicBeatState
 	{
 		super.update(elapsed);
 
+		FlxG.camera.followLerp = CoolUtil.camLerpShit(0.06);
+
+		if(!isCat)
+		{
+			grpControls.forEach(function(controlLabel:Alphabet)
+			{
+				controlLabel.screenCenter(X);
+			
+			});
+		}
+		else
+		{
+			grpControls.forEach(function(controlLabel:Alphabet)
+			{
+				controlLabel.x = 120;
+			});
+		}
+
 			if (controls.BACK && !isCat)
 				FlxG.switchState(new MainMenuState());
 			else if (controls.BACK)
 			{
 				isCat = false;
 				grpControls.clear();
+				for (i in 0 ... checkBoxesArray.length) 
+				{
+			        
+					remove(checkBoxesArray[i]);
+					checkBoxesArray[i].destroy();
+					
+				    
+				}
+				
+				checkBoxesArray = [];
+
 				for (i in 0...options.length)
 					{
-						var controlLabel:Alphabet = new Alphabet(0, (70 * i) + 30, options[i].getName(), true, false);
-						controlLabel.isMenuItem = true;
-						controlLabel.targetY = i;
+						var controlLabel:Alphabet = new Alphabet(0, (100 * i) + 105, options[i].getName(), true, false);
 						grpControls.add(controlLabel);
 						// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 					}
 				curSelected = 0;
+				changeSelection(0);
 			}
-			if (controls.UP_P)
+			if (FlxG.keys.justPressed.UP)
 				changeSelection(-1);
-			if (controls.DOWN_P)
+			if (FlxG.keys.justPressed.DOWN)
 				changeSelection(1);
 			
 			if (isCat)
@@ -173,70 +169,87 @@ class OptionsMenu extends MusicBeatState
 							currentSelectedCat.getOptions()[curSelected].left();
 					}
 				}
-				else
-				{
-
-					if (FlxG.keys.pressed.SHIFT)
-					{
-						if (FlxG.keys.justPressed.RIGHT)
-							FlxG.save.data.offset += 0.1;
-						else if (FlxG.keys.justPressed.LEFT)
-							FlxG.save.data.offset -= 0.1;
-					}
-					else if (FlxG.keys.pressed.RIGHT)
-						FlxG.save.data.offset += 0.1;
-					else if (FlxG.keys.pressed.LEFT)
-						FlxG.save.data.offset -= 0.1;
-					
-					versionShit.text = "Offset (Left, Right, Shift for slow): " + truncateFloat(FlxG.save.data.offset,2) + " - Description - " + currentDescription;
-				}
-			}
-			else
-			{
-				if (FlxG.keys.pressed.SHIFT)
-					{
-						if (FlxG.keys.justPressed.RIGHT)
-							FlxG.save.data.offset += 0.1;
-						else if (FlxG.keys.justPressed.LEFT)
-							FlxG.save.data.offset -= 0.1;
-					}
-					else if (FlxG.keys.pressed.RIGHT)
-						FlxG.save.data.offset += 0.1;
-					else if (FlxG.keys.pressed.LEFT)
-						FlxG.save.data.offset -= 0.1;
 				
-				versionShit.text = "Offset (Left, Right, Shift for slow): " + truncateFloat(FlxG.save.data.offset,2) + " - Description - " + currentDescription;
 			}
+			
 		
 
-			if (controls.RESET)
-					FlxG.save.data.offset = 0;
+			
 
 			if (controls.ACCEPT)
 			{
+				
 				if (isCat)
 				{
-					if (currentSelectedCat.getOptions()[curSelected].press()) {
+					if (currentSelectedCat.getOptions()[curSelected].press(true))
+					{
 						grpControls.remove(grpControls.members[curSelected]);
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, currentSelectedCat.getOptions()[curSelected].getDisplay(), true, false);
-						ctrl.isMenuItem = true;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, currentSelectedCat.getOptions()[curSelected].getDisplay(), currentSelectedCat.getOptions()[curSelected].boldDisplay, false);
 						grpControls.add(ctrl);
+						ctrl.isMenuItem = true;
+						checkBoxesArray[curSelected].sprTracker = grpControls.members[curSelected];
+						checkBoxesArray[curSelected].set_daValue(currentSelectedCat.getOptions()[curSelected].getAccept());
+						//updateCheckboxes();
 					}
 				}
 				else
 				{
-					currentSelectedCat = options[curSelected];
-					isCat = true;
-					grpControls.clear();
-					for (i in 0...currentSelectedCat.getOptions().length)
+					
+                        if(options[curSelected].getName() == "Controls")
 						{
-							var controlLabel:Alphabet = new Alphabet(0, (70 * i) + 30, currentSelectedCat.getOptions()[i].getDisplay(), true, false);
-							controlLabel.isMenuItem = true;
-							controlLabel.targetY = i;
-							grpControls.add(controlLabel);
-							// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
+							FlxG.switchState(new BindMenu());
 						}
-					curSelected = 0;
+						else if(options[curSelected].getName() == "Exit")
+						{
+							FlxG.switchState(new MainMenuState());
+						}
+						else if(options[curSelected].getName() == "Customize Gameplay")
+						{
+							FlxG.switchState(new GameplayCustomizeState());
+						}
+						else
+						{
+							currentSelectedCat = options[curSelected];
+							isCat = true;
+							grpControls.clear();
+							for (i in 0...currentSelectedCat.getOptions().length)
+								{
+									var controlLabel:Alphabet = new Alphabet(0, (70 * i) + 30, currentSelectedCat.getOptions()[i].getDisplay(), currentSelectedCat.getOptions()[i].boldDisplay, false);
+									controlLabel.isMenuItem = true;
+									controlLabel.targetY = i;
+									grpControls.add(controlLabel);
+									// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
+									/*var checkbox:CheckboxThingie = new CheckboxThingie(0, (70 * i) + 30, currentSelectedCat.getOptions()[i].getAccept());
+									checkbox.sprTracker = controlLabel;
+									// using a FlxGroup is too much fuss!
+									checkBoxesArray.push(checkbox);
+									add(checkbox);*/
+								}
+							curSelected = 0;
+							updateCheckboxes();
+						}
+                    
+					
+					
+				}
+			}
+			else if(FlxG.keys.justPressed.LEFT && isCat)
+			{
+				if(currentSelectedCat.getOptions()[curSelected].left())
+				{
+					grpControls.remove(grpControls.members[curSelected]);
+					var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, currentSelectedCat.getOptions()[curSelected].getDisplay(), currentSelectedCat.getOptions()[curSelected].boldDisplay, false);
+					grpControls.add(ctrl);
+					ctrl.isMenuItem = true;
+				}
+			}else if (FlxG.keys.justPressed.RIGHT && isCat)
+			{
+				if(currentSelectedCat.getOptions()[curSelected].right())
+				{
+					grpControls.remove(grpControls.members[curSelected]);
+					var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, currentSelectedCat.getOptions()[curSelected].getDisplay(), currentSelectedCat.getOptions()[curSelected].boldDisplay, false);
+					grpControls.add(ctrl);
+					ctrl.isMenuItem = true;
 				}
 			}
 		FlxG.save.flush();
@@ -244,13 +257,34 @@ class OptionsMenu extends MusicBeatState
 
 	var isSettingControl:Bool = false;
 
+	function updateCheckboxes()
+	{
+		for (i in 0 ... checkBoxesArray.length)
+		{
+			checkBoxesArray[i].destroy();
+			remove(checkBoxesArray[i]);
+		}
+		checkBoxesArray = [];
+		for (i in 0...currentSelectedCat.getOptions().length)
+		{
+			currentSelectedCat.getOptions()[i].press(false);
+			var checkbox:CheckboxThingie = new CheckboxThingie(0, (70 * i) + 30, currentSelectedCat.getOptions()[i].getAccept());
+			checkbox.sprTracker = grpControls.members[i];
+			// using a FlxGroup is too much fuss!
+			checkBoxesArray.push(checkbox);
+			if(!currentSelectedCat.getOptions()[i].withoutCheckboxes)
+				add(checkbox);
+			
+		}
+	}
+
 	function changeSelection(change:Int = 0)
 	{
 		#if !switch
 		// NGio.logEvent("Fresh");
 		#end
 		
-		FlxG.sound.play(Paths.sound("scrollMenu"), 0.4);
+		FlxG.sound.play(Paths.sound("scrollMenu"), 0.4, false);
 
 		curSelected += change;
 
@@ -259,11 +293,9 @@ class OptionsMenu extends MusicBeatState
 		if (curSelected >= grpControls.length)
 			curSelected = 0;
 
-		if (isCat)
-			currentDescription = currentSelectedCat.getOptions()[curSelected].getDescription();
-		else
-			currentDescription = "Please select a catagory";
-		versionShit.text = "Offset (Left, Right, Shift for slow): " + truncateFloat(FlxG.save.data.offset,2) + " - Description - " + currentDescription;
+		camFollow.screenCenter();
+
+		
 
 		// selector.y = (70 * curSelected) + 30;
 
@@ -282,6 +314,9 @@ class OptionsMenu extends MusicBeatState
 				item.alpha = 1;
 				// item.setGraphicSize(Std.int(item.width));
 			}
+			
 		}
+
+		
 	}
 }

@@ -755,6 +755,7 @@ class Controls extends FlxActionSet
 	#else
 	public function new(name, scheme:KeyboardScheme = null)
 	{
+		loadKeyBinds();
 		super(name);
 
 		add(_up);
@@ -1180,7 +1181,8 @@ class Controls extends FlxActionSet
 
 	public function setKeyboardScheme(scheme:KeyboardScheme, reset = true,buttons:String="wasd")
 		{
-			if (reset)
+			loadKeyBinds();
+			/*if (reset)
 				removeKeyboard();
 	
 			keyboardScheme = scheme;
@@ -1314,6 +1316,43 @@ class Controls extends FlxActionSet
 			case Custom: // nothing
 		}
 		#end
+		*/
+	}
+
+	public function loadKeyBinds()
+	{
+
+		//trace(FlxKey.fromString(FlxG.save.data.upBind));
+
+		removeKeyboard();
+	
+		inline bindKeys(Control.UP, [FlxKey.fromString(FlxG.save.data.upBind), FlxKey.UP]);
+		inline bindKeys(Control.DOWN, [FlxKey.fromString(FlxG.save.data.downBind), FlxKey.DOWN]);
+		inline bindKeys(Control.LEFT, [FlxKey.fromString(FlxG.save.data.leftBind), FlxKey.LEFT]);
+		inline bindKeys(Control.RIGHT, [FlxKey.fromString(FlxG.save.data.rightBind), FlxKey.RIGHT]);
+
+		inline bindKeys(Control.L1, [FlxKey.fromString(FlxG.save.data.mania6LeftBind)]);
+		inline bindKeys(Control.U1, [FlxKey.fromString(FlxG.save.data.mania6UpBind)]);
+		inline bindKeys(Control.R1, [FlxKey.fromString(FlxG.save.data.mania6RightBind)]);
+		inline bindKeys(Control.N4, [FlxKey.fromString(FlxG.save.data.maniaCenterBind)]);
+		inline bindKeys(Control.L2, [FlxKey.fromString(FlxG.save.data.mania6Left2Bind)]);
+		inline bindKeys(Control.D1, [FlxKey.fromString(FlxG.save.data.mania6DownBind)]);
+		inline bindKeys(Control.R2, [FlxKey.fromString(FlxG.save.data.mania6Right2Bind)]);
+
+		inline bindKeys(Control.N0, [FlxKey.fromString(FlxG.save.data.mania8LeftBind)]);
+		inline bindKeys(Control.N1, [FlxKey.fromString(FlxG.save.data.mania8DownBind)]);
+		inline bindKeys(Control.N2, [FlxKey.fromString(FlxG.save.data.mania8UpBind)]);
+		inline bindKeys(Control.N3, [FlxKey.fromString(FlxG.save.data.mania8RightBind)]);
+		inline bindKeys(Control.N4, [FlxKey.fromString(FlxG.save.data.maniaCenterBind)]);
+		inline bindKeys(Control.N5, [FlxKey.fromString(FlxG.save.data.mania8Left2Bind)]);
+		inline bindKeys(Control.N6, [FlxKey.fromString(FlxG.save.data.mania8Down2Bind)]);
+		inline bindKeys(Control.N7, [FlxKey.fromString(FlxG.save.data.mania8Up2Bind)]);
+		inline bindKeys(Control.N8, [FlxKey.fromString(FlxG.save.data.mania8Right2Bind)]);
+
+		inline bindKeys(Control.ACCEPT, [Z, SPACE, ENTER]);
+		inline bindKeys(Control.BACK, [BACKSPACE, ESCAPE]);
+		inline bindKeys(Control.PAUSE, [P, ENTER, ESCAPE]);
+		inline bindKeys(Control.RESET, [R]);
 	}
 
 	function removeKeyboard()

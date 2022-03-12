@@ -42,7 +42,7 @@ class MainMenuState extends MusicBeatState
 	public static var nightly:String = "";
 
 	public static var kadeEngineVer:String = "0.1" + nightly;
-	public static var furretEngineVer:String = "1.1.4" + nightly;
+	public static var furretEngineVer:String = "1.2" + nightly;
 	public static var gameVer:String = "0.2.7.1";
 
 	var magenta:FlxSprite;
@@ -105,25 +105,15 @@ class MainMenuState extends MusicBeatState
 			menuItem.antialiasing = true;
 		}
 
-		FlxG.camera.follow(camFollow, null, 0.60 * (60 / FlxG.save.data.fpsCap));
+		FlxG.camera.follow(camFollow, null, 0.06);
+		FlxG.camera.followLerp = CoolUtil.camLerpShit(0.06);
 
 		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, (Main.watermarks ? "Furret Engine " + furretEngineVer + " ->" + " " :"") + gameVer + " FNF", 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
-		var basedOnFusion:FlxText = new FlxText(5, FlxG.height - 36, 0, (Main.watermarks ? "Forked from Fusion Engine | Powered by KE 1.4.2" + " " : ""));
-		basedOnFusion.scrollFactor.set();
-		basedOnFusion.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		add(basedOnFusion);
-
-		// NG.core.calls.event.logEvent('swag').send();
-
-		
-
-			controls.setKeyboardScheme(KeyboardScheme.Solo, true,rotation[FlxG.save.data.controls]);
-
-
+		PlayerSettings.player1.controls.loadKeyBinds();
 
 		changeItem();
 

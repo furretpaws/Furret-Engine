@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="checkBoxThingie.png">
+	<!-- Created with Adobe Animate version 20.0.3.25487 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="checked0000" x="1" y="1" width="152" height="194"/>
+	<SubTexture name="checked0001" x="1" y="196" width="152" height="194"/>
+	<SubTexture name="checked0002" x="154" y="1" width="152" height="194"/>
+	<SubTexture name="checked0003" x="307" y="1" width="152" height="194"/>
+	<SubTexture name="checked0004" x="154" y="196" width="152" height="194"/>
+	<SubTexture name="checked0005" x="154" y="196" width="152" height="194"/>
+	<SubTexture name="checked0006" x="307" y="196" width="152" height="194"/>
+	<SubTexture name="checked0007" x="307" y="196" width="152" height="194"/>
+	<SubTexture name="checked0008" x="154" y="196" width="152" height="194"/>
+	<SubTexture name="static0000" x="1" y="391" width="116" height="116"/>
+</TextureAtlas>

@@ -70,9 +70,6 @@ import Sys;
 import sys.io.File;
 import sys.FileSystem;
 #end
-import Sys;
-import sys.io.File;
-import sys.FileSystem;
 #if neko
 import Sys;
 import sys.io.File;
@@ -131,6 +128,8 @@ class PlayState extends MusicBeatState
 
 	var songLength:Float = 0;
 	var kadeEngineWatermark:FlxText;
+
+	var scoreBG:FlxSprite;
 	
 	#if windows
 	// Discord RPC variables
@@ -226,6 +225,9 @@ class PlayState extends MusicBeatState
 
 	var talking:Bool = true;
 	var songScore:Int = 0;
+	var runningOnFE:FlxText;
+	var nameOfTheSong:FlxText;
+	var difficultySong:FlxText;
 	var judgementTextTxt:FlxText;
 	var missesTxt:FlxText;
 	var sicksTxt:FlxText;
@@ -2113,6 +2115,18 @@ case 'stageZoomOut1':
 		// healthBar
 		add(healthBar);
 
+		runningOnFE = new FlxText(0, FlxG.height/2-360, 0, "", 20);
+		runningOnFE.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
+		runningOnFE.scrollFactor.set();
+
+		nameOfTheSong = new FlxText(0, FlxG.height/2-340, 0, "", 20);
+		nameOfTheSong.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
+		nameOfTheSong.scrollFactor.set();
+
+		difficultySong = new FlxText(0, FlxG.height/2-320, 0, "", 20);
+		difficultySong.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
+		difficultySong.scrollFactor.set();
+
 		judgementTextTxt = new FlxText(0, FlxG.height/2-60, 0, "", 20);
 		judgementTextTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		judgementTextTxt.scrollFactor.set();
@@ -2136,6 +2150,13 @@ case 'stageZoomOut1':
 		missesTxt = new FlxText(0, FlxG.height/2+40, 0, "", 20);
 		missesTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		missesTxt.scrollFactor.set();
+
+		runningOnFE.text = "Furret Engine " + MainMenuState.furretEngineVer #if debug + " | [!] Running in debug mode!"#end;
+		runningOnFE.cameras = [camHUD];
+		nameOfTheSong.text = "Song: " + curSong;
+		nameOfTheSong.cameras = [camHUD];
+		difficultySong.text = "Difficulty: " + (storyDifficulty == 2 ? "Hard" : storyDifficulty == 1 ? "Normal" : "Easy");
+		difficultySong.cameras = [camHUD];
 
 		judgementTextTxt.text = (Main.judgement ? "Judgement " + " " : "");
 		missesTxt.text = (Main.judgement ? "Miss: " + misses + " " : "");
@@ -2162,6 +2183,9 @@ case 'stageZoomOut1':
 		}
 		else
 		{
+			add(runningOnFE);
+			add(nameOfTheSong);
+			add(difficultySong);
 			add(judgementTextTxt);
 			add(missesTxt);
 			add(sicksTxt);
@@ -2181,16 +2205,15 @@ case 'stageZoomOut1':
 		if (FlxG.save.data.hidehud)
 		{
 			trace("Hide hud option is enabled! Hud won't show");
-			add(kadeEngineWatermark);
-			kadeEngineWatermark.visible = false;
 		}
 		else
 		{
-			add(kadeEngineWatermark);
+
 		}
 
 		if (FlxG.save.data.downscroll)
 			kadeEngineWatermark.y = FlxG.height * 0.9 + 45;
+
 
 		scoreTxt = new FlxText(FlxG.width / 2 - 235, healthBarBG.y + 50, 0, "", 20);
 		if (!FlxG.save.data.accuracyDisplay)
@@ -2199,6 +2222,9 @@ case 'stageZoomOut1':
 		scoreTxt.scrollFactor.set();
 		if (offsetTesting)
 			scoreTxt.x += 300;
+
+		scoreBG = new FlxSprite(scoreTxt.x - 10, scoreTxt.y).makeGraphic(Std.int(FlxG.width * 0.38), 18, 0xFF000000);
+		scoreBG.alpha = 0.6;
 		if (FlxG.save.data.hidehud)
 		{
 			trace("Hide hud option is enabled! Hud won't show");
@@ -2247,6 +2273,7 @@ case 'stageZoomOut1':
 		scoreTxt.cameras = [camHUD];
 		botplayTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
+		scoreBG.cameras = [camHUD];
 		if (FlxG.save.data.songPosition)
 		{
 			songPosBG.cameras = [camHUD];
@@ -3004,7 +3031,7 @@ case 'stageZoomOut1':
 		{
 			dad.dance();
 			gf.dance();
-			boyfriend.playAnim('idle');
+			boyfriend.playAnim('idle', true);
 
 			var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
 			introAssets.set('normal', ['ready.png', "set.png", "go.png"]);
@@ -3130,6 +3157,39 @@ case 'stageZoomOut1':
 			// generateSong('fresh');
 		}, 5);
 	}
+
+	public function clearNotesBefore(time:Float)
+		{
+			var i:Int = unspawnNotes.length - 1;
+			while (i >= 0) {
+				var daNote:Note = unspawnNotes[i];
+				if(daNote.strumTime - 500 < time)
+				{
+					daNote.active = false;
+					daNote.visible = false;
+	
+					daNote.kill();
+					unspawnNotes.remove(daNote);
+					daNote.destroy();
+				}
+				--i;
+			}
+	
+			i = notes.length - 1;
+			while (i >= 0) {
+				var daNote:Note = notes.members[i];
+				if(daNote.strumTime - 500 < time)
+				{
+					daNote.active = false;
+					daNote.visible = false;
+	
+					daNote.kill();
+					notes.remove(daNote, true);
+					daNote.destroy();
+				}
+				--i;
+			}
+		}
 
 	var previousFrameTime:Int = 0;
 	var lastReportedPlayheadPosition:Int = 0;
@@ -3740,6 +3800,11 @@ case 'stageZoomOut1':
 			}
 		}
 
+		if (songScore > 1)
+		{
+			scoreBG.height = 92;
+		}
+
 		if(Character.is3d)
 		{
 			dad.y += (Math.sin(elapsedtime) * 0.6);
@@ -3928,10 +3993,12 @@ case 'stageZoomOut1':
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
 
-		iconP1.setGraphicSize(Std.int(FlxMath.lerp(150, iconP1.width, 0.50)));
-		iconP2.setGraphicSize(Std.int(FlxMath.lerp(150, iconP2.width, 0.50)));
-
+		var mult:Float = FlxMath.lerp(1, iconP1.scale.x, CoolUtil.boundTo(1 - (elapsed * 9), 0, 1));
+		iconP1.scale.set(mult, mult);
 		iconP1.updateHitbox();
+
+		var mult:Float = FlxMath.lerp(1, iconP2.scale.x, CoolUtil.boundTo(1 - (elapsed * 9), 0, 1));
+		iconP2.scale.set(mult, mult);
 		iconP2.updateHitbox();
 
 		var iconOffset:Int = 26;
@@ -4209,6 +4276,20 @@ case 'stageZoomOut1':
 				// FlxG.watch.addQuick('Queued',inputsQueued);
 			}
 
+		if (unspawnNotes[0] != null)
+			{
+				var time:Float = 3000;//shit be werid on 4:3
+	
+				while (unspawnNotes.length > 0 && unspawnNotes[0].strumTime - Conductor.songPosition < time)
+				{
+					var dunceNote:Note = unspawnNotes[0];
+					notes.insert(0, dunceNote);
+	
+					var index:Int = unspawnNotes.indexOf(dunceNote);
+					unspawnNotes.splice(index, 1);
+				}
+			}
+
 		if (curSong == 'Fresh')
 		{
 			switch (curBeat)
@@ -4239,7 +4320,7 @@ case 'stageZoomOut1':
 			}
 		}
 
-		if (health <= 0)
+		if (!cpuControlled && health <= 0)
 		{
 			boyfriend.stunned = true;
 
@@ -4521,9 +4602,6 @@ case 'stageZoomOut1':
 
 					if(cpuControlled) {
 						boyfriend.holdTimer = 0;
-					}
-					
-					if(cpuControlled) {
 						var targetHold:Float = Conductor.stepCrochet * 0.001 * 4;
 						if(boyfriend.holdTimer + 0.2 > targetHold) {
 							boyfriend.holdTimer = targetHold - 0.2;
@@ -4753,6 +4831,19 @@ case 'stageZoomOut1':
 
 	var timeShown = 0;
 	var currentTimingShown:FlxText = null;
+
+	public function KillNotes() {
+		while(notes.length > 0) {
+			var daNote:Note = notes.members[0];
+			daNote.active = false;
+			daNote.visible = false;
+
+			daNote.kill();
+			notes.remove(daNote, true);
+			daNote.destroy();
+		}
+		unspawnNotes = [];
+	}
 
 	private function popUpScore(daNote:Note):Void
 		{
@@ -5723,7 +5814,6 @@ case 'stageZoomOut1':
 								if (upP && spr.animation.curAnim.name != 'confirm')
 								{
 									spr.animation.play('pressed');
-									trace('play');
 								}
 								if (upR)
 								{
@@ -6379,7 +6469,6 @@ case 'stageZoomOut1':
 						}
 					}
 					else{
-						trace("damn note go SHEEEEEESH");
 						totalNotesHit += 1;
 					}
 					
@@ -6826,8 +6915,31 @@ case 'stageZoomOut1':
 					dad.playAnim('cheer', true);
 				}
 			}
-			
 
+		var funny:Float = (healthBar.percent * 0.01) + 0.01;
+
+		if (curBeat % gfSpeed == 0)
+		{
+			curBeat % (gfSpeed * 2) == 0 ? {
+				iconP1.scale.set(1.1, 0.8);
+				iconP2.scale.set(1.1, 1.3);
+	
+				FlxTween.angle(iconP1, -15, 0, Conductor.crochet / 1300 * gfSpeed, {ease: FlxEase.quadOut});
+				FlxTween.angle(iconP2, 15, 0, Conductor.crochet / 1300 * gfSpeed, {ease: FlxEase.quadOut});
+			} : {
+				iconP1.scale.set(1.1, 1.3);
+				iconP2.scale.set(1.1, 0.8);
+	
+				FlxTween.angle(iconP2, -15, 0, Conductor.crochet / 1300 * gfSpeed, {ease: FlxEase.quadOut});
+				FlxTween.angle(iconP1, 15, 0, Conductor.crochet / 1300 * gfSpeed, {ease: FlxEase.quadOut});
+				}
+	
+			FlxTween.tween(iconP1, {'scale.x': 1, 'scale.y': 1}, Conductor.crochet / 1250 * gfSpeed, {ease: FlxEase.quadOut});
+			FlxTween.tween(iconP2, {'scale.x': 1, 'scale.y': 1}, Conductor.crochet / 1250 * gfSpeed, {ease: FlxEase.quadOut});
+	
+			iconP1.updateHitbox();
+			iconP2.updateHitbox();
+		}
 
 		switch (curStage)
 		{

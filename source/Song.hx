@@ -187,6 +187,7 @@ class Song
 					daSections = songData.sections;
 					daBpm = songData.bpm;
 					daSectionLengths = songData.sectionLengths; */
+			#if !(js)
 			if (jsonInput != folder)
 			{
 				// means this isn't normal difficulty
@@ -197,6 +198,7 @@ class Song
 				parsedJson.needsVoices = realJson.needsVoices;
 				parsedJson.speed = realJson.speed;
 			}
+			#end
 			return parsedJson;
 		}
 	
