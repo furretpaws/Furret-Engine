@@ -20,8 +20,6 @@ Features:
 		
 	Extra keys
 
-	Lua modcharts
-
 	Note splashes
 
   	Lua modcharts
