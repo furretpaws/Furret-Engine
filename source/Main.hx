@@ -46,7 +46,7 @@ class Main extends Sprite
 	public static var dataJump:Array<Int> = [8, 12, 18];
 
 	#if android
-	public static var path = lime.system.System.applicationStorageDirectory; // path to storage folder
+	public static var path = System.applicationStorageDirectory; // path to storage folder
 	#end
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
@@ -64,8 +64,7 @@ class Main extends Sprite
 		super();
 
 		#if android
-		Sys.setCwd(lime.system.System.applicationStorageDirectory);
-		trace(lime.system.System.applicationStorageDirectory);
+		AndroidChecker.gameCrashCheck();
 		#end
 
 		if (stage != null)
@@ -101,6 +100,10 @@ class Main extends Sprite
 			gameWidth = Math.ceil(stageWidth / zoom);
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
+
+		#if android
+		AndroidChecker.doTheCheck();
+		#end
 
 		#if !debug
 		initialState = TitleState;

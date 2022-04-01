@@ -3,7 +3,7 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin' Furret Engine" file="Furret Engine" packageName="com.ninjamuffin99.funkin" package="com.ninjamuffin99.funkin" main="Main" version="0.2.7.1" company="ninjamuffin99" />
+	<app title="Friday Night Funkin': Furret Engine" file="Furret Engine" main="Main" version="1.0.1" packageName="com.furret.engine" package="com.funkin.furretengine" company="Furret" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
@@ -97,6 +97,7 @@
 	<haxelib name="faxe" if='switch'/>
 	<haxelib name="polymod"/>
 	<haxelib name="discord_rpc" if="windows"/>
+	<haxelib name="AndroidTools" if="android"/>
 
 	<haxelib name="linc_luajit"/>
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->

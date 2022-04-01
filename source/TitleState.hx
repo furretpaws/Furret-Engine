@@ -20,6 +20,7 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import flixel.text.FlxText;
 import io.newgrounds.NG;
 import lime.app.Application;
 import openfl.Assets;
@@ -47,6 +48,7 @@ class TitleState extends MusicBeatState
 	var credTextShit:Alphabet;
 	var textGroup:FlxGroup;
 	var ngSpr:FlxSprite;
+	var firstTime:FlxText;
 
 	var curWacky:Array<String> = [];
 
@@ -95,6 +97,23 @@ class TitleState extends MusicBeatState
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 
 		KadeEngineData.initSave();
+
+		if(FlxG.save.data.leftBind == null)
+		{
+			FlxG.save.data.leftBind = "A";
+		}
+		if(FlxG.save.data.downBind == null)
+		{
+			FlxG.save.data.downBind = "S";
+		}
+		if(FlxG.save.data.upBind == null)
+		{
+			FlxG.save.data.upBind = "W";
+		}
+		if(FlxG.save.data.rightBind == null)
+		{
+			FlxG.save.data.rightBind = "D";
+		}
 
 		Highscore.load();
 
@@ -350,6 +369,23 @@ class TitleState extends MusicBeatState
 		}
 	}
 
+	function firstTimeWarning()
+	{
+		firstTime = new FlxText(0, FlxG.height/2-360, 0, "", 20);
+		firstTime.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
+		firstTime.scrollFactor.set();
+		firstTime.text = "It seems this is your first time using this engine. Keybinds are now automatically set to ASWD";
+		add(firstTime);
+		new FlxTimer().start(0.1, function(tmr:FlxTimer)
+		{
+			firstTime.alpha -= 0.05;
+
+			if (firstTime.alpha > 0)
+			{
+				tmr.reset(0.1);
+			}
+		});
+	}
 	function addMoreText(text:String)
 	{
 		var coolText:Alphabet = new Alphabet(0, 0, text, true, false);
@@ -382,6 +418,10 @@ class TitleState extends MusicBeatState
 
 		FlxG.log.add(curBeat);
 
+		if (FlxG.save.data.leftBind && FlxG.save.data.downBind && FlxG.save.data.upBind && FlxG.save.data.rightBind)
+		{
+			firstTimeWarning();
+		}
 		switch (curBeat)
 		{
 			case 1:

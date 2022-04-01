@@ -15,9 +15,7 @@ class DebugModeWarning extends MusicBeatState
 
 	override function create()
 	{
-		#if mobileC
-		addVirtualPad(NONE, A);
-		#end
+		#if !(mobile)
 		super.create();
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
@@ -44,6 +42,10 @@ class DebugModeWarning extends MusicBeatState
 		txt.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
 		txt.screenCenter();
 		add(txt);
+		#else
+		leftState = true;
+		FlxG.switchState(new TitleState());
+		#end 
 	}
 
 	override function update(elapsed:Float)

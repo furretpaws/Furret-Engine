@@ -1,3 +1,4 @@
+#if PLATFORM_WINDOWS
 #include <mutex>
 #include <iostream>
 #include <string>
@@ -480,3 +481,4 @@ void LibVLC::callbacks( const libvlc_event_t* event, void* ptr )
     }
 	
 }
+#endif

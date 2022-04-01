@@ -1,3 +1,4 @@
+#if windows
 package;
 
 import openfl.events.Event;
@@ -116,3 +117,4 @@ class MP4Handler extends vlc.VlcBitmap
 		#end
 	}
 }
+#end

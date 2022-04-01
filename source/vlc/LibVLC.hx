@@ -1,3 +1,4 @@
+#if windows
 package vlc;
 
 #if cpp
@@ -123,3 +124,4 @@ extern class LibVLC
 		// untyped __cpp__('::delete this');
 	}
 }
+#end

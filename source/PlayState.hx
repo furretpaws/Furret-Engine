@@ -79,7 +79,11 @@ import sys.FileSystem;
 import Sys;
 import sys.FileSystem;
 #end
-
+#if android
+import Sys;
+import sys.io.File;
+import sys.FileSystem;
+#end
 #if mobileC
 import ui.Mobilecontrols;
 #end
@@ -2489,24 +2493,30 @@ case 'stageZoomOut1':
 	var startTimer:FlxTimer;
 	var perfectMode:Bool = false;
 
+	#if windows
 	var video:MP4Handler;
+	#end
 
 	function playCutscene(name:String)
 	{
 		inCutscene = true;
 
+		#if windows
 		video = new MP4Handler();
+		
 		video.finishCallback = function()
 		{
 			startCountdown();
 		}
 		video.playVideo(Paths.video(name));
+		#end
 	}
 
 	function playEndCutscene(name:String)
 	{
 		inCutscene = true;
 
+		#if windows
 		video = new MP4Handler();
 		video.finishCallback = function()
 		{
@@ -2514,6 +2524,7 @@ case 'stageZoomOut1':
 			LoadingState.loadAndSwitchState(new PlayState());
 		}
 		video.playVideo(Paths.video(name));
+		#end
 	}
 
 	function startCountdown():Void
@@ -3202,9 +3213,13 @@ case 'stageZoomOut1':
 
 	public static function playVideo(videoPath:String):Void
 	{
+		#if windows
 		FlxG.switchState(new FurretEngineMP4Handler());
 		playstateVideoPath = videoPath;
 		FurretEngineMP4Handler.playCutscene(videoPath);
+		#else
+		trace("this isn't windows, function ignored");
+		#end
 	}
 
 	public static function parseJSONshit(videoCutsceneJson:String):VideoJsonPath
