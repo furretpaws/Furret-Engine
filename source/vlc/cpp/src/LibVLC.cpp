@@ -1,8 +1,7 @@
-#if PLATFORM_WINDOWS
 #include <mutex>
 #include <iostream>
 #include <string>
-#include <StdInt.h>
+#include <stdInt.h>
 #include <windows.h> 
 
 using std::string;
@@ -481,4 +480,3 @@ void LibVLC::callbacks( const libvlc_event_t* event, void* ptr )
     }
 	
 }
-#endif
