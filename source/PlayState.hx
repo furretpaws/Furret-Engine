@@ -4716,6 +4716,15 @@ case 'stageZoomOut1':
 		}
 		#end
 
+		if (Character.is3d)
+		{
+			Character.is3d = false;
+		}
+		if (Character.shakeWhenSing)
+		{
+			Character.shakeWhenSing = false;
+		}
+
 		canPause = false;
 		FlxG.sound.music.volume = 0;
 		vocals.volume = 0;
