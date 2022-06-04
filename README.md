@@ -10,7 +10,7 @@
 
 ![GitHub issues](https://img.shields.io/github/issues/FurretLol/furret-engine?style=flat-square)
 
-Furret Engine is an FNF Engine based on that lets you make mod without coding knowledge!
+Furret Engine is an FNF Engine on that lets you make mod without coding knowledge!
 
 Features:
 		
