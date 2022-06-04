@@ -134,6 +134,10 @@ class PlayState extends MusicBeatState
 	var kadeEngineWatermark:FlxText;
 
 	var scoreBG:FlxSprite;
+
+	var player1BeforeChanges:String;
+	var player2BeforeChanges:String;
+	var scrollSpeedBeforeChanges:Float;
 	
 	#if windows
 	// Discord RPC variables
@@ -169,10 +173,6 @@ class PlayState extends MusicBeatState
 
 	private var camZooming:Bool = false;
 	private var curSong:String = "";
-
-	#if mobileC
-	var mcontrols:Mobilecontrols; 
-	#end
 
 	private var gfSpeed:Int = 1;
 	private var health:Float = 1;
@@ -421,7 +421,7 @@ class PlayState extends MusicBeatState
 
 	public static var luaSprites:Map<String,FlxSprite> = [];
 
-	function makeLuaSprite(spritePath:String,toBeCalled:String, drawBehind:Bool)
+	function makeLuaSprite(spritePath:String,toBeCalled:String, X:Int = -66666, Y:Int = -66666, drawBehind:Bool)
 	{
 		#if sys
 		var data:BitmapData = BitmapData.fromFile(Sys.getCwd() + "assets/data/" + PlayState.SONG.song.toLowerCase() + '/' + spritePath + ".png");
@@ -457,6 +457,15 @@ class PlayState extends MusicBeatState
 			remove(dad);
 		}
 		add(sprite);
+		if (X == -66666 || Y == -66666)
+		{
+			trace("LUA: X and Y positions are not provided!");
+		}
+		else
+		{
+			sprite.x = X;
+			sprite.y = Y;
+		}
 		if (drawBehind)
 		{
 			add(gf);
@@ -566,6 +575,15 @@ class PlayState extends MusicBeatState
 		Conductor.changeBPM(SONG.bpm);
 
 		mania = SONG.mania;
+
+		if (player2BeforeChanges != null)
+		{
+			SONG.player2 == player2BeforeChanges;
+		}
+		if (player1BeforeChanges != null)
+		{
+			SONG.player1 == player1BeforeChanges;
+		}
 
 		// prefer player 1
 		if (FileSystem.exists('assets/images/custom_chars/'+SONG.player1+'/'+SONG.song.toLowerCase()+'Dialog.txt')) {
@@ -2287,29 +2305,6 @@ case 'stageZoomOut1':
 		if (loadRep)
 			replayTxt.cameras = [camHUD];
 
-		#if mobileC
-			mcontrols = new Mobilecontrols();
-			switch (mcontrols.mode)
-			{
-				case VIRTUALPAD_RIGHT | VIRTUALPAD_LEFT | VIRTUALPAD_CUSTOM:
-					controls.setVirtualPad(mcontrols._virtualPad, FULL, NONE);
-				case HITBOX:
-					controls.setHitBox(mcontrols._hitbox);
-				default:
-			}
-			trackedinputs = controls.trackedinputs;
-			controls.trackedinputs = [];
-
-			var camcontrol = new FlxCamera();
-			FlxG.cameras.add(camcontrol);
-			camcontrol.bgColor.alpha = 0;
-			mcontrols.cameras = [camcontrol];
-
-			mcontrols.visible = false;
-
-			add(mcontrols);
-		#end
-
 		// if (SONG.song == 'South')
 		// FlxG.camera.alpha = 0.7;
 		// UI_camera.zoom = 1;
@@ -2535,6 +2530,15 @@ case 'stageZoomOut1':
 		generateStaticArrows(1);
 		FlxG.camera.angle = 0;
 
+		player1BeforeChanges = SONG.player1;
+		player2BeforeChanges = SONG.player2;
+		scrollSpeedBeforeChanges = SONG.speed;
+		if (scrollSpeedBeforeChanges != 0 || scrollSpeedBeforeChanges != 1 || scrollSpeedBeforeChanges != 2 || scrollSpeedBeforeChanges != 3 || scrollSpeedBeforeChanges != 3 || scrollSpeedBeforeChanges != 4 || scrollSpeedBeforeChanges != 5 || scrollSpeedBeforeChanges != 6 || scrollSpeedBeforeChanges != 7 || scrollSpeedBeforeChanges != 8 || scrollSpeedBeforeChanges != 9 || scrollSpeedBeforeChanges != 10)
+		{
+			SONG.speed == scrollSpeedBeforeChanges;
+		}
+		
+
 		#if windows
 		if (executeModchart) // dude I hate lua (jkjkjkjk)
 			{
@@ -2582,6 +2586,15 @@ case 'stageZoomOut1':
 				// sprites
 	
 				trace(Lua_helper.add_callback(lua,"makeSprite", makeLuaSprite));
+
+				trace(Lua_helper.add_callback(lua,"makeLuaText", function(X:Int, Y:Int, Text:String, size:Int, isOnCamHUD:Bool = true) {
+					var newText:FlxText = new FlxText(X, Y, Text, size);
+					if (isOnCamHUD)
+					{
+						newText.cameras = [camHUD];
+					}
+					add(newText);
+				}));
 	
 				Lua_helper.add_callback(lua,"destroySprite", function(id:String) {
 					var sprite = luaSprites.get(id);
@@ -2590,8 +2603,124 @@ case 'stageZoomOut1':
 					remove(sprite);
 					return true;
 				});
+
+				//score/accuracy/health functions!1!!1
+
+				trace(Lua_helper.add_callback(lua,"addScore", function (value:Int = 0) {
+					songScore += value;
+				}));
+
+				trace(Lua_helper.add_callback(lua,"setScore", function (value:Int = 0) {
+					songScore = value;
+				}));
+				
+				trace(Lua_helper.add_callback(lua,"addMisses", function (value:Int = 0) {
+					misses += value;
+				}));
+
+				trace(Lua_helper.add_callback(lua,"addScore", function (value:Int = 0) {
+					songScore += value;
+				}));
+
+				trace(Lua_helper.add_callback(lua,"setHealth", function (value:Int = 0) {
+					health = value;
+				}));
+
+				trace(Lua_helper.add_callback(lua,"addHealth", function (value:Int = 0) {
+					health += value;
+				}));
 	
 				// hud/camera
+
+				trace(Lua_helper.add_callback(lua,"screenShake", function (intensity:Float, duration:Float) { //sharkmitty ilysm<333
+					var screenShaking:Bool = true;
+					if (screenShaking)
+					{
+						FlxG.camera.shake(intensity, duration);
+					}
+					new FlxTimer().start(duration, function(tmr:FlxTimer)
+					{
+						screenShaking = false;
+					});
+				}));
+
+				trace(Lua_helper.add_callback(lua,"makeCamFlash", function (color:String, duration:Int) {
+					if (color == 'BLACK')
+					{
+						FlxG.camera.flash(FlxColor.BLACK, duration);
+					}
+					else if (color == 'BLUE')
+					{
+						FlxG.camera.flash(FlxColor.BLUE, duration);
+					}
+					else if (color == 'BROWN')
+					{
+						FlxG.camera.flash(FlxColor.BROWN, duration);
+					}
+					else if (color == 'CYAN')
+					{
+						FlxG.camera.flash(FlxColor.CYAN, duration);
+					}
+					else if (color == 'GRAY')
+					{
+						FlxG.camera.flash(FlxColor.GRAY, duration);
+					}
+					else if (color == 'GREEN')
+					{
+						FlxG.camera.flash(FlxColor.GREEN, duration);
+					}
+					else if (color == 'LIME')
+					{
+						FlxG.camera.flash(FlxColor.LIME, duration);
+					}
+					else if (color == 'MAGENTA')
+					{
+						FlxG.camera.flash(FlxColor.MAGENTA, duration);
+					}
+					else if (color == 'ORANGE')
+					{
+						FlxG.camera.flash(FlxColor.ORANGE, duration);
+					}
+					else if (color == 'PINK')
+					{
+						FlxG.camera.flash(FlxColor.PINK, duration);
+					}
+					else if (color == 'PURPLE')
+					{
+						FlxG.camera.flash(FlxColor.PURPLE, duration);
+					}
+					else if (color == 'RED')
+					{
+						FlxG.camera.flash(FlxColor.RED, duration);
+					}
+					else if (color == 'TRANSPARENT') //why tf would you want to make a transparent flash?
+					{
+						FlxG.camera.flash(FlxColor.TRANSPARENT, duration);
+					}
+					else if (color == 'WHITE')
+					{
+						FlxG.camera.flash(FlxColor.WHITE, duration);
+					}
+					else if (color == 'YELLOW')
+					{
+						FlxG.camera.flash(FlxColor.YELLOW, duration);
+					}
+					else
+					{
+						trace("LUA: Invalid color!");
+					}
+				}));
+
+				trace(Lua_helper.add_callback(lua,"addCameraZoom", function (Camera:Bool, zoom:Int) {
+					if (Camera == true)
+					{
+						camHUD.zoom += zoom;
+					}
+					else
+					{
+						FlxG.camera.zoom += zoom;
+					}
+				}));
 	
 				trace(Lua_helper.add_callback(lua,"setHudPosition", function (x:Int, y:Int) {
 					camHUD.x = x;
@@ -2738,6 +2867,106 @@ case 'stageZoomOut1':
 				trace(Lua_helper.add_callback(lua,"getActorScaleY", function (id:String) {
 					return getActorByName(id).scale.y;
 				}));
+
+				// other stuff that idk would you want to use
+
+				trace(Lua_helper.add_callback(lua,"makeTrace", function (daTrace:String) {
+					trace("LUA: " + daTrace); //why would you do a trace?
+				}));
+
+				// sounds
+
+				trace(Lua_helper.add_callback(lua,"playSound", function (sound:String, volume:Float) {
+					FlxG.sound.play(Paths.sound(sound), volume);
+				}));
+
+				// gameplay
+
+				trace(Lua_helper.add_callback(lua,"changeScrollSpeed", function (scroll:Float) {
+					SONG.speed = scroll;
+				}));
+
+				trace(Lua_helper.add_callback(lua,"playAnimation", function (character:String, animationToPlay:String) {
+					if (character == 'dad')
+					{
+						dad.playAnim(animationToPlay, true);
+					}
+					else if (character == 'boyfriend')
+					{
+						boyfriend.playAnim(animationToPlay, true);
+					}
+					else if (character == 'gf')
+					{
+						gf.playAnim(animationToPlay, true);
+					}
+				}));
+
+				trace(Lua_helper.add_callback(lua,"switchCharacter", function (characterToReplace:String, character:String, X:Int = -66666, Y:Int = -66666) {
+
+				if (characterToReplace == 'dad')
+				{
+					remove(dad);
+					//-66666 == null
+					if (X == -66666 || Y == -66666)
+					{
+						trace("LUA: Warning! X or Y positions are not provided! The new character will be place at the same location as before.");
+						dad = new Character(dad.x, dad.y, character);
+					}
+					else
+					{
+						dad = new Character(X, Y, character);
+					}
+					add(dad);
+					SONG.player2 = character;
+					remove(iconP2);
+					iconP2 = new HealthIcon(SONG.player2, false);
+					iconP2.y = healthBar.y - (iconP2.height / 2);
+					iconP2.cameras = [camHUD];
+					add(iconP2);
+					SONG.player2 = player2BeforeChanges;
+
+				}
+				else if (characterToReplace == 'boyfriend')
+				{
+					remove(boyfriend);
+					if (X == -66666 || Y == -66666)
+					{
+						trace("LUA: Warning! X or Y positions are not provided! The new character will be place at the same location as before.");
+						boyfriend = new Boyfriend(boyfriend.x, boyfriend.y, character);
+					}
+					else
+					{
+						boyfriend = new Boyfriend(X, Y, character);
+					}
+					add(boyfriend);
+					SONG.player1 = character;
+					remove(iconP1);
+					iconP1 = new HealthIcon(SONG.player1, false);
+					iconP1.y = healthBar.y - (iconP1.height / 2);
+					iconP1.cameras = [camHUD];
+					add(iconP1);
+					SONG.player1 = player1BeforeChanges;
+				}
+				else if (characterToReplace == 'gf')
+				{
+					remove(gf);
+					if (X == -66666 || Y == -66666)
+					{
+						trace("LUA: Warning! X or Y positions are not provided! The new character will be place at the same location as before.");
+						gf = new Character(gf.x, gf.y, character);
+					}
+					else
+					{
+						gf = new Character(X, Y, character);
+					}
+					add(gf);
+				}
+				else
+				{
+					trace("LUA: Invalid character to replace provided!");
+				}
+
+				}));
 	
 				// tweens
 				
@@ -2747,6 +2976,10 @@ case 'stageZoomOut1':
 	
 				Lua_helper.add_callback(lua,"tweenPosXAngle", function(id:String, toX:Int, toAngle:Float, time:Float, onComplete:String) {
 					FlxTween.tween(getActorByName(id), {x: toX, angle: toAngle}, time, {ease: FlxEase.cubeIn, onComplete: function(flxTween:FlxTween) { if (onComplete != '' && onComplete != null) {callLua(onComplete,[id]);}}});
+				});
+
+				Lua_helper.add_callback(lua,"tweenCamZoom", function(zoom:Float, duration:Float) {
+					FlxTween.tween(FlxG.camera, {zoom: zoom}, duration, {ease: FlxEase.expoOut,});
 				});
 	
 				Lua_helper.add_callback(lua,"tweenPosYAngle", function(id:String, toY:Int, toAngle:Float, time:Float, onComplete:String) {
@@ -4616,11 +4849,7 @@ case 'stageZoomOut1':
 						}
 
 					if(cpuControlled) {
-						boyfriend.holdTimer = 0;
-						var targetHold:Float = Conductor.stepCrochet * 0.001 * 4;
-						if(boyfriend.holdTimer + 0.2 > targetHold) {
-							boyfriend.holdTimer = targetHold - 0.2;
-						}
+						boyfriend.holdTimer = daNote.sustainLength;
 					}
 	
 					if (FlxG.save.data.downscroll)

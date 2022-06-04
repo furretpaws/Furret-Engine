@@ -29,8 +29,6 @@
 
 	<!--Mobile-specific-->
 	<window if="mobile" orientation="landscape" fullscreen="true" width="1280" height="720" resizable="false"/>
-	<define name="mobileC" if="mobile" />
-	<assets path="assets/shared/images/hitbox" if="mobile"/>
 
 	<!--Switch-specific-->
 	<window if="switch" orientation="landscape" fullscreen="true" width="0" height="0" resizable="true" />
@@ -97,7 +95,6 @@
 	<haxelib name="faxe" if='switch'/>
 	<haxelib name="polymod"/>
 	<haxelib name="discord_rpc" if="windows"/>
-	<haxelib name="AndroidTools" if="android"/>
 
 	<haxelib name="linc_luajit"/>
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->
