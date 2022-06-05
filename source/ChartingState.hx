@@ -30,6 +30,10 @@ import openfl.events.Event;
 import openfl.events.IOErrorEvent;
 import openfl.events.IOErrorEvent;
 import openfl.events.IOErrorEvent;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import sys.FileSystem;
+import flixel.util.FlxTimer;
 import openfl.media.Sound;
 import openfl.net.FileReference;
 import openfl.utils.ByteArray;
@@ -69,6 +73,8 @@ class ChartingState extends MusicBeatState
 	var bullshitUI:FlxGroup;
 
 	var highlight:FlxSprite;
+
+	var unableToLoad:FlxText;
 
 	var claps:Array<Note> = [];
 
@@ -157,13 +163,9 @@ class ChartingState extends MusicBeatState
 		}
 
 		FlxG.mouse.visible = true;
-		//FlxG.save.bind('save1', 'bulbyVR');
-		// i don't know why we need to rebind our save
 		tempBpm = _song.bpm;
 
 		addSection();
-
-		// sections = _song.notes;
 
 		updateGrid();
 
@@ -174,6 +176,24 @@ class ChartingState extends MusicBeatState
 		bpmTxt = new FlxText(50, 50, 0, "", 16);
 		bpmTxt.scrollFactor.set();
 		add(bpmTxt);
+
+		var tipTxt = new FlxText(800, 527);
+		tipTxt.scrollFactor.set();
+		tipTxt.text = "W/S or mouse wheel: Change conductor strum time"
+			+ "\nA or Left / D or Right: Switch section"
+			+ "\nSPACE: Stop/Resume the song"
+			+ "\nENTER: Play your chart"
+			+ "\nQ/E: Change note length";
+		tipTxt.size = 12;
+		add(tipTxt);
+
+		unableToLoad = new FlxText(800, 30);
+		unableToLoad.scrollFactor.set();
+		unableToLoad.text = "[X] Unable to load the chart, make sure the json is located"
+			+ "\nat 'assets/data/" + _song.song.toLowerCase() + "/" + _song.song.toLowerCase() + ".json'";
+		unableToLoad.size = 12;
+		unableToLoad.alpha = 0;
+		add(unableToLoad);
 
 		strumLine = new FlxSprite(0, 50).makeGraphic(Std.int(FlxG.width / 2), 4);
 		add(strumLine);
@@ -251,7 +271,21 @@ class ChartingState extends MusicBeatState
 
 		var reloadSongJson:FlxButton = new FlxButton(reloadSong.x, saveButton.y + 30, "Reload JSON", function()
 		{
-			loadJson(_song.song.toLowerCase());
+			//quick check rq
+			if (FileSystem.exists("assets/data/" + _song.song.toLowerCase() + "/" + _song.song.toLowerCase() + ".json"))
+			{
+				loadJson(_song.song.toLowerCase());
+			}
+			else
+			{
+				unableToLoad.alpha = 1;
+				var daTimer = new FlxTimer().start(4, function(tmr:FlxTimer)
+				{
+					FlxTween.tween(unableToLoad, {alpha: 0}, 2, {ease: FlxEase.expoOut,});
+					unableToLoad.alpha = 1;
+				});
+				daTimer.reset();
+			}
 		});
 		var isSpookyCheck = new FlxUICheckBox(10, 280,null,null,"Is Spooky", 100);
 		var loadAutosaveBtn:FlxButton = new FlxButton(reloadSongJson.x, reloadSongJson.y + 30, 'load autosave', loadAutosave);
@@ -842,15 +876,29 @@ class ChartingState extends MusicBeatState
 
 		if (FlxG.keys.justPressed.ENTER)
 		{
-			lastSection = curSection;
+			//quick check rq
+			if (FileSystem.exists("assets/data/" + _song.song.toLowerCase() + "/" + _song.song.toLowerCase() + ".json"))
+			{
+				lastSection = curSection;
 
-			PlayState.SONG = _song;
-			FlxG.sound.music.stop();
-			if (_song.needsVoices) {
-				vocals.stop();
+				PlayState.SONG = _song;
+				FlxG.sound.music.stop();
+				if (_song.needsVoices) {
+					vocals.stop();
+				}
+				FlxG.mouse.visible = false;
+				FlxG.switchState(new PlayState());
 			}
-			FlxG.mouse.visible = false;
-			FlxG.switchState(new PlayState());
+			else
+			{
+				unableToLoad.alpha = 1;
+				var daTimer = new FlxTimer().start(4, function(tmr:FlxTimer)
+				{
+					FlxTween.tween(unableToLoad, {alpha: 0}, 2, {ease: FlxEase.expoOut,});
+					unableToLoad.alpha = 1;
+				});
+				daTimer.reset();
+			}
 		}
 
 		if (FlxG.keys.justPressed.E)

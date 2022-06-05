@@ -84,9 +84,9 @@ import Sys;
 import sys.io.File;
 import sys.FileSystem;
 #end
-#if mobileC
-import ui.Mobilecontrols;
-#end
+
+import hscript.Interp;
+import hscript.Parser;
 
 using StringTools;
 
@@ -114,6 +114,8 @@ class PlayState extends MusicBeatState
 	public static var songPosBar:FlxBar;
 	public static var cpuControlled:Bool = false;
 
+	var interp = new hscript.Interp();
+
 	//3d stage stuff
 	public var curbg:FlxSprite;
 	public static var screenshader:Shaders.PulseEffect = new PulseEffect();
@@ -134,6 +136,8 @@ class PlayState extends MusicBeatState
 	var kadeEngineWatermark:FlxText;
 
 	var scoreBG:FlxSprite;
+	
+	var loadHScript:Bool = false;
 
 	var player1BeforeChanges:String;
 	var player2BeforeChanges:String;
@@ -268,6 +272,41 @@ class PlayState extends MusicBeatState
 	public static var songOffset:Float = 0;
 
 	private var executeModchart = false;
+
+
+	var hscriptStates:Map<String, Interp> = [];
+
+	function callAllHScript(func_name:String, args:Array<Dynamic>) {
+		for (key in hscriptStates.keys()) {
+			callHscript(func_name, args, key);
+		}
+	}
+
+	function callHscript(func_name:String, args:Array<Dynamic>, usehaxe:String) {
+		// if function doesn't exist
+		if (!hscriptStates.get(usehaxe).variables.exists(func_name)) {
+			trace("Function doesn't exist, silently skipping...");
+			return;
+		}
+		var method = hscriptStates.get(usehaxe).variables.get(func_name);
+		switch(args.length) {
+			case 0:
+				method();
+			case 1:
+				method(args[0]);
+		}
+	}
+
+	function setHaxeVar(name:String, value:Dynamic, usehaxe:String) {
+		hscriptStates.get(usehaxe).variables.set(name,value);
+	}
+	function getHaxeVar(name:String, usehaxe:String):Dynamic {
+		return hscriptStates.get(usehaxe).variables.get(name);
+	}
+	function setAllHaxeVar(name:String, value:Dynamic) {
+		for (key in hscriptStates.keys())
+			setHaxeVar(name, value, key);
+	}
 
 	public static var videoJson:VideoJsonPath;
 
@@ -2305,6 +2344,16 @@ case 'stageZoomOut1':
 		if (loadRep)
 			replayTxt.cameras = [camHUD];
 
+		if (FileSystem.exists("assets/data/" + curSong.toLowerCase() + "/songScript.hx"))
+		{
+			trace("[!] A song script has been detected!");
+			loadHScript = true;
+		}
+		else
+		{
+			trace("There isn't a script for this song");
+		}
+
 		// if (SONG.song == 'South')
 		// FlxG.camera.alpha = 0.7;
 		// UI_camera.zoom = 1;
@@ -2524,6 +2573,186 @@ case 'stageZoomOut1':
 
 	function startCountdown():Void
 	{
+		var bf = boyfriend;
+		if (loadHScript)
+		{
+			trace("[!] A haxe state will be opened since there is a script");
+			interp.variables.set("endSong", function() {
+				endSong();
+			});
+			interp.variables.set("Conductor", Conductor);
+			interp.variables.set("curBPM", Conductor.bpm);
+			interp.variables.set("bpm", SONG.bpm);
+			interp.variables.set("scrollSpeed", SONG.speed);
+			interp.variables.set("crochet", Conductor.crochet);
+			interp.variables.set("stepCrochet", Conductor.stepCrochet);
+			interp.variables.set("songLength", FlxG.sound.music.length);
+			interp.variables.set("isStoryMode", PlayState.isStoryMode);
+			interp.variables.set("storyDifficulty", PlayState.storyDifficulty);
+			interp.variables.set("FurretEngineVersion", MainMenuState.furretEngineVer);
+			interp.variables.set("botPlay", cpuControlled);
+			interp.variables.set("downscroll", FlxG.save.data.downscroll);
+			interp.variables.set("ghostTapping", FlxG.save.data.newInput);
+			interp.variables.set("hitsounds", FlxG.save.data.hitsoundspog);
+			interp.variables.set("judgement", FlxG.save.data.judgement);
+			interp.variables.set("middlescroll", FlxG.save.data.middlescroll);
+			interp.variables.set("noteSplash", FlxG.save.data.noteSplashON);
+			interp.variables.set("FlxSprite", FlxSprite);
+			interp.variables.set("FlxSound", FlxSound);
+			interp.variables.set("FlxGroup", flixel.group.FlxGroup);
+			interp.variables.set("FlxAngle", flixel.math.FlxAngle);
+			interp.variables.set("Paths", Paths);
+			interp.variables.set("FlxMath", flixel.math.FlxMath);
+			interp.variables.set("Math", flixel.math.FlxMath);
+			interp.variables.set("FlxPoint", flixel.math.FlxPoint);
+			interp.variables.set("Point", flixel.math.FlxPoint);
+			interp.variables.set("FlxRect", flixel.math.FlxRect);
+			interp.variables.set("Rect", flixel.math.FlxRect);
+			interp.variables.set("StringTools", StringTools);
+			interp.variables.set("SONG", SONG);
+			interp.variables.set("curbg", curbg);
+			interp.variables.set("playerStrums", playerStrums);
+			interp.variables.set("cpuStrums", cpuStrums);
+			interp.variables.set("strumLineNotes", strumLineNotes);
+			interp.variables.set("elapsedtime", elapsedtime);
+			interp.variables.set("sicksTxt", sicksTxt);
+			interp.variables.set("goodsTxt", goodsTxt);
+			interp.variables.set("badsTxt", badsTxt);
+			interp.variables.set("shitsTxt", shitsTxt);
+			interp.variables.set("missesTxt", missesTxt);
+			interp.variables.set("runningOnFE", runningOnFE);
+			interp.variables.set("nameOfTheSong", nameOfTheSong);
+			interp.variables.set("difficultySong", difficultySong);
+			interp.variables.set("healthBarBG", healthBarBG);
+			interp.variables.set("healthBar", healthBar);
+			interp.variables.set("scoreTxt", scoreTxt);
+			interp.variables.set("TitleState", TitleState);
+			interp.variables.set("makeRangeArray", CoolUtil.numberArray);
+			interp.variables.set("FlxG", flixel.FlxG);
+			interp.variables.set("FlxTimer", flixel.util.FlxTimer);
+			interp.variables.set("FlxTween", flixel.tweens.FlxTween);
+			interp.variables.set("Std", Std);
+			interp.variables.set("iconP1", iconP1);
+			interp.variables.set("iconP2", iconP2);
+			interp.variables.set("BLACK", FlxColor.BLACK);
+			interp.variables.set("BLUE", FlxColor.BLUE);
+			interp.variables.set("BROWN", FlxColor.BROWN);
+			interp.variables.set("CYAN", FlxColor.CYAN);
+			interp.variables.set("GRAY", FlxColor.GRAY);
+			interp.variables.set("GREEN", FlxColor.GREEN);
+			interp.variables.set("LIME", FlxColor.LIME);
+			interp.variables.set("MAGENTA", FlxColor.MAGENTA);
+			interp.variables.set("ORANGE", FlxColor.ORANGE);
+			interp.variables.set("PINK", FlxColor.PINK);
+			interp.variables.set("PURPLE", FlxColor.PURPLE);
+			interp.variables.set("RED", FlxColor.RED);
+			interp.variables.set("TRANSPARENT", FlxColor.TRANSPARENT);
+			interp.variables.set("WHITE", FlxColor.WHITE);
+			interp.variables.set("YELLOW", FlxColor.YELLOW);
+			interp.variables.set("StringTools", StringTools);
+			interp.variables.set("FlxTrail", FlxTrail);
+			interp.variables.set("FlxEase", FlxEase);
+			interp.variables.set("Reflect", Reflect);
+			interp.variables.set("curStep", 0);
+			interp.variables.set("curBeat", 0);
+			interp.variables.set("curSong", SONG.song);
+			interp.variables.set("FlxText", FlxText);
+			interp.variables.set("SONG", SONG);
+			interp.variables.set("Boyfriend", Boyfriend);
+			interp.variables.set("boyfriend", bf);
+			interp.variables.set("dad", dad);
+			interp.variables.set("gf", gf);
+			interp.variables.set("setDiscordPresence", function(daPresence:String) {
+				#if windows
+				DiscordClient.changePresence(daPresence, null);
+				#else
+				trace("[!] Ignoring discord presence change as we are not on Windows");
+				#end
+			});
+			interp.variables.set("changeCharacter", function(characterToReplace:String, characterThatWillBeReplaced, X:Int = 999999, Y:Int = 999999) {
+				if (characterThatWillBeReplaced == 'dad')
+				{
+					remove(dad);
+					if (X == 999999 || Y == 999999 || X & Y == 999999)
+					{
+						dad = new Character(dad.x, dad.y, characterToReplace);
+						trace("[!] Haxe script: No X or Y or both specified");
+					}
+					else
+					{
+						dad = new Character(X, Y, characterToReplace);
+					}
+					add(dad);
+					SONG.player2 = characterToReplace;
+                    remove(iconP2);
+                    iconP2 = new HealthIcon(SONG.player2, false);
+                    iconP2.y = healthBar.y - (iconP2.height / 2);
+                    iconP2.cameras = [camHUD];
+                    add(iconP2);
+                    SONG.player2 = player2BeforeChanges;
+				}
+				else if (characterThatWillBeReplaced == 'bf' || characterThatWillBeReplaced == 'boyfriend')
+				{
+					remove(boyfriend);
+					if (X == 999999 || Y == 999999 || X & Y == 999999)
+					{
+						boyfriend = new Boyfriend(dad.x, dad.y, characterToReplace);
+						trace("[!] Haxe script: No X or Y or both specified");
+					}
+					else
+					{
+						boyfriend = new Boyfriend(X, Y, characterToReplace);
+					}
+					add(boyfriend);
+				}
+				else if (characterThatWillBeReplaced == 'dad')
+				{
+					remove(boyfriend);
+					if (X == 999999 || Y == 999999 || X & Y == 999999)
+					{
+						boyfriend = new Boyfriend(dad.x, dad.y, characterToReplace);
+						trace("[!] Haxe script: No X or Y or both specified");
+					}
+					else
+					{
+						boyfriend = new Boyfriend(X, Y, characterToReplace);
+					}
+					add(boyfriend);
+					SONG.player1 = characterToReplace;
+                    remove(iconP1);
+                    iconP1 = new HealthIcon(SONG.player1, false);
+                    iconP1.y = healthBar.y - (iconP1.height / 2);
+                    iconP1.cameras = [camHUD];
+                    add(iconP1);
+                    SONG.player1 = player1BeforeChanges;
+				}
+			});
+			interp.variables.set("Character", Character);
+			interp.variables.set("PlayState", PlayState);
+			interp.variables.set("FlxG", FlxG);
+			interp.variables.set("ease", FlxEase);
+			interp.variables.set("camHUD", camHUD);
+			interp.variables.set("remove", function(something)
+			{
+				remove(something);
+			});
+			interp.variables.set("add", function(something)
+			{
+				add(something);
+			});
+			interp.variables.set("addHScript", function(scriptName:String) {
+				trace("[i] Loading 'assets/data/" + curSong.toLowerCase() + "/" + scriptName + ".hx");
+				trace("[!] NOTE: Steps and beats won't be able to be used in the secondary script!");
+				var secondInterp = new hscript.Interp();
+				var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/" + scriptName + ".hx");
+				var daScript:String = getScript;
+				var daScriptParser = new hscript.Parser();
+				var script = daScriptParser.parseString(daScript);
+				secondInterp.execute(script);
+				trace("[OK] Script loaded successfully!");
+			});
+			specifyFlxGActions();
+		}
 		inCutscene = false;
 
 		generateStaticArrows(0);
@@ -2632,7 +2861,7 @@ case 'stageZoomOut1':
 	
 				// hud/camera
 
-				trace(Lua_helper.add_callback(lua,"screenShake", function (intensity:Float, duration:Float) { //sharkmitty ilysm<333
+				trace(Lua_helper.add_callback(lua,"screenShake", function (intensity:Float, duration:Float) {
 					var screenShaking:Bool = true;
 					if (screenShaking)
 					{
@@ -3015,254 +3244,6 @@ case 'stageZoomOut1':
 				trace('return: ' + Lua.tostring(lua,callLua('start', [PlayState.SONG.song])));
 			}
 		#end
-		
-		/*#if windows
-		if (FlxG.save.data.middlescroll) // osu!mana pog
-			{
-				trace('Middlescroll is on, executing modchart');
-				lua = LuaL.newstate();
-				LuaL.openlibs(lua);
-				trace("Lua version: " + Lua.version());
-				trace("LuaJIT version: " + Lua.versionJIT());
-				Lua.init_callbacks(lua);
-				
-				var result = LuaL.dofile(lua, Paths.lua("middlescroll")); // execute le file
-	
-				if (result != 0)
-					trace('COMPILE ERROR\n' + getLuaErrorMessage(lua));
-
-				// get some fukin globals up in here bois
-	
-				setVar("bpm", Conductor.bpm);
-				setVar("fpsCap", FlxG.save.data.fpsCap);
-				setVar("downscroll", FlxG.save.data.downscroll);
-	
-				setVar("curStep", 0);
-				setVar("curBeat", 0);
-	
-				setVar("hudZoom", camHUD.zoom);
-				setVar("cameraZoom", FlxG.camera.zoom);
-	
-				setVar("cameraAngle", FlxG.camera.angle);
-				setVar("camHudAngle", camHUD.angle);
-	
-				setVar("followXOffset",0);
-				setVar("followYOffset",0);
-	
-				setVar("showOnlyStrums", false);
-				setVar("strumLine1Visible", true);
-				setVar("strumLine2Visible", true);
-	
-				setVar("screenWidth",FlxG.width);
-				setVar("screenHeight",FlxG.height);
-				setVar("hudWidth", camHUD.width);
-				setVar("hudHeight", camHUD.height);
-	
-				// callbacks
-	
-				// sprites
-	
-				trace(Lua_helper.add_callback(lua,"makeSprite", makeLuaSprite));
-	
-				Lua_helper.add_callback(lua,"destroySprite", function(id:String) {
-					var sprite = luaSprites.get(id);
-					if (sprite == null)
-						return false;
-					remove(sprite);
-					return true;
-				});
-	
-				// hud/camera
-	
-				trace(Lua_helper.add_callback(lua,"setHudPosition", function (x:Int, y:Int) {
-					camHUD.x = x;
-					camHUD.y = y;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getHudX", function () {
-					return camHUD.x;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getHudY", function () {
-					return camHUD.y;
-				}));
-				
-				trace(Lua_helper.add_callback(lua,"setCamPosition", function (x:Int, y:Int) {
-					FlxG.camera.x = x;
-					FlxG.camera.y = y;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getCameraX", function () {
-					return FlxG.camera.x;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getCameraY", function () {
-					return FlxG.camera.y;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setCamZoom", function(zoomAmount:Int) {
-					FlxG.camera.zoom = zoomAmount;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setHudZoom", function(zoomAmount:Int) {
-					camHUD.zoom = zoomAmount;
-				}));
-	
-				// actors
-				
-				trace(Lua_helper.add_callback(lua,"getRenderedNotes", function() {
-					return notes.length;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getRenderedNoteX", function(id:Int) {
-					return notes.members[id].x;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getRenderedNoteY", function(id:Int) {
-					return notes.members[id].y;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getRenderedNoteScaleX", function(id:Int) {
-					return notes.members[id].scale.x;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getRenderedNoteScaleY", function(id:Int) {
-					return notes.members[id].scale.y;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getRenderedNoteAlpha", function(id:Int) {
-					return notes.members[id].alpha;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setRenderedNotePos", function(x:Int,y:Int, id:Int) {
-					notes.members[id].modifiedByLua = true;
-					notes.members[id].x = x;
-					notes.members[id].y = y;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setRenderedNoteAlpha", function(alpha:Float, id:Int) {
-					notes.members[id].modifiedByLua = true;
-					notes.members[id].alpha = alpha;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setRenderedNoteScale", function(scale:Float, id:Int) {
-					notes.members[id].modifiedByLua = true;
-					notes.members[id].setGraphicSize(Std.int(notes.members[id].width * scale));
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setRenderedNoteScaleX", function(scale:Float, id:Int) {
-					notes.members[id].modifiedByLua = true;
-					notes.members[id].scale.x = scale;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setRenderedNoteScaleY", function(scale:Float, id:Int) {
-					notes.members[id].modifiedByLua = true;
-					notes.members[id].scale.y = scale;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setActorX", function(x:Int,id:String) {
-					getActorByName(id).x = x;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setActorAlpha", function(alpha:Int,id:String) {
-					getActorByName(id).alpha = alpha;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setActorY", function(y:Int,id:String) {
-					getActorByName(id).y = y;
-				}));
-							
-				trace(Lua_helper.add_callback(lua,"setActorAngle", function(angle:Int,id:String) {
-					getActorByName(id).angle = angle;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setActorScale", function(scale:Float,id:String) {
-					getActorByName(id).setGraphicSize(Std.int(getActorByName(id).width * scale));
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setActorScaleX", function(scale:Float,id:String) {
-					getActorByName(id).scale.x = scale;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"setActorScaleY", function(scale:Float,id:String) {
-					getActorByName(id).scale.y = scale;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getActorWidth", function (id:String) {
-					return getActorByName(id).width;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getActorHeight", function (id:String) {
-					return getActorByName(id).height;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getActorAlpha", function(id:String) {
-					return getActorByName(id).alpha;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getActorAngle", function(id:String) {
-					return getActorByName(id).angle;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getActorX", function (id:String) {
-					return getActorByName(id).x;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getActorY", function (id:String) {
-					return getActorByName(id).y;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getActorScaleX", function (id:String) {
-					return getActorByName(id).scale.x;
-				}));
-	
-				trace(Lua_helper.add_callback(lua,"getActorScaleY", function (id:String) {
-					return getActorByName(id).scale.y;
-				}));
-	
-				// tweens
-				
-				Lua_helper.add_callback(lua,"tweenPos", function(id:String, toX:Int, toY:Int, time:Float, onComplete:String) {
-					FlxTween.tween(getActorByName(id), {x: toX, y: toY}, time, {ease: FlxEase.cubeIn, onComplete: function(flxTween:FlxTween) { if (onComplete != '' && onComplete != null) {callLua(onComplete,[id]);}}});
-				});
-	
-				Lua_helper.add_callback(lua,"tweenPosXAngle", function(id:String, toX:Int, toAngle:Float, time:Float, onComplete:String) {
-					FlxTween.tween(getActorByName(id), {x: toX, angle: toAngle}, time, {ease: FlxEase.cubeIn, onComplete: function(flxTween:FlxTween) { if (onComplete != '' && onComplete != null) {callLua(onComplete,[id]);}}});
-				});
-	
-				Lua_helper.add_callback(lua,"tweenPosYAngle", function(id:String, toY:Int, toAngle:Float, time:Float, onComplete:String) {
-					FlxTween.tween(getActorByName(id), {y: toY, angle: toAngle}, time, {ease: FlxEase.cubeIn, onComplete: function(flxTween:FlxTween) { if (onComplete != '' && onComplete != null) {callLua(onComplete,[id]);}}});
-				});
-	
-				Lua_helper.add_callback(lua,"tweenAngle", function(id:String, toAngle:Int, time:Float, onComplete:String) {
-					FlxTween.tween(getActorByName(id), {angle: toAngle}, time, {ease: FlxEase.cubeIn, onComplete: function(flxTween:FlxTween) { if (onComplete != '' && onComplete != null) {callLua(onComplete,[id]);}}});
-				});
-	
-				Lua_helper.add_callback(lua,"tweenFadeIn", function(id:String, toAlpha:Int, time:Float, onComplete:String) {
-					FlxTween.tween(getActorByName(id), {alpha: toAlpha}, time, {ease: FlxEase.circIn, onComplete: function(flxTween:FlxTween) { if (onComplete != '' && onComplete != null) {callLua(onComplete,[id]);}}});
-				});
-	
-				Lua_helper.add_callback(lua,"tweenFadeOut", function(id:String, toAlpha:Int, time:Float, onComplete:String) {
-					FlxTween.tween(getActorByName(id), {alpha: toAlpha}, time, {ease: FlxEase.circOut, onComplete: function(flxTween:FlxTween) { if (onComplete != '' && onComplete != null) {callLua(onComplete,[id]);}}});
-				});
-	
-				for (i in 0...strumLineNotes.length) {
-					var member = strumLineNotes.members[i];
-					trace(strumLineNotes.members[i].x + " " + strumLineNotes.members[i].y + " " + strumLineNotes.members[i].angle + " | strum" + i);
-					//setVar("strum" + i + "X", Math.floor(member.x));
-					setVar("defaultStrum" + i + "X", Math.floor(member.x));
-					//setVar("strum" + i + "Y", Math.floor(member.y));
-					setVar("defaultStrum" + i + "Y", Math.floor(member.y));
-					//setVar("strum" + i + "Angle", Math.floor(member.angle));
-					setVar("defaultStrum" + i + "Angle", Math.floor(member.angle));
-					trace("Adding strum" + i);
-				}
-	
-				trace('calling start function');
-	
-				trace('return: ' + Lua.tostring(lua,callLua('start', [PlayState.SONG.song])));
-			}
-		#end*/
 
 		talking = false;
 		startedCountdown = true;
@@ -4038,6 +4019,11 @@ case 'stageZoomOut1':
 
 	override public function update(elapsed:Float)
 	{
+		setAllHaxeVar('camZooming', camZooming);
+		setAllHaxeVar('gfSpeed', gfSpeed);
+		setAllHaxeVar('health', health);
+		setAllHaxeVar('curStep', curStep);
+		
 		elapsedtime += elapsed;
 		if (curbg != null)
 		{
@@ -4447,6 +4433,7 @@ case 'stageZoomOut1':
 			
 			if (generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null)
 				{
+					setAllHaxeVar("mustHit", PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection);
 					if (curBeat % 4 == 0)
 					{
 						// trace(PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection);
@@ -4930,6 +4917,34 @@ case 'stageZoomOut1':
 		if (FlxG.keys.justPressed.ONE)
 			endSong();
 		#end
+	}
+
+	function specifyFlxGActions():Void {
+		trace("[OK] FlxG loaded in the haxe state sucessfully!");
+		//da functions
+		interp.variables.set("getFullscreen", function()
+		{
+			return FlxG.fullscreen;
+		});
+		interp.variables.set("setFullscreen", function(tf:Bool)
+		{
+			return FlxG.fullscreen = tf;
+		});
+		interp.variables.set("justPressed", FlxG.keys.justPressed);
+		interp.variables.set("pressed", FlxG.keys.pressed);
+		interp.variables.set("justReleased", FlxG.keys.justReleased);
+		interp.variables.set("resizeGame", function (Width:Int, Height:Int) {
+			return FlxG.resizeGame(Width, Height);
+		});
+		interp.variables.set("resizeWindow", function (Width:Int, Height:Int) {
+			return FlxG.resizeWindow(Width, Height);
+		});
+		interp.variables.set("openURL", function(url:String) {
+			return FlxG.openURL(url);
+		});
+		interp.variables.set("execute", function(order:String) {
+			return order;
+		});
 	}
 
 	function endSong():Void
@@ -7060,6 +7075,22 @@ case 'stageZoomOut1':
 			resyncVocals();
 		}
 
+		if (loadHScript)
+		{
+			interp.variables.set("curStep", curStep);
+			interp.variables.set("curBeat", curBeat);
+			interp.variables.set("score", songScore);
+			interp.variables.set("misses", misses);
+			interp.variables.set("combo", combo);
+			interp.variables.set("accuracy", truncateFloat(accuracy, 2));
+			interp.variables.set("ranking", generateRanking());
+			var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
+			var daScript:String = getScript;
+			var daScriptParser = new hscript.Parser();
+			var script = daScriptParser.parseString(daScript);
+			interp.execute(script);
+		}
+		
 		#if windows
 		if (executeModchart && lua != null)
 		{
