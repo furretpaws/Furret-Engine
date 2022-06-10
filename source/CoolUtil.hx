@@ -48,7 +48,7 @@ class CoolUtil
 			trace("asdqwe6b");
 			return d;
 		}
-		Application.current.window.alert('oopsy doopsy looks like you are missing "'+key+'" SOMEWHERE inside of your json at location '+jsonName);
+		Application.current.window.alert('[!] "'+key+'" not found in '+jsonName);
 		return "";
 	}	public static function getInt(dyn:Dynamic,key:String,jsonName:String,?d:Int):Int{
 		if(Reflect.hasField(dyn,key)){
@@ -58,14 +58,14 @@ class CoolUtil
 
 			return d;
 		}
-		Application.current.window.alert('oopsy doopsy looks like you are missing "'+key+'" SOMEWHERE inside of your json at location '+jsonName);
+		Application.current.window.alert('[!] "'+key+'" not found in '+jsonName);
 		return 0;
 	}public static function getDynamic(dyn:Dynamic,key:String,jsonName:String,crash:Bool):Dynamic{
 		if(Reflect.hasField(dyn,key)){
 			return Reflect.field(dyn,key);
 		}
 		if(crash){
-			Application.current.window.alert('oopsy doopsy looks like you are missing "'+key+'" SOMEWHERE inside of your json at location '+jsonName);
+			Application.current.window.alert('[!] "'+key+'" not found in '+jsonName);
 		}
 		return null;
 	}
@@ -77,7 +77,7 @@ class CoolUtil
 
 			return d;
 		}
-		Application.current.window.alert('oopsy doopsy looks like you are missing "'+key+'" SOMEWHERE inside of your json at location '+jsonName);
+		Application.current.window.alert('[!] "'+key+'" not found in '+jsonName);
 		return 0;
 	}	public static function getBool(dyn:Dynamic,key:String,jsonName:String,?d:Bool):Bool{
 		if(Reflect.hasField(dyn,key)){
@@ -87,18 +87,18 @@ class CoolUtil
 
 			return d;
 		}
-		Application.current.window.alert('oopsy doopsy looks like you are missing "'+key+'" SOMEWHERE inside of your json at location '+jsonName);
+		Application.current.window.alert('[!] "'+key+'" not found in '+jsonName);
 		return false;
 	}
 	public static function getBitmap(file:String):BitmapData{
 		if(!FileSystem.exists(file)){
-			Application.current.window.alert('oopsy doopsy looks like you are missing "'+file+'"');
+			Application.current.window.alert('[!] Missing file: "'+file+'"');
 		}
 		return BitmapData.fromFile(file);
 	}
 	public static function getContent(file:String):String{
 		if(!FileSystem.exists(file)){
-			Application.current.window.alert('oopsy doopsy looks like you are missing "'+file+'"');
+			Application.current.window.alert('[!] Missing file: "'+file+'"');
 		}
 		return File.getContent(file);
 	}
