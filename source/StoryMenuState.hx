@@ -333,6 +333,7 @@ class StoryMenuState extends MusicBeatState
 			}
 
 			trace("2");
+			PlayState.storyDifficulty = curDifficulty;
 			PlayState.storyPlaylist = weekData[curWeek];
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
@@ -348,7 +349,6 @@ class StoryMenuState extends MusicBeatState
 					diffic = '-hard';
 			}
 
-			PlayState.storyDifficulty = curDifficulty;
 			for (peckUpAblePath in PlayState.storyPlaylist) {
 				if (!FileSystem.exists('assets/data/'+peckUpAblePath.toLowerCase()+'/'+peckUpAblePath.toLowerCase() + diffic+'.json')) {
 					// probably messed up difficulty

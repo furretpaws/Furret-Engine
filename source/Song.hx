@@ -68,19 +68,42 @@ class Song
 				// raw json 
 				// folder is always just the song name
 				#if windows
-				rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+".json").trim();
+				trace(PlayState.storyDifficulty);
+				if (PlayState.storyDifficulty == 0)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
+				}
+				else if (PlayState.storyDifficulty == 1)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+".json").trim();
+				}
+				else if (PlayState.storyDifficulty == 2)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
+				}
 				#end
 				#if android
-				var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim();
+				var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim(); //no extra keys for android cuz fuk u
 				#end
 			} else {
 				#if windows
-				rawJson = File.getContent("assets/data/" + folder.toLowerCase() + "/" + jsonInput.toLowerCase() + '.json').trim();
+				if (PlayState.storyDifficulty == 0)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
+				}
+				else if (PlayState.storyDifficulty == 1)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+".json").trim();
+				}
+				else if (PlayState.storyDifficulty == 2)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
+				}
 				#else
 				rawJson = Assets.getText('assets/preload/data/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
 				#end
 				#if android
-				var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim();
+				var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim(); //no extra keys for android cuz fuk u again
 				#end
 			}
 			while (!rawJson.endsWith("}"))
@@ -89,6 +112,42 @@ class Song
 				// LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
 			}
 			var parsedJson = parseJSONshit(rawJson);
+			if (parsedJson.mania == 0)
+			{
+				parsedJson.mania == 0;
+			}
+			else if (parsedJson.mania == 1)
+			{
+				parsedJson.mania == 1;
+			}
+			else if (parsedJson.mania == 2)
+			{
+				parsedJson.mania == 2;
+			}
+			else if (parsedJson.mania == 3)
+			{
+				parsedJson.mania == 3;
+			}
+			else if (parsedJson.mania == 4)
+			{
+				parsedJson.mania == 4;
+			}
+			else if (parsedJson.mania == 5)
+			{
+				parsedJson.mania == 5;
+			}
+			else if (parsedJson.mania == 6)
+			{
+				parsedJson.mania == 6;
+			}
+			else if (parsedJson.mania == 7)
+			{
+				parsedJson.mania == 7;
+			}
+			else if (parsedJson.mania == 8)
+			{
+				parsedJson.mania == 8;
+			}
 			if (parsedJson.stage == null) {
 				if (parsedJson.song.toLowerCase() == 'spookeez'|| parsedJson.song.toLowerCase() == 'monster' || parsedJson.song.toLowerCase() == 'south') {
 					parsedJson.stage = 'spooky';

@@ -58,6 +58,8 @@ import openfl.display.BlendMode;
 import openfl.display.StageQuality;
 import openfl.filters.ShaderFilter;
 
+import Type.ValueType;
+
 #if windows
 import Discord.DiscordClient;
 #end
@@ -164,6 +166,11 @@ class PlayState extends MusicBeatState
 	private var dad:Character;
 	private var gf:Character;
 	private var boyfriend:Boyfriend;
+
+	var camFollowXDad:Float = 0;
+	var camFollowYDad:Float = 0;
+	var camFollowXBoyfriend:Float = 0;
+	var camFollowYBoyfriend:Float = 0;
 
 	private var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
@@ -526,6 +533,7 @@ class PlayState extends MusicBeatState
 
 	override public function create()
 	{
+		Preferences.refreshPreferences();
 		if (loadHScript)
 		{
 			setAllHaxeVar('camZooming', camZooming);
@@ -1190,6 +1198,11 @@ class PlayState extends MusicBeatState
 		FlxG.camera.zoom = defaultCamZoom;
 		FlxG.camera.focusOn(camFollow.getPosition());
 
+		camFollowXDad = (dad.getMidpoint().x + 150) + dadCameraOffsetX;
+		camFollowYDad = (dad.getMidpoint().y - 100) + dadCameraOffsetY;
+		camFollowXBoyfriend = (boyfriend.getMidpoint().x - 100) + bfCameraOffsetX;
+		camFollowYBoyfriend = (boyfriend.getMidpoint().y - 100) + bfCameraOffsetY;
+
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
 		FlxG.fixedTimestep = false;
@@ -1655,6 +1668,10 @@ class PlayState extends MusicBeatState
 			interp.variables.set("judgement", FlxG.save.data.judgement);
 			interp.variables.set("middlescroll", FlxG.save.data.middlescroll);
 			interp.variables.set("noteSplash", FlxG.save.data.noteSplashON);
+			interp.variables.set("camFollowXDad", camFollowXDad);
+			interp.variables.set("camFollowYDad", camFollowYDad);
+			interp.variables.set("camFollowXBoyfriend", camFollowXBoyfriend);
+			interp.variables.set("camFollowYBoyfriend", camFollowYBoyfriend);
 			interp.variables.set("FlxSprite", FlxSprite);
 			interp.variables.set("FlxSound", FlxSound);
 			interp.variables.set("FlxGroup", flixel.group.FlxGroup);
@@ -1668,6 +1685,11 @@ class PlayState extends MusicBeatState
 			interp.variables.set("Rect", flixel.math.FlxRect);
 			interp.variables.set("StringTools", StringTools);
 			interp.variables.set("SONG", SONG);
+			interp.variables.set("camFollow", camFollow);
+			interp.variables.set("dadCameraOffsetX", dadCameraOffsetX);
+			interp.variables.set("dadCameraOffsetY", dadCameraOffsetY);
+			interp.variables.set("bfCameraOffsetX", bfCameraOffsetX);
+			interp.variables.set("bfCameraOffsetY", bfCameraOffsetY);
 			interp.variables.set("curbg", curbg);
 			interp.variables.set("playerStrums", playerStrums);
 			interp.variables.set("cpuStrums", cpuStrums);
@@ -1681,6 +1703,7 @@ class PlayState extends MusicBeatState
 			interp.variables.set("runningOnFE", runningOnFE);
 			interp.variables.set("nameOfTheSong", nameOfTheSong);
 			interp.variables.set("difficultySong", difficultySong);
+			interp.variables.set("Preferences", Preferences);
 			interp.variables.set("start", function (song) {});
 			interp.variables.set("beatHit", function (beat) {});
 			interp.variables.set("update", function (elapsed) {});
@@ -1795,6 +1818,30 @@ class PlayState extends MusicBeatState
                     add(iconP1);
                     SONG.player1 = player1BeforeChanges;
 				}
+			});
+			interp.variables.set("getVariableFromAClass", function(varClass:String, variable:String) {
+				var splittt:Array<String> = variable.split('.');
+				if (splittt.length > 1) {
+					var dyn:Dynamic = CoolUtil.getVarFromArray(Type.resolveClass(varClass), splittt[0]);
+					for (i in 1...splittt.length-1) {
+						dyn = CoolUtil.getVarFromArray(dyn, splittt[i]);
+					}
+					return CoolUtil.getVarFromArray(dyn, splittt[splittt.length-1]);
+				}
+				return CoolUtil.getVarFromArray(Type.resolveClass(varClass), variable);
+			});
+			interp.variables.set("setVariableFromAClass", function(varClass:String, variable:String, value:Dynamic) {
+				var splittt:Array<String> = variable.split('.');
+				if (splittt.length > 1) {
+					var dyn:Dynamic = CoolUtil.getVarFromArray(Type.resolveClass(varClass), splittt[0]);
+					for (i in 1...splittt.length-1) {
+						dyn = CoolUtil.getVarFromArray(dyn, splittt[i]);
+					}
+					CoolUtil.setVarFromArray(dyn, splittt[splittt.length-1], value);
+					return true;
+				}
+				CoolUtil.setVarFromArray(Type.resolveClass(varClass), variable, value);
+				return true;
 			});
 			interp.variables.set("Character", Character);
 			interp.variables.set("PlayState", PlayState);
@@ -4056,15 +4103,43 @@ class PlayState extends MusicBeatState
 		});
 	}
 
+	function specifyFlxGActionsForSecondInterps():Void {
+		trace("[OK] FlxG loaded in the haxe state sucessfully!");
+		//da functions
+		secondInterp.variables.set("getFullscreen", function()
+		{
+			return FlxG.fullscreen;
+		});
+		secondInterp.variables.set("setFullscreen", function(tf:Bool)
+		{
+			return FlxG.fullscreen = tf;
+		});
+		secondInterp.variables.set("justPressed", FlxG.keys.justPressed);
+		secondInterp.variables.set("pressed", FlxG.keys.pressed);
+		secondInterp.variables.set("justReleased", FlxG.keys.justReleased);
+		secondInterp.variables.set("resizeGame", function (Width:Int, Height:Int) {
+			return FlxG.resizeGame(Width, Height);
+		});
+		secondInterp.variables.set("resizeWindow", function (Width:Int, Height:Int) {
+			return FlxG.resizeWindow(Width, Height);
+		});
+		secondInterp.variables.set("openURL", function(url:String) {
+			return FlxG.openURL(url);
+		});
+		secondInterp.variables.set("execute", function(order:String) {
+			return order;
+		});
+	}
+
 	function configureInterp():Void { //interp :cold_sweat:
 		var bf = boyfriend;
 		secondInterp.variables.set("endSong", function() {
 			endSong();
 		});
 		secondInterp.variables.set("Conductor", Conductor);
-		secondInterp.variables.set("FlxAtlasFrames", FlxAtlasFrames);
 		secondInterp.variables.set("curBPM", Conductor.bpm);
 		secondInterp.variables.set("bpm", SONG.bpm);
+		secondInterp.variables.set("FlxAtlasFrames", FlxAtlasFrames);
 		secondInterp.variables.set("scrollSpeed", SONG.speed);
 		secondInterp.variables.set("crochet", Conductor.crochet);
 		secondInterp.variables.set("stepCrochet", Conductor.stepCrochet);
@@ -4072,6 +4147,7 @@ class PlayState extends MusicBeatState
 		secondInterp.variables.set("isStoryMode", PlayState.isStoryMode);
 		secondInterp.variables.set("storyDifficulty", PlayState.storyDifficulty);
 		secondInterp.variables.set("FurretEngineVersion", MainMenuState.furretEngineVer);
+		secondInterp.variables.set("CoolUtil", CoolUtil);
 		secondInterp.variables.set("botPlay", cpuControlled);
 		secondInterp.variables.set("downscroll", FlxG.save.data.downscroll);
 		secondInterp.variables.set("ghostTapping", FlxG.save.data.newInput);
@@ -4079,6 +4155,10 @@ class PlayState extends MusicBeatState
 		secondInterp.variables.set("judgement", FlxG.save.data.judgement);
 		secondInterp.variables.set("middlescroll", FlxG.save.data.middlescroll);
 		secondInterp.variables.set("noteSplash", FlxG.save.data.noteSplashON);
+		secondInterp.variables.set("camFollowXDad", camFollowXDad);
+		secondInterp.variables.set("camFollowYDad", camFollowYDad);
+		secondInterp.variables.set("camFollowXBoyfriend", camFollowXBoyfriend);
+		secondInterp.variables.set("camFollowYBoyfriend", camFollowYBoyfriend);
 		secondInterp.variables.set("FlxSprite", FlxSprite);
 		secondInterp.variables.set("FlxSound", FlxSound);
 		secondInterp.variables.set("FlxGroup", flixel.group.FlxGroup);
@@ -4092,6 +4172,11 @@ class PlayState extends MusicBeatState
 		secondInterp.variables.set("Rect", flixel.math.FlxRect);
 		secondInterp.variables.set("StringTools", StringTools);
 		secondInterp.variables.set("SONG", SONG);
+		secondInterp.variables.set("camFollow", camFollow);
+		secondInterp.variables.set("dadCameraOffsetX", dadCameraOffsetX);
+		secondInterp.variables.set("dadCameraOffsetY", dadCameraOffsetY);
+		secondInterp.variables.set("bfCameraOffsetX", bfCameraOffsetX);
+		secondInterp.variables.set("bfCameraOffsetY", bfCameraOffsetY);
 		secondInterp.variables.set("curbg", curbg);
 		secondInterp.variables.set("playerStrums", playerStrums);
 		secondInterp.variables.set("cpuStrums", cpuStrums);
@@ -4105,6 +4190,13 @@ class PlayState extends MusicBeatState
 		secondInterp.variables.set("runningOnFE", runningOnFE);
 		secondInterp.variables.set("nameOfTheSong", nameOfTheSong);
 		secondInterp.variables.set("difficultySong", difficultySong);
+		secondInterp.variables.set("Preferences", Preferences);
+		secondInterp.variables.set("start", function (song) {});
+		secondInterp.variables.set("beatHit", function (beat) {});
+		secondInterp.variables.set("update", function (elapsed) {});
+		secondInterp.variables.set("stepHit", function(step) {});
+		secondInterp.variables.set("camHUD", camHUD);
+		secondInterp.variables.set("camGame", camGame);
 		secondInterp.variables.set("healthBarBG", healthBarBG);
 		secondInterp.variables.set("healthBar", healthBar);
 		secondInterp.variables.set("scoreTxt", scoreTxt);
@@ -4139,6 +4231,11 @@ class PlayState extends MusicBeatState
 		secondInterp.variables.set("curBeat", 0);
 		secondInterp.variables.set("curSong", SONG.song);
 		secondInterp.variables.set("FlxText", FlxText);
+		secondInterp.variables.set("preloadImage", function(daThingToPreload:String) { //mandatory if you want to add an image to hscript
+			var preload = new FlxSprite(1000,-1000).loadGraphic(Paths.image(daThingToPreload));
+			add(preload);
+			remove(preload);
+		});
 		secondInterp.variables.set("SONG", SONG);
 		secondInterp.variables.set("Boyfriend", Boyfriend);
 		secondInterp.variables.set("boyfriend", bf);
@@ -4209,6 +4306,31 @@ class PlayState extends MusicBeatState
 				SONG.player1 = player1BeforeChanges;
 			}
 		});
+		secondInterp.variables.set("getVariableFromAClass", function(varClass:String, variable:String) {
+			var splittt:Array<String> = variable.split('.');
+			if (splittt.length > 1) {
+				var dyn:Dynamic = CoolUtil.getVarFromArray(Type.resolveClass(varClass), splittt[0]);
+				for (i in 1...splittt.length-1) {
+					dyn = CoolUtil.getVarFromArray(dyn, splittt[i]);
+				}
+				return CoolUtil.getVarFromArray(dyn, splittt[splittt.length-1]);
+			}
+			return CoolUtil.getVarFromArray(Type.resolveClass(varClass), variable);
+		});
+		secondInterp.variables.set("setVariableFromAClass", function(varClass:String, variable:String, value:Dynamic) {
+			var splittt:Array<String> = variable.split('.');
+			if (splittt.length > 1) {
+				var dyn:Dynamic = CoolUtil.getVarFromArray(Type.resolveClass(varClass), splittt[0]);
+				for (i in 1...splittt.length-1) {
+					dyn = CoolUtil.getVarFromArray(dyn, splittt[i]);
+				}
+				CoolUtil.setVarFromArray(dyn, splittt[splittt.length-1], value);
+				return true;
+			}
+			CoolUtil.setVarFromArray(Type.resolveClass(varClass), variable, value);
+			return true;
+		});
+		specifyFlxGActionsForSecondInterps();
 		secondInterp.variables.set("Character", Character);
 		secondInterp.variables.set("PlayState", PlayState);
 		secondInterp.variables.set("FlxG", FlxG);

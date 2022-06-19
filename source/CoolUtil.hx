@@ -8,6 +8,8 @@ import openfl.display.BitmapData;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 import flixel.FlxG;
+import openfl.utils.Assets as OpenFlAssets;
+import Type.ValueType;
 #if sys
 import sys.io.File;
 import sys.FileSystem;
@@ -34,6 +36,62 @@ class CoolUtil
 		['Normal', ''],
 		['Hard', '-hard']
 	];
+
+	public static function getSound(path:String) 
+	{
+		var sound;
+		sound = OpenFlAssets.getSound(path);
+		return sound;
+	}
+
+	public static function getVarFromArray(instance:Dynamic, variable:String):Any
+	{
+		var split:Array<String> = variable.split('[');
+		if(split.length > 1)
+		{
+			var blah:Dynamic = Reflect.getProperty(instance, split[0]);
+			for (i in 1...split.length)
+			{
+				var leNum:Dynamic = split[i].substr(0, split[i].length - 1);
+				blah = blah[leNum];
+			}
+			return blah;
+		}
+
+		switch(Type.typeof(instance)) {
+			case ValueType.TClass(haxe.ds.StringMap) | ValueType.TClass(haxe.ds.ObjectMap) | ValueType.TClass(haxe.ds.IntMap) | ValueType.TClass(haxe.ds.EnumValueMap):
+				return instance.get(variable);
+			default:
+				return Reflect.getProperty(instance, variable);
+		};
+		return null;
+	}
+
+	public static function setVarFromArray(instance:Dynamic, variable:String, value:Dynamic):Any
+	{
+		var shit:Array<String> = variable.split('[');
+		if(shit.length > 1)
+		{
+			var blah:Dynamic = Reflect.getProperty(instance, shit[0]);
+			for (i in 1...shit.length)
+			{
+				var leNum:Dynamic = shit[i].substr(0, shit[i].length - 1);
+				if(i >= shit.length-1)
+					blah[leNum] = value;
+				else
+					blah = blah[leNum];
+			}
+			return blah;
+		}
+
+		switch(Type.typeof(instance)) {
+			case ValueType.TClass(haxe.ds.StringMap) | ValueType.TClass(haxe.ds.ObjectMap) | ValueType.TClass(haxe.ds.IntMap) | ValueType.TClass(haxe.ds.EnumValueMap):
+				instance.set(variable, value);
+			default:
+				Reflect.setProperty(instance, variable, value);
+		};
+		return true;
+	}
 
 	public static function difficultyString():String
 	{
