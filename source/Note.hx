@@ -35,6 +35,10 @@ class Note extends FlxSprite
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
 
+	public var ability:String = '';
+	public var value1:String = '';
+	public var value2:String = '';
+
 	public var mania:Int = 0;
 
 	public static var scales:Array<Float> = [0.7, 0.6, 0.46];

@@ -23,6 +23,7 @@ import flixel.util.FlxTimer;
 import flixel.text.FlxText;
 import io.newgrounds.NG;
 import lime.app.Application;
+import flixel.input.keyboard.FlxKey;
 import openfl.Assets;
 
 #if windows
@@ -113,6 +114,66 @@ class TitleState extends MusicBeatState
 		if(FlxG.save.data.rightBind == null)
 		{
 			FlxG.save.data.rightBind = "D";
+		}
+		if (FlxG.save.data.mania6LeftBind == null)
+		{
+			FlxG.save.data.mania6LeftBind = "S";
+		}
+		if (FlxG.save.data.mania6UpBind == null)
+		{
+			FlxG.save.data.mania6UpBind = "D";
+		}
+		if (FlxG.save.data.mania6RightBind == null)
+		{
+			FlxG.save.data.mania6RightBind = "F";
+		}
+		if (FlxG.save.data.maniaCenterBind == null)
+		{
+			FlxG.save.data.maniaCenterBind = FlxKey.SPACE;
+		}
+		if (FlxG.save.data.mania6Left2Bind == null)
+		{
+			FlxG.save.data.mania6Left2Bind = "J";
+		}
+		if (FlxG.save.data.mania6DownBind == null)
+		{
+			FlxG.save.data.mania6DownBind = "K";
+		}
+		if (FlxG.save.data.mania6Right2Bind == null)
+		{
+			FlxG.save.data.mania6Right2Bind = "L";
+		}
+		if (FlxG.save.data.mania8LeftBind == null)
+		{
+			FlxG.save.data.mania8LeftBind = "A";
+		}
+		if (FlxG.save.data.mania8DownBind == null)
+		{
+			FlxG.save.data.mania8DownBind = "S";
+		}
+		if (FlxG.save.data.mania8UpBind == null)
+		{
+			FlxG.save.data.mania8UpBind = "D";
+		}
+		if (FlxG.save.data.mania8RightBind == null)
+		{
+			FlxG.save.data.mania8RightBind = "F";
+		}
+		if (FlxG.save.data.mania8Left2Bind == null)
+		{
+			FlxG.save.data.mania8Left2Bind = "H";
+		}
+		if (FlxG.save.data.mania8Down2Bind == null)
+		{
+			FlxG.save.data.mania8Down2Bind = "J";
+		}
+		if (FlxG.save.data.mania8Up2Bind == null)
+		{
+			FlxG.save.data.mania8Up2Bind = "K";
+		}
+		if (FlxG.save.data.mania8Right2Bind == null)
+		{
+			FlxG.save.data.mania8Right2Bind = "L";
 		}
 
 		Highscore.load();
@@ -335,18 +396,8 @@ class TitleState extends MusicBeatState
 
 			new FlxTimer().start(2, function(tmr:FlxTimer)
 			{
-
-				// Get current version of Kade Engine
-
-					
-						FlxG.switchState(new MainMenuState());
-					
-
-				
-
-
+				FlxG.switchState(new MainMenuState());
 			});
-			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 		}
 
 		if (pressedEnter && !skippedIntro)
@@ -374,17 +425,15 @@ class TitleState extends MusicBeatState
 		firstTime = new FlxText(0, FlxG.height/2-360, 0, "", 20);
 		firstTime.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		firstTime.scrollFactor.set();
+		firstTime.alpha = 1;
 		firstTime.text = "It seems this is your first time using this engine. Keybinds are now automatically set to ASWD";
 		add(firstTime);
-		new FlxTimer().start(0.1, function(tmr:FlxTimer)
+		var daTimer = new FlxTimer().start(4, function(tmr:FlxTimer)
 		{
-			firstTime.alpha -= 0.05;
-
-			if (firstTime.alpha > 0)
-			{
-				tmr.reset(0.1);
-			}
+			FlxTween.tween(firstTime, {alpha: 0}, 2, {ease: FlxEase.expoOut,});
+			firstTime.alpha = 1;
 		});
+		daTimer.reset();
 	}
 	function addMoreText(text:String)
 	{

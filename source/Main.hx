@@ -9,7 +9,7 @@ import flixel.FlxGame;
 import flixel.FlxState;
 import openfl.Assets;
 import openfl.Lib;
-import openfl.display.FPS;
+import FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
 #if android //only android will use those
@@ -28,7 +28,7 @@ class Main extends Sprite
 	public static var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
-	public static var watermarks = true; // Whether to put Kade Engine liteartly anywhere
+	public static var watermarks = true; // Whether to put furr liteartly anywhere
 	public static var furrettofnf = true; // Change Furret Engine watermark to FNF
 	public static var judgement = true; // LoL
 	private static var dataPath:String = null;//the thing android uses
