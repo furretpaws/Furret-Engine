@@ -1691,6 +1691,14 @@ class PlayState extends MusicBeatState
 			interp.variables.set("FlxRect", flixel.math.FlxRect);
 			interp.variables.set("Rect", flixel.math.FlxRect);
 			interp.variables.set("StringTools", StringTools);
+			interp.variables.set("SHADOW", FlxTextBorderStyle.SHADOW);
+			interp.variables.set("OUTLINE", FlxTextBorderStyle.OUTLINE);
+			interp.variables.set("OUTLINE_FAST", FlxTextBorderStyle.OUTLINE_FAST);
+			interp.variables.set("NONE", FlxTextBorderStyle.NONE);
+			interp.variables.set("CENTER", FlxTextAlign.CENTER);
+			interp.variables.set("JUSTIFY", FlxTextAlign.JUSTIFY);
+			interp.variables.set("LEFT", FlxTextAlign.LEFT);
+			interp.variables.set("RIGHT", FlxTextAlign.RIGHT);
 			interp.variables.set("SONG", SONG);
 			interp.variables.set("camFollow", camFollow);
 			interp.variables.set("dadCameraOffsetX", dadCameraOffsetX);
@@ -4254,6 +4262,10 @@ class PlayState extends MusicBeatState
 						default:
 						trace("[!] Invalid color");
 					}
+				case 'Tween Camera Zoom':
+					var zoom = Std.parseFloat(value1);
+					var duration = Std.parseFloat(value2);
+					FlxTween.tween(FlxG.camera, {zoom: value1}, value2, {ease: FlxEase.expoOut,});
 			}
 			eventNotes.shift();
 		}

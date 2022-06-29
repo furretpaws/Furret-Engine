@@ -48,7 +48,8 @@ class ChartingState extends MusicBeatState
 		['Screen Shake', "Value 1: Camera shake\nValue 2: HUD shake\nFormat: Duration and intensity (Example: 1, 0.05)"],
 		['Play Animation', "Plays an animation on a character. \n \nValue 1: Animation to play \nValue 2:\n0: Dad\n1: Girlfriend\n2: Boyfriend"],
 		['Switch Character', "Replaces a character. \n \nValue 1: Character to replace (Dad, BF or GF)\nValue 2: New character (Example: mom)"],
-		['Screen Flash', 'The screen is filled with this color and gradually\nreturns to normal. \n \nValue 1: Color\nValue 2: Duration\n[!] If there is no valid color the event will be canceled']
+		['Screen Flash', 'The screen is filled with this color and gradually\nreturns to normal. \n \nValue 1: Color\nValue 2: Duration\n[!] If there is no valid color the event will be canceled'],
+		['Tween Camera Zoom', 'Zoom in or zoom out the camera\n \nValue 1: Zoom\nValue 2: Duration']
 	];
 
 	var _file:FileReference;
