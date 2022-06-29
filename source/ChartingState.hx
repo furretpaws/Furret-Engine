@@ -196,7 +196,7 @@ class ChartingState extends MusicBeatState
 
 		updateGrid();
 
-		loadSong();
+		loadSong(_song.song);
 		Conductor.changeBPM(_song.bpm);
 		Conductor.mapBPMChanges(_song);
 
@@ -320,7 +320,7 @@ class ChartingState extends MusicBeatState
 
 		var reloadSong:FlxButton = new FlxButton(saveButton.x + saveButton.width + 10, saveButton.y, "Reload Audio", function()
 		{
-			loadSong();
+			loadSong(_song.song);
 		});
 
 		var reloadSongJson:FlxButton = new FlxButton(reloadSong.x, saveButton.y + 30, "Reload JSON", function()
@@ -674,24 +674,47 @@ class ChartingState extends MusicBeatState
 		UI_box.addGroup(tab_group_event);
 	}
 
-	function loadSong():Void
+	function loadSong(daSong:String):Void
 	{
 		if (FlxG.sound.music != null)
 		{
 			FlxG.sound.music.stop();
 			// vocals.stop();
 		}
-
-		var file:String = Paths.voices(_song.song);
-		vocals = new FlxSound();
-		if (OpenFlAssets.exists(file)) {
-			vocals.loadEmbedded(file);
+		#if sys
+		FlxG.sound.playMusic(Sound.fromFile("assets/music/"+daSong+"_Inst"+TitleState.soundExt), 0.6);
+		#else
+		FlxG.sound.playMusic('assets/music/' + daSong + "_Inst" + TitleState.soundExt, 0.6);
+		#end
+		// WONT WORK FOR TUTORIAL OR TEST SONG!!! REDO LATER
+		if (_song.needsVoices) {
+			#if sys
+			var vocalSound = Sound.fromFile("assets/music/"+daSong+"_Voices"+TitleState.soundExt);
+			vocals = new FlxSound().loadEmbedded(vocalSound);
+			#else
+			vocals = new FlxSound().loadEmbedded("assets/music/" + daSong + "_Voices" + TitleState.soundExt);
+			#end
 			FlxG.sound.list.add(vocals);
+
 		}
-		generateSong();
+
 		FlxG.sound.music.pause();
-		Conductor.songPosition = sectionStartTime();
-		FlxG.sound.music.time = Conductor.songPosition;
+		if (_song.needsVoices) {
+			vocals.pause();
+		}
+
+
+		FlxG.sound.music.onComplete = function()
+		{
+			if (_song.needsVoices) {
+				vocals.pause();
+				vocals.time = 0;
+			}
+
+			FlxG.sound.music.pause();
+			FlxG.sound.music.time = 0;
+			changeSection();
+		};
 	}
 
 	function generateSong() {
