@@ -24,7 +24,7 @@ Features:
 
   	Lua modcharts
 
-	Custom stages (without coding, based on FNF Modding +)
+	Custom stages (without coding, based on FNF Modding + | can also be added with haxe scripts)
 
 	Custom characters (without coding, based on FNF Modding +)
 	
