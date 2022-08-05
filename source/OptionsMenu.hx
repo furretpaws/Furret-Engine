@@ -28,6 +28,8 @@ class OptionsMenu extends MusicBeatState
 			new MiddlescrollOption(),
 			new HitsoundsOption(),
 			new NewInputOption(),
+			new IgnoreWarningMessagesOption(),
+			new ExperimentalFeaturesOptions(),
 			new JudgementOption(),
 			new BotOption(),
 			new FramerateOption(),

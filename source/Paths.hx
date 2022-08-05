@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
+import flash.media.Sound;
 
 using StringTools;
 
@@ -35,6 +36,13 @@ class Paths
 		}
 
 		return getPreloadPath(file);
+	}
+
+	static public function returnSound(path:String)
+	{
+		var soundToReturn;
+		soundToReturn = Sound.fromFile(path); //this took me so fucking long to figure :skull:
+		return soundToReturn;
 	}
 
 	static public function getLibraryPath(file:String, library = "preload")

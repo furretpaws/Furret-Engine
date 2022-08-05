@@ -8,7 +8,11 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import Song.SwagSong;
 import lime.utils.Assets;
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.util.FlxTimer;
 
 #if sys
 import sys.io.File;
@@ -39,19 +43,39 @@ class FreeplayState extends MusicBeatState
 {
 	var songs:Array<SongMetadatas> = [];
 	var selector:FlxText;
+	public static var rate:Float = 1.0;
 	var curSelected:Int = 0;
 	var curDifficulty:Int = 1;
 	public static var id:Int = 1;
 	var scoreText:FlxText;
 	var diffText:FlxText;
+	var previewtext:FlxText;
 	var judgementTextTxt:FlxText;
 	var lerpScore:Int = 0;
+	var songText:Alphabet;
+	var icon:HealthIcon;
 	var intendedScore:Int = 0;
+	var isInWarningMode:Bool = false;
+	var warningIconText:FlxText;
+	var warningText:FlxText;
+	var warningLine2Text:FlxText;
+	var yesSelectionText:FlxText;
+	var noSelectionText:FlxText;
+	var warningSelection:Int = 0;
+	var tip1Text:FlxText;
+	var tip2Text:FlxText;
+	var tip3Text:FlxText;
+	var warningBG:FlxSprite;
 
-	private var grpSongs:FlxTypedGroup<Alphabet>;
-	private var curPlaying:Bool = false;
+	var leftP = controls.LEFT_P;
+	var rightP = controls.RIGHT_P;
 
-	private var iconArray:Array<HealthIcon> = [];
+	var secondBG:FlxSprite;
+
+	var grpSongs:FlxTypedGroup<Alphabet>;
+	var curPlaying:Bool = false;
+
+	var iconArray:Array<HealthIcon> = [];
 
 	override function create()
 	{
@@ -63,13 +87,13 @@ class FreeplayState extends MusicBeatState
 			songs.push(new SongMetadatas(data[0], Std.parseInt(data[2]), data[1]));
 		}
 
-		/* 
-			if (FlxG.sound.music != null)
-			{
-				if (!FlxG.sound.music.playing)
-					FlxG.sound.playMusic(Paths.music('freakyMenu'));
-			}
-		 */
+		 
+		if (FlxG.sound.music != null) //null object reference so don't fuck with this
+		{
+			if (!FlxG.sound.music.playing)
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+		}
+		 
 
 		 #if windows
 		 // Updating Discord Rich Presence
@@ -94,12 +118,12 @@ class FreeplayState extends MusicBeatState
 
 		for (i in 0...songs.length)
 		{
-			var songText:Alphabet = new Alphabet(0, (70 * i) + 30, songs[i].songName, true, false);
+			songText = new Alphabet(0, (70 * i) + 30, songs[i].songName, true, false);
 			songText.isMenuItem = true;
 			songText.targetY = i;
 			grpSongs.add(songText);
 
-			var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
+			icon = new HealthIcon(songs[i].songCharacter);
 			icon.sprTracker = songText;
 
 			// using a FlxGroup is too much fuss!
@@ -116,13 +140,27 @@ class FreeplayState extends MusicBeatState
 		scoreText.setFormat("assets/fonts/vcr.ttf", 32, FlxColor.WHITE, RIGHT);
 		// scoreText.alignment = RIGHT;
 
-		var scoreBG:FlxSprite = new FlxSprite(scoreText.x - 6, 0).makeGraphic(Std.int(FlxG.width * 0.35), 66, 0xFF000000);
+		var scoreBG:FlxSprite = new FlxSprite(scoreText.x - 6, 0).makeGraphic(Std.int(FlxG.width * 0.50), 66, 0xFF000000);
 		scoreBG.alpha = 0.6;
 		add(scoreBG);
+
+		if (Main.enableExperimentalFeatures)
+		{
+			var modifiersBG:FlxSprite = new FlxSprite(900, 530).makeGraphic(450, 200, 0xFF000000);
+			modifiersBG.alpha = 0.6;
+			add(modifiersBG);
+		}
 
 		diffText = new FlxText(scoreText.x, scoreText.y + 36, 0, "", 24);
 		diffText.font = scoreText.font;
 		add(diffText);
+
+		previewtext = new FlxText(scoreText.x - (-20), scoreText.y + 550, 0, "Speed: " + rate + "x", 24);
+		previewtext.font = scoreText.font;
+		if (Main.enableExperimentalFeatures)
+		{
+			add(previewtext);
+		}
 
 		add(scoreText);
 
@@ -156,7 +194,62 @@ class FreeplayState extends MusicBeatState
 			trace(md);
 		 */
 
+		secondBG = new FlxSprite().loadGraphic(Paths.image('menuBGBlue'));
+		secondBG.alpha = 0;
+		add(secondBG);
+
+		warningBG = new FlxSprite(100, 90).makeGraphic(1100, 550, 0xFF000000);
+		warningBG.alpha = 0;
+		add(warningBG);
 		super.create();
+
+		warningIconText = new FlxText (600, 150);
+		warningIconText.text = "[!]";
+		warningIconText.alpha = 0;
+		warningIconText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(warningIconText);
+		
+		warningText = new FlxText(80, 200);
+		warningText.text = "Custom Speed is broken, this will be fixed in some\nFurret Engine update, are you sure you want to continue?";
+		warningText.alpha = 0;
+		warningText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(warningText);
+
+		warningLine2Text = new FlxText(110, 240);
+		warningLine2Text.text = "Furret Engine update, are you sure you want to continue?";
+		warningLine2Text.alpha = 0;
+		warningLine2Text.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(warningLine2Text);
+
+		tip1Text = new FlxText(110, 320);
+		tip1Text.text = "NOTE: High speeds (such as 2x or 3x) are not recommended";
+		tip1Text.alpha = 0;
+		tip1Text.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(tip1Text);
+
+		tip2Text = new FlxText(110, 360);
+		tip2Text.text = "they may cause crashes or some looping at the end of the";
+		tip2Text.alpha = 0;
+		tip2Text.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(tip2Text);
+		
+		tip3Text = new FlxText(110, 400);
+		tip3Text.text = "song, low speeds will work. Selected speed: " + rate;
+		tip3Text.alpha = 0;
+		tip3Text.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(tip3Text);
+
+		yesSelectionText = new FlxText(150, 500);
+		yesSelectionText.text = "YES";
+		yesSelectionText.alpha = 0;
+		yesSelectionText.setFormat(Paths.font("vcr.ttf"), 64, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(yesSelectionText);
+
+		noSelectionText = new FlxText(1000, 500);
+		noSelectionText.text = "NO";
+		noSelectionText.alpha = 0;
+		noSelectionText.setFormat(Paths.font("vcr.ttf"), 64, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(noSelectionText);
 	}
 
 	public function addSong(songName:String, weekNum:Int, songCharacter:String)
@@ -183,9 +276,127 @@ class FreeplayState extends MusicBeatState
 	{
 		super.update(elapsed);
 
+		var previewRate:Float = rate;
+
 		if (FlxG.sound.music.volume < 0.7)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
+		}
+
+		/*function changeWarningSelection(Selection:Int = 0) //this function doesn't work, i hate my life
+		{
+			if (Selection == 1)
+			{
+				yesSelectionText.alpha = 0.5;
+				noSelectionText.alpha = 1;
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				warningSelection = 0;
+			}
+			else if (Selection == 0)
+			{
+				yesSelectionText.alpha = 1;
+				noSelectionText.alpha = 0.5;
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				warningSelection = 1;
+			}
+		}
+
+		if (leftP && isInWarningMode && warningSelection == 0)
+		{
+			changeWarningSelection(1);
+		}
+		if (leftP && isInWarningMode && warningSelection == 1)
+		{
+			changeWarningSelection(0);
+		}
+		else if (rightP && isInWarningMode && warningSelection == 0)
+		{
+			changeWarningSelection(1);
+		}
+		if (rightP && isInWarningMode && warningSelection == 1)
+		{
+			changeWarningSelection(0);
+		}*/
+
+		if (controls.LEFT_P && isInWarningMode)
+		{
+			if (warningSelection == 0)
+			{
+				yesSelectionText.alpha = 0.5;
+				noSelectionText.alpha = 1;
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				warningSelection = 1;
+			}
+			else if (warningSelection == 1)
+			{
+				yesSelectionText.alpha = 1;
+				noSelectionText.alpha = 0.5;
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				warningSelection = 0;
+			}
+		}
+
+		if (controls.RIGHT_P && isInWarningMode)
+		{
+			if (warningSelection == 0)
+			{
+				yesSelectionText.alpha = 0.5;
+				noSelectionText.alpha = 1;
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				warningSelection = 1;
+			}
+			else if (warningSelection == 1)
+			{
+				yesSelectionText.alpha = 1;
+				noSelectionText.alpha = 0.5;
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				warningSelection = 0;
+			}
+		}
+
+		if (isInWarningMode && controls.ACCEPT)
+		{
+			switch(warningSelection)
+			{
+				case 0:
+				var diffic = "";
+
+				switch (curDifficulty)
+				{
+					case 0:
+						diffic = '-easy';
+					case 2:
+						diffic = '-hard';
+				}
+				var poop:String = songs[curSelected].songName.toLowerCase() + diffic;
+				if (!FileSystem.exists('assets/data/' + songs[curSelected].songName.toLowerCase() + '/' + poop.toLowerCase() + '.json'))
+				{
+					// assume we pecked up the difficulty, return to default difficulty
+					trace("UH OH SONG IN SPECIFIED DIFFICULTY DOESN'T EXIST\nUSING DEFAULT DIFFICULTY");
+					poop = songs[curSelected].songName;
+					curDifficulty = 1;
+				}
+				 diffic = "";
+		
+				switch (curDifficulty)
+				{
+					case 0:
+						diffic = '-easy';
+					case 2:
+						diffic = '-hard';
+				}
+
+				PlayState.storyDifficulty = curDifficulty;
+				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+				PlayState.isStoryMode = false;
+				
+				trace('CUR WEEK' + PlayState.storyWeek);
+				PlayState.songMultiplier = rate;
+				LoadingState.loadAndSwitchState(new PlayState());
+
+				case 1:
+				FlxG.resetState();
+			}
 		}
 
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, 0.4));
@@ -199,19 +410,53 @@ class FreeplayState extends MusicBeatState
 		var downP = controls.DOWN_P;
 		var accepted = controls.ACCEPT;
 
-		if (upP)
+		if (!isInWarningMode && upP)
 		{
 			changeSelection(-1);
 		}
-		if (downP)
+		if (!isInWarningMode && downP)
 		{
 			changeSelection(1);
 		}
 
-		if (controls.LEFT_P)
-			changeDiff(-1);
-		if (controls.RIGHT_P)
-			changeDiff(1);
+		if (FlxG.keys.pressed.SHIFT && Main.enableExperimentalFeatures)
+		{
+			if (FlxG.keys.justPressed.LEFT)
+			{
+				rate -= 0.05;
+			}
+			if (FlxG.keys.justPressed.RIGHT)
+			{
+				rate += 0.05;
+			}
+	
+			if (rate > 5)
+			{
+				rate = 5;
+			}
+			else if (rate < 0.5)
+			{
+				rate = 0.5;
+			}
+	
+			previewtext.text = "Speed: " + rate + "x";
+		}
+
+		if (!FlxG.keys.pressed.SHIFT)
+		{
+			if (controls.LEFT_P)
+				changeDiff(-1);
+			if (controls.RIGHT_P)
+				changeDiff(1);
+		}
+
+		#if cpp
+		@:privateAccess
+		{
+			if (FlxG.sound.music.playing)
+				lime.media.openal.AL.sourcef(FlxG.sound.music._channel.__source.__backend.handle, lime.media.openal.AL.PITCH, rate);
+		}
+		#end
 
 		if (controls.BACK)
 		{
@@ -252,13 +497,47 @@ class FreeplayState extends MusicBeatState
 				case 2:
 					diffic = '-hard';
 			}
-
-			PlayState.storyDifficulty = curDifficulty;
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
-			PlayState.isStoryMode = false;
-			
-			trace('CUR WEEK' + PlayState.storyWeek);
-			LoadingState.loadAndSwitchState(new PlayState());
+			if (!Main.ignoreWarningMessages)
+			{
+				if (rate != 1)
+				{
+					FlxTween.tween(secondBG, {alpha: 1}, 0.5, {ease: FlxEase.elasticInOut});
+					new FlxTimer().start(0.3, function(tmr:FlxTimer)
+					{
+						FlxTween.tween(warningBG, {alpha: 0.6}, 0.4, {ease: FlxEase.elasticInOut});
+						FlxTween.tween(warningIconText, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
+						FlxTween.tween(warningText, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
+						FlxTween.tween(warningLine2Text, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
+						FlxTween.tween(tip1Text, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
+						FlxTween.tween(tip2Text, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
+						FlxTween.tween(tip3Text, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
+						FlxTween.tween(yesSelectionText, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
+						FlxTween.tween(noSelectionText, {alpha: 0.5}, 0.4, {ease: FlxEase.elasticInOut});
+						tip3Text.text = "song, low speeds will work. Selected speed: " + rate;
+					});
+					isInWarningMode = true;
+				}
+				else if (rate == 1)
+				{
+					PlayState.storyDifficulty = curDifficulty;
+					PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+					PlayState.isStoryMode = false;
+		
+					trace('CUR WEEK' + PlayState.storyWeek);
+					PlayState.songMultiplier = rate;
+					LoadingState.loadAndSwitchState(new PlayState());
+				}
+			}
+			else if (Main.ignoreWarningMessages)
+			{
+				PlayState.storyDifficulty = curDifficulty;
+				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+				PlayState.isStoryMode = false;
+		
+				trace('CUR WEEK' + PlayState.storyWeek);
+				PlayState.songMultiplier = rate;
+				LoadingState.loadAndSwitchState(new PlayState());
+			}
 		}
 	}
 
@@ -312,7 +591,7 @@ class FreeplayState extends MusicBeatState
 		#end
 
 		#if PRELOAD_ALL
-		FlxG.sound.playMusic(Paths.inst(songs[curSelected].songName), 0);
+		FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 		#end
 
 		var bullShit:Int = 0;

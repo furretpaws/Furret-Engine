@@ -14,6 +14,8 @@ import Type.ValueType;
 import sys.io.File;
 import sys.FileSystem;
 #end
+import flash.media.Sound;
+
 using StringTools;
 
 class CoolUtil
@@ -39,8 +41,10 @@ class CoolUtil
 
 	public static function getSound(path:String) 
 	{
-		var sound;
-		sound = OpenFlAssets.getSound(path);
+		if(!FileSystem.exists(path)){
+			Application.current.window.alert('[!] Missing file: "'+path+'"');
+		}
+		var sound:Sound = Paths.returnSound(path);
 		return sound;
 	}
 

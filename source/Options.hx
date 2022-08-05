@@ -169,7 +169,7 @@ class JudgementOption extends Option
 		if (changeData)
 		Main.judgement = !Main.judgement;
 		FlxG.save.data.judgement = Main.judgement;
-		acceptValues = FlxG.save.data.cpuControlled || Main.judgement;
+		acceptValues = FlxG.save.data.judgement || Main.judgement;
 		display = updateDisplay();
 		return true;
 	}
@@ -180,7 +180,51 @@ class JudgementOption extends Option
 	}
 }
 
+class IgnoreWarningMessagesOption extends Option
+{
+	public function new()
+	{
+		super();
+	}
 
+	public override function press(changeData:Bool):Bool
+	{
+		if (changeData)
+		Main.ignoreWarningMessages = !Main.ignoreWarningMessages;
+		FlxG.save.data.ignoreWarningMessages = Main.ignoreWarningMessages;
+		acceptValues = FlxG.save.data.ignoreWarningMessages || Main.ignoreWarningMessages;
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		return "Ignore Warning Messages ";
+	}
+}
+
+class ExperimentalFeaturesOptions extends Option
+{
+	public function new()
+	{
+		super();
+	}
+
+	public override function press(changeData:Bool):Bool
+	{
+		if (changeData)
+		Main.enableExperimentalFeatures = !Main.enableExperimentalFeatures;
+		FlxG.save.data.enableExperimentalFeatures = Main.enableExperimentalFeatures;
+		acceptValues = FlxG.save.data.enableExperimentalFeatures || Main.enableExperimentalFeatures;
+		display = updateDisplay();
+		return true;
+	}
+
+	private override function updateDisplay():String
+	{
+		return "Enable Experimental Features ";
+	}
+}
 
 class MiddlescrollOption extends Option
 {

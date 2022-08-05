@@ -9,7 +9,7 @@ import flixel.FlxGame;
 import flixel.FlxState;
 import openfl.Assets;
 import openfl.Lib;
-import FPS;
+import openfl.display.FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
 #if android //only android will use those
@@ -30,8 +30,10 @@ class Main extends Sprite
 
 	public static var watermarks = true; // Whether to put furr liteartly anywhere
 	public static var furrettofnf = true; // Change Furret Engine watermark to FNF
-	public static var judgement = true; // LoL
-	private static var dataPath:String = null;//the thing android uses
+	public static var judgement = true; // LoL | EDIT (04/08/2022): De verdad escribí "LoL"? Puta madre alto cringe daba
+	public static var ignoreWarningMessages = false; //ignores warning messages for certain thing that are in experimental phases or broken
+	public static var enableExperimentalFeatures = false; //enables experimental features
+	private static var dataPath:String = null; //the thing android uses
 	public static var editor:Bool = false;
 	public static var menuBad:Bool = false;
 	public static var woops:Bool = false;
