@@ -65,10 +65,6 @@ class Main extends Sprite
 	{
 		super();
 
-		#if android
-		AndroidChecker.gameCrashCheck();
-		#end
-
 		if (stage != null)
 		{
 			init();
@@ -102,10 +98,6 @@ class Main extends Sprite
 			gameWidth = Math.ceil(stageWidth / zoom);
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
-
-		#if android
-		AndroidChecker.doTheCheck();
-		#end
 
 		#if !debug
 		initialState = TitleState;
