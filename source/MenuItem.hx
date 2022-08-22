@@ -6,6 +6,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
+import lime.utils.Assets;
 import lime.system.System;
 #if sys
 import sys.io.File;
@@ -25,9 +26,9 @@ class MenuItem extends FlxSpriteGroup
 	public function new(x:Float, y:Float, weekNum:Int = 0)
 	{
 		super(x, y);
-		var parsedWeekJson:Array<Array<String>> = CoolUtil.parseJson(File.getContent("assets/data/storySongList.json")).songs;
+		var parsedWeekJson:Array<Array<String>> = CoolUtil.parseJson(Assets.getText("assets/data/storySonglist.json")).songs;
 		var rawPic = BitmapData.fromFile('assets/images/campaign-ui-week/week'+weekNum+".png");
-		var rawXml = File.getContent('assets/images/campaign-ui-week/week'+weekNum+".xml");
+		var rawXml = Assets.getText('assets/images/campaign-ui-week/week'+weekNum+".xml");
 		var tex = FlxAtlasFrames.fromSparrow(rawPic, rawXml);
 
 		week = new FlxSprite();

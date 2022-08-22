@@ -507,26 +507,10 @@ class TitleState extends MusicBeatState
 			// credTextShit.text = 'Shoutouts Tom Fulp';
 			// credTextShit.screenCenter();
 			case 9:
-				#if windows
 				createCoolText([curWacky[0]]);
-				#end
-				#if android
-				addMoreText('android');
-				#end
-				#if linux
-				addMoreText('linux');
-				#end
-				#if neko
-				addMoreText('macos');
-				#end
 			// credTextShit.visible = true;
 			case 11:
-				#if windows
 				createCoolText([curWacky[1]]);
-				#end
-				#if !(windows)
-				addMoreText('pog');
-				#end
 			// credTextShit.text += '\nlmao';
 			case 12:
 				deleteCoolText();

@@ -12,6 +12,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.net.curl.CURLCode;
+import lime.utils.Assets;
 
 #if windows
 import Discord.DiscordClient;
@@ -77,7 +78,7 @@ class StoryMenuState extends MusicBeatState
 			if (!FlxG.sound.music.playing)
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 		}
-		var storySongJson:StorySongsJson = CoolUtil.parseJson(File.getContent('assets/data/storySonglist.json'));
+		var storySongJson:StorySongsJson = CoolUtil.parseJson(Assets.getText('assets/data/storySonglist.json'));
 		persistentUpdate = persistentDraw = true;
 		for (storySongList in storySongJson.songs) {
 			var weekSongs = [];
@@ -350,6 +351,7 @@ class StoryMenuState extends MusicBeatState
 			}
 
 			for (peckUpAblePath in PlayState.storyPlaylist) {
+				#if windows
 				if (!FileSystem.exists('assets/data/'+peckUpAblePath.toLowerCase()+'/'+peckUpAblePath.toLowerCase() + diffic+'.json')) {
 					// probably messed up difficulty
 					trace("UH OH DIFFICULTY DOESN'T EXIST FOR A SONG");
@@ -357,6 +359,7 @@ class StoryMenuState extends MusicBeatState
 					diffic = "";
 					PlayState.storyDifficulty =1;
 				}
+				#end
 			}
 			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
 			

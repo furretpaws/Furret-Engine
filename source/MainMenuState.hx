@@ -15,6 +15,7 @@ import io.newgrounds.NG;
 import lime.app.Application;
 #if sys
 import sys.io.File;
+import sys.FileSystem;
 #end
 #if windows
 import Discord.DiscordClient;
@@ -123,6 +124,11 @@ class MainMenuState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
+		if (FlxG.keys.justPressed.P)
+		{
+			trace("detecting filesystem.exists fjlsdkfjdslkfj");
+			trace(File.getContent("assets/data/bopeebo/bopeebo-hard.json"));
+		}
 		if (FlxG.sound.music.volume < 0.8)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;

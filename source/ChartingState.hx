@@ -1,6 +1,6 @@
 package;
 
-#if desktop
+#if windows
 import Discord.DiscordClient;
 #end
 import Conductor.BPMChangeEvent;
@@ -122,7 +122,7 @@ class ChartingState extends MusicBeatState
 
 	override function create()
 	{
-		#if desktop
+		#if windows
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("Chart Editor", PlayState.SONG.song);
 		#end

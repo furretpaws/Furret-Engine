@@ -67,8 +67,6 @@ class Song
 				// means this isn't normal difficulty
 				// raw json 
 				// folder is always just the song name
-				#if windows
-				trace(PlayState.storyDifficulty);
 				if (PlayState.storyDifficulty == 0)
 				{
 					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
@@ -81,30 +79,29 @@ class Song
 				{
 					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
 				}
-				#end
-				#if android
-				var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim(); //no extra keys for android cuz fuk u
-				#end
-			} else {
-				#if windows
-				if (PlayState.storyDifficulty == 0)
-				{
-					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
-				}
-				else if (PlayState.storyDifficulty == 1)
-				{
-					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+".json").trim();
-				}
-				else if (PlayState.storyDifficulty == 2)
-				{
-					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
-				}
-				#else
-				rawJson = Assets.getText('assets/preload/data/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
+				/*rawJson = Assets.getText('assets/preload/data/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
 				#end
 				#if android
 				var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim(); //no extra keys for android cuz fuk u again
+				#end*/
+			} else {
+				if (PlayState.storyDifficulty == 0)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
+				}
+				else if (PlayState.storyDifficulty == 1)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+".json").trim();
+				}
+				else if (PlayState.storyDifficulty == 2)
+				{
+					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
+				}
+				/*rawJson = Assets.getText('assets/preload/data/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
 				#end
+				#if android
+				var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim(); //no extra keys for android cuz fuk u again
+				#end*/
 			}
 			while (!rawJson.endsWith("}"))
 			{
@@ -251,7 +248,7 @@ class Song
 			{
 				// means this isn't normal difficulty
 				// lets finally overwrite notes
-				var realJson = parseJSONshit(File.getContent("assets/data/" + folder.toLowerCase() + "/" + jsonInput.toLowerCase() + '.json').trim());
+				var realJson = parseJSONshit(Assets.getText("assets/data/" + folder.toLowerCase() + "/" + jsonInput.toLowerCase() + '.json').trim());
 				parsedJson.notes = realJson.notes;
 				parsedJson.bpm = realJson.bpm;
 				parsedJson.needsVoices = realJson.needsVoices;

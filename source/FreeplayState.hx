@@ -79,7 +79,7 @@ class FreeplayState extends MusicBeatState
 
 	override function create()
 	{
-		var parsed = CoolUtil.parseJson(File.getContent('assets/data/freeplaySongJson.jsonc'));
+		var parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
 		var initSonglist:Dynamic = parsed[id].songs;
 		for (i in 0...initSonglist.length)
 		{
@@ -369,6 +369,7 @@ class FreeplayState extends MusicBeatState
 						diffic = '-hard';
 				}
 				var poop:String = songs[curSelected].songName.toLowerCase() + diffic;
+				/*#if windows
 				if (!FileSystem.exists('assets/data/' + songs[curSelected].songName.toLowerCase() + '/' + poop.toLowerCase() + '.json'))
 				{
 					// assume we pecked up the difficulty, return to default difficulty
@@ -376,7 +377,8 @@ class FreeplayState extends MusicBeatState
 					poop = songs[curSelected].songName;
 					curDifficulty = 1;
 				}
-				 diffic = "";
+				#end*/
+				diffic = "";
 		
 				switch (curDifficulty)
 				{
@@ -387,7 +389,7 @@ class FreeplayState extends MusicBeatState
 				}
 
 				PlayState.storyDifficulty = curDifficulty;
-				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+				//PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
 				PlayState.isStoryMode = false;
 				
 				trace('CUR WEEK' + PlayState.storyWeek);
@@ -460,7 +462,7 @@ class FreeplayState extends MusicBeatState
 
 		if (controls.BACK)
 		{
-			var parsed:Dynamic = CoolUtil.parseJson(File.getContent('assets/data/freeplaySongJson.jsonc'));
+			var parsed:Dynamic = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
 
 			if(parsed.length==1){
 				FlxG.switchState(new MainMenuState());
@@ -481,15 +483,17 @@ class FreeplayState extends MusicBeatState
 					diffic = '-hard';
 			}
 			var poop:String = songs[curSelected].songName.toLowerCase() + diffic;
-			if (!FileSystem.exists('assets/data/' + songs[curSelected].songName.toLowerCase() + '/' + poop.toLowerCase() + '.json'))
+			#if windows
+			/*if (!FileSystem.exists('assets/data/' + songs[curSelected].songName.toLowerCase() + '/' + poop.toLowerCase() + '.json'))
 			{
 				// assume we pecked up the difficulty, return to default difficulty
 				trace("UH OH SONG IN SPECIFIED DIFFICULTY DOESN'T EXIST\nUSING DEFAULT DIFFICULTY");
 				poop = songs[curSelected].songName;
 				curDifficulty = 1;
-			}
-			 diffic = "";
-
+			}*/
+			#end
+			diffic = "";
+	
 			switch (curDifficulty)
 			{
 				case 0:
@@ -530,13 +534,20 @@ class FreeplayState extends MusicBeatState
 			}
 			else if (Main.ignoreWarningMessages)
 			{
+				trace("1");
 				PlayState.storyDifficulty = curDifficulty;
+				trace("2");
 				PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+				trace("3");
 				PlayState.isStoryMode = false;
+				trace("4");
 		
 				trace('CUR WEEK' + PlayState.storyWeek);
+				trace("5");
 				PlayState.songMultiplier = rate;
+				trace("6");
 				LoadingState.loadAndSwitchState(new PlayState());
+				trace("7");
 			}
 		}
 	}
