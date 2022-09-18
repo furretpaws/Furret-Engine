@@ -13,6 +13,7 @@ import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import io.newgrounds.NG;
 import lime.app.Application;
+import lime.utils.Assets;
 #if sys
 import sys.io.File;
 import sys.FileSystem;
@@ -47,6 +48,8 @@ class MainMenuState extends MusicBeatState
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
+
+	var parsed:Dynamic;
 
 	override function create()
 	{ 
@@ -128,11 +131,6 @@ class MainMenuState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-		if (FlxG.keys.justPressed.P)
-		{
-			trace("detecting filesystem.exists fjlsdkfjdslkfj");
-			trace(File.getContent("assets/data/bopeebo/bopeebo-hard.json"));
-		}
 		if (FlxG.sound.music.volume < 0.8)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
@@ -197,7 +195,19 @@ class MainMenuState extends MusicBeatState
 									case 'story mode':
 										FlxG.switchState(new StoryMenuState());
 									case 'freeplay':
-										var parsed:Dynamic = CoolUtil.parseJson(File.getContent('assets/data/freeplaySongJson.jsonc'));
+										var parsed:Dynamic;
+										#if android
+										if (BootUpCheck.ignoreAssetsFolder)
+										{
+											parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+										}
+										else
+										{
+											parsed = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + 'assets/data/freeplaySongJson.jsonc'));
+										}
+										#else
+										parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+										#end
 	
 										if(parsed.length==1){
 											FreeplayState.id = 0;

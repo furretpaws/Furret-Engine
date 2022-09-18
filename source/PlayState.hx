@@ -664,6 +664,23 @@ class PlayState extends MusicBeatState
 		defaultPlayer1 == SONG.player2;
 
 		// prefer player 1
+		#if android
+		if (FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_chars/'+SONG.player1+'/'+SONG.song.toLowerCase()+'Dialog.txt')) {
+			dialogue = CoolUtil.coolDynamicTextFile('assets/images/custom_chars/'+SONG.player1+'/'+SONG.song.toLowerCase()+'Dialog.txt');
+		// if no player 1 unique dialog, use player 2
+		} else if (FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_chars/'+SONG.player2+'/'+SONG.song.toLowerCase()+'Dialog.txt')) {
+			dialogue = CoolUtil.coolDynamicTextFile('assets/images/custom_chars/'+SONG.player2+'/'+SONG.song.toLowerCase()+'Dialog.txt');
+		// if no player dialog, use default
+		}	else if (FileSystem.exists(BootUpCheck.getPath() + 'assets/data/'+SONG.song.toLowerCase()+'/dialog.txt')) {
+			dialogue = CoolUtil.coolDynamicTextFile('assets/data/'+SONG.song.toLowerCase()+'/dialog.txt');
+		} else if (FileSystem.exists(BootUpCheck.getPath() + 'assets/data/'+SONG.song.toLowerCase()+'/dialogue.txt')){
+			// nerds spell dialogue properly gotta make em happy
+			dialogue = CoolUtil.coolDynamicTextFile('assets/data/' + SONG.song.toLowerCase() + '/dialogue.txt');
+		// otherwise, make the dialog an error message
+		} else {
+			dialogue = [':dad: The game tried to get a dialog file but couldn\'t find it. Please make sure there is a dialog file named "dialog.txt".'];
+		}
+		#else
 		if (FileSystem.exists('assets/images/custom_chars/'+SONG.player1+'/'+SONG.song.toLowerCase()+'Dialog.txt')) {
 			dialogue = CoolUtil.coolDynamicTextFile('assets/images/custom_chars/'+SONG.player1+'/'+SONG.song.toLowerCase()+'Dialog.txt');
 		// if no player 1 unique dialog, use player 2
@@ -679,6 +696,7 @@ class PlayState extends MusicBeatState
 		} else {
 			dialogue = [':dad: The game tried to get a dialog file but couldn\'t find it. Please make sure there is a dialog file named "dialog.txt".'];
 		}
+		#end
 		boyfriend = new Boyfriend(770, 450, SONG.player1);
 		dad = new Character(100, 100, SONG.player2);
 		gf = new Character(400, 130, SONG.gf);
@@ -1022,6 +1040,23 @@ class PlayState extends MusicBeatState
 		} 
 		else
 		{
+			#if android
+			if (FileSystem.exists(BootUpCheck.getPath() + "assets/images/custom_stages/" + SONG.stage + "/stageData.json")) {
+				trace("[i] Stage type: JSON");
+				generateJsonStage();
+			}
+			else
+			{
+				if (FileSystem.exists(BootUpCheck.getPath() + "assets/images/custom_stages/" + SONG.stage + "/stageData.hx")) {
+					trace("[i] Stage type: Haxe");
+					generateHaxeStage();
+				}
+				else
+				{
+					Application.current.window.alert("The stage couldn't be found. The stage will be a black screen. Press OK to continue.");
+				}
+			}
+			#else
 			if (FileSystem.exists("assets/images/custom_stages/" + SONG.stage + "/stageData.json")) {
 				trace("[i] Stage type: JSON");
 				generateJsonStage();
@@ -1037,7 +1072,7 @@ class PlayState extends MusicBeatState
 					Application.current.window.alert("The stage couldn't be found. The stage will be a black screen. Press OK to continue.");
 				}
 			}
-				
+			#end	
 		}
 
 		if (curStage == 'limo'){
@@ -1203,17 +1238,10 @@ class PlayState extends MusicBeatState
 
 		add(camFollow);
 
-		#if windows
+		#if !(android)
 		FlxG.camera.follow(camFollow, LOCKON, 0.04 * (30 / (cast (Lib.current.getChildAt(0), Main)).getFPS()));
-		#end
-		#if linux
-		FlxG.camera.follow(camFollow, LOCKON, 0.04 * (30 / (cast (Lib.current.getChildAt(0), Main)).getFPS()));
-		#end
-		#if neko
-		FlxG.camera.follow(camFollow, LOCKON, 0.04 * (30 / (cast (Lib.current.getChildAt(0), Main)).getFPS()));
-		#end
-		#if android
-		FlxG.camera.follow(camFollow, LOCKON, 0.04 * (30 / (cast (Lib.current.getChildAt(0)))));
+		#elseif android
+		FlxG.camera.follow(camFollow, LOCKON, 0.04);
 		#end
 		// FlxG.camera.setScrollBounds(0, FlxG.width, 0, FlxG.height);
 		FlxG.camera.zoom = defaultCamZoom;
@@ -1448,11 +1476,19 @@ class PlayState extends MusicBeatState
 		if (loadRep)
 			replayTxt.cameras = [camHUD];
 
+		#if android
+		if (FileSystem.exists(BootUpCheck.getPath() + "assets/data/" + curSong.toLowerCase() + "/songScript.hx"))
+		{
+			trace("[!] A song script has been detected!");
+			loadHScript = true;
+		}
+		#else
 		if (FileSystem.exists("assets/data/" + curSong.toLowerCase() + "/songScript.hx"))
 		{
 			trace("[!] A song script has been detected!");
 			loadHScript = true;
 		}
+		#end
 		else
 		{
 			trace("There isn't a script for this song");
@@ -1534,6 +1570,17 @@ class PlayState extends MusicBeatState
 		red.scrollFactor.set();
 		var senpaiSound:Sound;
 		// try and find a player2 sound first
+		#if android
+		if (FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_chars/'+SONG.player2+'/Senpai_Dies.ogg')) {
+			senpaiSound = Sound.fromFile('assets/images/custom_chars/'+SONG.player2+'/Senpai_Dies.ogg');
+		// otherwise, try and find a song one
+		} else if (FileSystem.exists(BootUpCheck.getPath() + 'assets/data/'+SONG.song.toLowerCase()+'/Senpai_Dies.ogg')) {
+			senpaiSound = Sound.fromFile(BootUpCheck.getPath() + 'assets/data/'+SONG.song.toLowerCase()+'Senpai_Dies.ogg');
+		// otherwise, use the default sound
+		} else {
+			senpaiSound = Sound.fromFile('assets/sounds/Senpai_Dies.ogg');
+		}
+		#else
 		if (FileSystem.exists('assets/images/custom_chars/'+SONG.player2+'/Senpai_Dies.ogg')) {
 			senpaiSound = Sound.fromFile('assets/images/custom_chars/'+SONG.player2+'/Senpai_Dies.ogg');
 		// otherwise, try and find a song one
@@ -1543,20 +1590,37 @@ class PlayState extends MusicBeatState
 		} else {
 			senpaiSound = Sound.fromFile('assets/sounds/Senpai_Dies.ogg');
 		}
+		#end
 		var senpaiEvil:FlxSprite = new FlxSprite();
 		// dialog box overwrites character
 		trace("YO WE HIT THE POGGERS");
 		if (FileSystem.exists('assets/images/custom_ui/dialog_boxes/'+SONG.cutsceneType+'/crazy.png')) {
+			#if android
+			var evilImage = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/custom_ui/dialog_boxes/'+SONG.cutsceneType+'/crazy.png');
+			#else
 			var evilImage = BitmapData.fromFile('assets/images/custom_ui/dialog_boxes/'+SONG.cutsceneType+'/crazy.png');
+			#end
+			#if android
+			var evilXml = File.getContent(BootUpCheck.getPath() + 'assets/images/custom_ui/dialog_boxes/'+SONG.cutsceneType+'/crazy.xml');
+			#else
 			var evilXml = File.getContent('assets/images/custom_ui/dialog_boxes/'+SONG.cutsceneType+'/crazy.xml');
+			#end
 			senpaiEvil.frames = FlxAtlasFrames.fromSparrow(evilImage, evilXml);
 			
 		// character then takes precendence over default
 		// will make things like monika way way easier
-		} else if (FileSystem.exists('assets/images/custom_chars/'+SONG.player2+'/crazy.png')) {
+		} #if android else if (FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_chars/'+SONG.player2+'/crazy.png')) #else else if (FileSystem.exists('assets/images/custom_chars/'+SONG.player2+'/crazy.png')) #end {
 
+			#if android
+			var evilImage = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/custom_chars/'+SONG.player2+'/crazy.png');
+			#else
 			var evilImage = BitmapData.fromFile('assets/images/custom_chars/'+SONG.player2+'/crazy.png');
+			#end
+			#if android
+			var evilXml = File.getContent(BootUpCheck.getPath() + 'assets/images/custom_chars/'+SONG.player2+'/crazy.xml');
+			#else
 			var evilXml = File.getContent('assets/images/custom_chars/'+SONG.player2+'/crazy.xml');
+			#end
 			senpaiEvil.frames = FlxAtlasFrames.fromSparrow(evilImage, evilXml);
 		} else {
 			
@@ -1732,6 +1796,10 @@ class PlayState extends MusicBeatState
 			interp.variables.set("RIGHT", FlxTextAlign.RIGHT);
 			interp.variables.set("SONG", SONG);
 			interp.variables.set("camFollow", camFollow);
+			interp.variables.set("Sys", Sys);
+			interp.variables.set("FileSystem", sys.FileSystem); //i shouldn't be doing this, people can do a lot of bad things with this
+			interp.variables.set("File", sys.io.File);
+			interp.variables.set("JSON", haxe.Json); //this isn't too bad isn't it?
 			interp.variables.set("dadCameraOffsetX", dadCameraOffsetX);
 			interp.variables.set("dadCameraOffsetY", dadCameraOffsetY);
 			interp.variables.set("bfCameraOffsetX", bfCameraOffsetX);
@@ -1746,6 +1814,8 @@ class PlayState extends MusicBeatState
 			interp.variables.set("badsTxt", badsTxt);
 			interp.variables.set("shitsTxt", shitsTxt);
 			interp.variables.set("missesTxt", missesTxt);
+			interp.variables.set("judgementTextTxt", judgementTextTxt);
+			interp.variables.set("scoreTxt", scoreTxt);
 			interp.variables.set("runningOnFE", runningOnFE);
 			interp.variables.set("nameOfTheSong", nameOfTheSong);
 			interp.variables.set("difficultySong", difficultySong);
@@ -1898,12 +1968,6 @@ class PlayState extends MusicBeatState
 			interp.variables.set("FlxG", FlxG);
 			interp.variables.set("ease", FlxEase);
 			interp.variables.set("camHUD", camHUD);
-			interp.variables.set("setShaders", function(shaderType:String, tf:Bool) {
-				if (shaderType == 'vcr')
-				{
-					vcrEffect = new Shaders.VCRDistorsionShader();
-				}
-			});
 			interp.variables.set("remove", function(something)
 			{
 				remove(something);
@@ -1916,7 +1980,11 @@ class PlayState extends MusicBeatState
 				trace("[i] Loading 'assets/data/" + curSong.toLowerCase() + "/" + scriptName + ".hx");
 				secondInterp = new hscript.Interp();
 				configureInterp();
+				#if android
+				var getScript = File.getContent(BootUpCheck.getPath() + "assets/data/" + PlayState.SONG.song.toLowerCase() + "/" + scriptName + ".hx");
+				#else
 				var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/" + scriptName + ".hx");
+				#end
 				var daScript:String = getScript;
 				var daScriptParser = new hscript.Parser();
 				var script = daScriptParser.parseString(daScript);
@@ -1924,7 +1992,11 @@ class PlayState extends MusicBeatState
 				trace("[OK] Script loaded successfully!");
 			});
 			specifyFlxGActions();
+			#if android
+			var getScript = File.getContent(BootUpCheck.getPath() + "assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
+			#else
 			var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
+			#end
 			var daScript:String = getScript;
 			var daScriptParser = new hscript.Parser();
 			var script:Dynamic = 'metete tu "Local variable script used without being initialized" por el fondo del ano';
@@ -2472,14 +2544,23 @@ class PlayState extends MusicBeatState
 				'weeb/pixelUI/set-pixel.png',
 				'weeb/pixelUI/date-pixel.png'
 			]);
+			#if !(android)
 			for (field in CoolUtil.coolTextFile('assets/data/uitypes.txt')) {
 				if (field != 'pixel' && field != 'normal') {
+					#if android
+					if (FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						introAssets.set(field, ['custom_ui/ui_packs/'+field+'/ready-pixel.png','custom_ui/ui_packs/'+field+'/set-pixel.png','custom_ui/ui_packs/'+field+'/date-pixel.png']);
+					else
+						introAssets.set(field, ['custom_ui/ui_packs/'+field+'/ready.png','custom_ui/ui_packs/'+field+'/set.png','custom_ui/ui_packs/'+field+'/go.png']);
+					#else
 					if (FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
 						introAssets.set(field, ['custom_ui/ui_packs/'+field+'/ready-pixel.png','custom_ui/ui_packs/'+field+'/set-pixel.png','custom_ui/ui_packs/'+field+'/date-pixel.png']);
 					else
 						introAssets.set(field, ['custom_ui/ui_packs/'+field+'/ready.png','custom_ui/ui_packs/'+field+'/set.png','custom_ui/ui_packs/'+field+'/go.png']);
+					#end
 				}
 			}
+			#end
 
 			var introAlts:Array<String> = introAssets.get('default');
 			var altSuffix:String = "";
@@ -2493,7 +2574,11 @@ class PlayState extends MusicBeatState
 					{
 						introAlts = introAssets.get(value);
 						// ok so apparently a leading slash means absolute soooooo
+						#if android
+						if (SONG.uiType == 'pixel' || FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						#else
 						if (SONG.uiType == 'pixel' || FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						#end
 							altSuffix = '-pixel';
 					}
 				}	
@@ -2523,12 +2608,20 @@ class PlayState extends MusicBeatState
 						FlxG.sound.play(intro3Sound, 0.6);
 					case 1:
 						// my life is a lie, it was always this simple
+						#if android
+						var readyImage = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/'+introAlts[0]);
+						#else
 						var readyImage = BitmapData.fromFile('assets/images/'+introAlts[0]);
+						#end
 						var ready:FlxSprite = new FlxSprite().loadGraphic(readyImage);
 						ready.scrollFactor.set();
 						ready.updateHitbox();
 	
+						#if android
+						if (SONG.uiType == 'pixel' || FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						#else
 						if (SONG.uiType == 'pixel' || FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						#end
 							ready.setGraphicSize(Std.int(ready.width * daPixelZoom));
 	
 						ready.screenCenter();
@@ -2542,12 +2635,20 @@ class PlayState extends MusicBeatState
 						});
 						FlxG.sound.play(intro2Sound, 0.6);
 					case 2:
+						#if android
+						var setImage = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/'+introAlts[1]);
+						#else
 						var setImage = BitmapData.fromFile('assets/images/'+introAlts[1]);
+						#end
 						// can't believe you can actually use this as a variable name
 						var set:FlxSprite = new FlxSprite().loadGraphic(setImage);
 						set.scrollFactor.set();
 	
+						#if android
+						if (SONG.uiType == 'pixel' || FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						#else
 						if (SONG.uiType == 'pixel' || FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						#end
 							set.setGraphicSize(Std.int(set.width * daPixelZoom));
 	
 						set.screenCenter();
@@ -2561,11 +2662,19 @@ class PlayState extends MusicBeatState
 						});
 						FlxG.sound.play(intro1Sound, 0.6);
 					case 3:
+						#if android
+						var goImage = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/'+introAlts[2]);
+						#else
 						var goImage = BitmapData.fromFile('assets/images/'+introAlts[2]);
+						#end
 						var go:FlxSprite = new FlxSprite().loadGraphic(goImage);
 						go.scrollFactor.set();
 	
+						#if android
+						if (SONG.uiType == 'pixel' || FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						#else
 						if (SONG.uiType == 'pixel' || FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/arrows-pixels.png"))
+						#end
 							go.setGraphicSize(Std.int(go.width * daPixelZoom));
 	
 						go.updateHitbox();
@@ -2661,7 +2770,11 @@ class PlayState extends MusicBeatState
 
 		if (!paused)
 		{
+			#if android
+			FlxG.sound.playMusic(Sound.fromFile(BootUpCheck.getPath() + 'assets/music/' + curSong + "_Inst.ogg"), 1, false);
+			#else
 			FlxG.sound.playMusic(Sound.fromFile(Paths.inst(PlayState.SONG.song)), 1, false);
+			#end
 		}
 
 		FlxG.sound.music.onComplete = endSong;
@@ -2741,7 +2854,11 @@ class PlayState extends MusicBeatState
 		curSong = songData.song;
 
 		if (SONG.needsVoices)
+			#if android
+			vocals = new FlxSound().loadEmbedded(Sound.fromFile(BootUpCheck.getPath() + 'assets/music/' + curSong + "_Voices.ogg"));
+			#else
 			vocals = new FlxSound().loadEmbedded(Sound.fromFile(Paths.voices(PlayState.SONG.song)));
+			#end
 		else
 			vocals = new FlxSound();
 
@@ -2800,6 +2917,20 @@ class PlayState extends MusicBeatState
 		var customXml:Null<String> = null;
 		var arrowEndsImage:Null<BitmapData> = null;
 		if (SONG.uiType != 'normal' && SONG.uiType != 'pixel') {
+			#if android
+			if (FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/NOTE_assets.xml") && FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/NOTE_assets.png")) {
+				trace("has this been reached");
+				customImage = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+'/NOTE_assets.png');
+				#if android
+				customXml = File.getContent(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+'/NOTE_assets.xml');
+				#else
+				customXml = File.getContent(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+'/NOTE_assets.xml');
+				#end
+			} else {
+				customImage = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+'/arrows-pixels.png');
+				arrowEndsImage = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/custom_ui/ui_packs/'+SONG.uiType+'/arrowEnds.png');
+			}
+			#else
 			if (FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/NOTE_assets.xml") && FileSystem.exists('assets/images/custom_ui/ui_packs/'+SONG.uiType+"/NOTE_assets.png")) {
 				trace("has this been reached");
 				customImage = BitmapData.fromFile('assets/images/custom_ui/ui_packs/'+SONG.uiType+'/NOTE_assets.png');
@@ -2808,6 +2939,7 @@ class PlayState extends MusicBeatState
 				customImage = BitmapData.fromFile('assets/images/custom_ui/ui_packs/'+SONG.uiType+'/arrows-pixels.png');
 				arrowEndsImage = BitmapData.fromFile('assets/images/custom_ui/ui_packs/'+SONG.uiType+'/arrowEnds.png');
 			}
+			#end
 		}
 		for (section in noteData)
 		{
@@ -3301,7 +3433,11 @@ class PlayState extends MusicBeatState
 			secondInterp.variables.set("combo", combo);
 			secondInterp.variables.set("accuracy", truncateFloat(accuracy, 2));
 			secondInterp.variables.set("ranking", generateRanking());
+			#if android
+			var getScript = File.getContent(BootUpCheck.getPath() + "assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
+			#else
 			var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
+			#end
 			var daScript:String = getScript;
 			var daScriptParser = new hscript.Parser();
 			var script:Dynamic = 'metete tu "Local variable script used without being initialized" por el fondo del ano';
@@ -4232,7 +4368,7 @@ class PlayState extends MusicBeatState
 								health -= 0.075;
 								vocals.volume = 0;
 
-								noteMiss();
+								noteMiss(daNote.noteData);
 							}
 
 							if (!cpuControlled) {
@@ -4696,9 +4832,6 @@ class PlayState extends MusicBeatState
 
 	function endSong():Void
 	{
-		if (!loadRep)
-			rep.SaveReplay();
-
 		#if windows
 		if (executeModchart)
 		{
@@ -4785,6 +4918,7 @@ class PlayState extends MusicBeatState
 
 					var videoCutsceneJson:String = "";
 
+					#if windows
 					if(FileSystem.exists("assets/data/" + PlayState.SONG.song.toLowerCase() + "/video.txt"))
 					{
 						trace("A video txt file has been found, the cutscene will begin");
@@ -4792,6 +4926,7 @@ class PlayState extends MusicBeatState
 						videoJsonContent = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/video.txt");
 						playVideo(videoJsonContent);
 					}
+					#end
 
 					trace(Paths.videojson(PlayState.SONG.song.toLowerCase()  + "/video"));
 
@@ -4825,7 +4960,11 @@ class PlayState extends MusicBeatState
 			else
 			{
 				trace('WENT BACK TO FREEPLAY??');
+				#if android
+				var parsed:Dynamic = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + 'assets/data/freeplaySongJson.jsonc'));
+				#else
 				var parsed:Dynamic = CoolUtil.parseJson(File.getContent('assets/data/freeplaySongJson.jsonc'));
+				#end
 
 				if(parsed.length==1){
 					FreeplayState.id = 0;
@@ -6632,7 +6771,11 @@ class PlayState extends MusicBeatState
 		stageInterp.variables.set("remove", function(varSprite:FlxSprite) {
 			remove(varSprite);
 		});
+		#if android
+		var getScript = File.getContent(BootUpCheck.getPath() + "assets/images/custom_stages/" + SONG.stage + "/stageData.hx");
+		#else
 		var getScript = File.getContent("assets/images/custom_stages/" + SONG.stage + "/stageData.hx");
+		#end
 		var daScript:String = getScript;
 		var daScriptParser = new hscript.Parser();
 		var script = daScriptParser.parseString(daScript);

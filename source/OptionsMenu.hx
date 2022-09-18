@@ -29,7 +29,9 @@ class OptionsMenu extends MusicBeatState
 			new HitsoundsOption(),
 			new NewInputOption(),
 			new IgnoreWarningMessagesOption(),
+			#if windows
 			new ExperimentalFeaturesOptions(),
+			#end
 			new JudgementOption(),
 			new BotOption(),
 			new FramerateOption(),
@@ -147,9 +149,9 @@ class OptionsMenu extends MusicBeatState
 				curSelected = 0;
 				changeSelection(0);
 			}
-			if (FlxG.keys.justPressed.UP)
+			if (controls.UP_P)
 				changeSelection(-1);
-			if (FlxG.keys.justPressed.DOWN)
+			if (controls.DOWN_P)
 				changeSelection(1);
 			
 			if (isCat)

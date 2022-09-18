@@ -39,7 +39,19 @@ class FreeplayCategory extends MusicBeatState
 
 	override function create()
 	{
-		var parsed:Dynamic = CoolUtil.parseJson(File.getContent('assets/data/freeplaySongJson.jsonc'));
+		var parsed:Dynamic;
+		#if android
+		if (BootUpCheck.ignoreAssetsFolder)
+		{
+			parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+		}
+		else
+		{
+			parsed = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + 'assets/data/freeplaySongJson.jsonc'));
+		}
+		#else
+		parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+		#end
 
 		for (i in 0...parsed.length)
 		{

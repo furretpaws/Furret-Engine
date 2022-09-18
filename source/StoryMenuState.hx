@@ -78,6 +78,16 @@ class StoryMenuState extends MusicBeatState
 			if (!FlxG.sound.music.playing)
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 		}
+		#if android
+		if (BootUpCheck.ignoreAssetsFolder)
+		{
+			var storySongJson:StorySongsJson = CoolUtil.parseJson(Assets.getText('assets/data/storySonglist.json'));
+		}
+		else
+		{
+			var storySongJson:StorySongsJson = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + 'assets/data/storySonglist.json'));
+		}
+		#end
 		var storySongJson:StorySongsJson = CoolUtil.parseJson(Assets.getText('assets/data/storySonglist.json'));
 		persistentUpdate = persistentDraw = true;
 		for (storySongList in storySongJson.songs) {

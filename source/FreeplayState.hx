@@ -77,9 +77,22 @@ class FreeplayState extends MusicBeatState
 
 	var iconArray:Array<HealthIcon> = [];
 
+	var parsed:Dynamic;
+
 	override function create()
 	{
-		var parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+		#if android
+		if (BootUpCheck.ignoreAssetsFolder)
+		{
+			parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+		}
+		else
+		{
+			parsed = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + 'assets/data/freeplaySongJson.jsonc'));
+		}
+		#else
+		parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+		#end
 		var initSonglist:Dynamic = parsed[id].songs;
 		for (i in 0...initSonglist.length)
 		{
@@ -462,7 +475,18 @@ class FreeplayState extends MusicBeatState
 
 		if (controls.BACK)
 		{
-			var parsed:Dynamic = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+			#if android
+			if (BootUpCheck.ignoreAssetsFolder)
+			{
+				parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+			}
+			else
+			{
+				parsed = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + 'assets/data/freeplaySongJson.jsonc'));
+			}
+			#else
+			parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
+			#end
 
 			if(parsed.length==1){
 				FlxG.switchState(new MainMenuState());

@@ -14,12 +14,27 @@ import Type.ValueType;
 import sys.io.File;
 import sys.FileSystem;
 #end
+#if android
+import android.os.Build;
+import android.Permissions;
+#end
 import flash.media.Sound;
 
 using StringTools;
 
 class CoolUtil
 {
+	#if android
+	public static var androidDir:String = null;
+    public static var externalS:Dynamic = android.os.Environment.getExternalStorageDirectory();
+    public static function getPath() //this will be used for almost every single hx file, how exciting
+    {   
+        var applicationNameSplit:Dynamic /*removes spaces from "Furret Engine" ("Furret Engine" -> "FurretEngine")*/ = Application.current.meta.get("file").split(" ");
+        var applicationName:String = "" + applicationNameSplit[0] + applicationNameSplit[1] + "";
+        androidDir = externalS + "/" + "." + applicationName + "/";
+        return androidDir;
+    }
+	#end
 	public static var difficultyArray:Array<String> = ['EASY', "NORMAL", "HARD"];
 
 	public static var arrowHSV:Array<Array<Int>> = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
@@ -41,6 +56,9 @@ class CoolUtil
 
 	public static function getSound(path:String) 
 	{
+		#if android
+		path = getPath() + path;
+		#end
 		if(!FileSystem.exists(path)){
 			Application.current.window.alert('[!] Missing file: "'+path+'"');
 		}
@@ -153,12 +171,18 @@ class CoolUtil
 		return false;
 	}
 	public static function getBitmap(file:String):BitmapData{
+		#if android
+		file = getPath() + file;
+		#end
 		if(!FileSystem.exists(file)){
 			Application.current.window.alert('[!] Missing file: "'+file+'"');
 		}
 		return BitmapData.fromFile(file);
 	}
 	public static function getContent(file:String):String{
+		#if android
+		file = getPath() + file;
+		#end
 		if(!FileSystem.exists(file)){
 			Application.current.window.alert('[!] Missing file: "'+file+'"');
 		}
@@ -166,7 +190,12 @@ class CoolUtil
 	}
 	public static function coolTextFile(path:String):Array<String>
 	{
+		#if android
+		path = getPath() + path;
+		var daList:Array<String> = File.getContent(path).trim().split('\n');
+		#else
 		var daList:Array<String> = Assets.getText(path).trim().split('\n');
+		#end
 
 		for (i in 0...daList.length)
 		{
@@ -182,6 +211,9 @@ class CoolUtil
 	}
 	public static function coolStringFile(path:String):Array<String>
 		{
+			#if android
+			path = getPath() + path;
+			#end
 			var daList:Array<String> = path.trim().split('\n');
 	
 			for (i in 0...daList.length)
@@ -208,7 +240,11 @@ class CoolUtil
 	}
 	public static function coolDynamicTextFile(path:String):Array<String>
 		{
+			#if android
+			var daList:Array<String> = File.getContent(BootUpCheck.getPath() + path).trim().split('\n');
+			#else
 			var daList:Array<String> = File.getContent(path).trim().split('\n');
+			#end
 	
 			for (i in 0...daList.length)
 			{

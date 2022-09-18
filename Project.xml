@@ -95,6 +95,10 @@
 	<haxelib name="polymod"/>
 	<haxelib name="discord_rpc" if="windows"/>
 	<haxelib name="hscript"/>
+	<haxelib name="extension-androidtools" if="android"/>
+
+	<config:android permission="android.permission.READ_EXTERNAL_STORAGE" if="android"/>
+	<config:android permission="android.permission.WRITE_EXTERNAL_STORAGE" if="android"/>
 
 	<haxelib name="linc_luajit"/>
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->

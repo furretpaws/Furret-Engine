@@ -553,7 +553,12 @@ class Character extends FlxSprite
 				}
 				if (!isError) {
 					// use assets, as it is less laggy
+					// use assets, as it is less laggy
+					#if android
+					var animJson = File.getContent(BootUpCheck.getPath() + "assets/images/custom_chars/"+curCharacter+".json");
+					#else
 					var animJson = File.getContent("assets/images/custom_chars/"+Reflect.field(charJson,curCharacter).like+".json");
+					#end
 					var parsedAnimJson:Dynamic = CoolUtil.parseJson(animJson);
 
 
@@ -564,15 +569,27 @@ class Character extends FlxSprite
 						parsedAnimJson.animation = parsedAnimJson.deadAnimation;
 						parsedAnimJson.offset = parsedAnimJson.deadOffset;
 					}
+					#if android
+					var rawPic = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/custom_chars/'+curCharacter+"/char.png");
+					#else
 					var rawPic = BitmapData.fromFile('assets/images/custom_chars/'+curCharacter+"/"+playerSuffix+".png");
+					#end
 					var tex:FlxAtlasFrames;
 					var rawXml:String;
 					// GOD IS DEAD WHY DOES THIS NOT WORK
 					if (FileSystem.exists('assets/images/custom_chars/'+curCharacter+"/"+playerSuffix+".txt")){
+						#if android
+						rawXml = File.getContent('assets/images/custom_chars/'+curCharacter+"/char.txt");
+						#else
 						rawXml = File.getContent('assets/images/custom_chars/'+curCharacter+"/"+playerSuffix+".txt");
+						#end
 						tex = FlxAtlasFrames.fromSpriteSheetPacker(rawPic,rawXml);
 					} else {
+						#if android
+						rawXml = File.getContent(BootUpCheck.getPath() + 'assets/images/custom_chars/'+curCharacter+"/char.xml");
+						#else
 						rawXml = File.getContent('assets/images/custom_chars/'+curCharacter+"/"+playerSuffix+".xml");
+						#end
 						tex = FlxAtlasFrames.fromSparrow(rawPic,rawXml);
 					}
 					frames = tex;

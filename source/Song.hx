@@ -67,6 +67,20 @@ class Song
 				// means this isn't normal difficulty
 				// raw json 
 				// folder is always just the song name
+				#if android
+				if (PlayState.storyDifficulty == 0)
+				{
+					rawJson = File.getContent(BootUpCheck.getPath() + "assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
+				}
+				else if (PlayState.storyDifficulty == 1)
+				{
+					rawJson = File.getContent(BootUpCheck.getPath() + "assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+".json").trim();
+				}
+				else if (PlayState.storyDifficulty == 2)
+				{
+					rawJson = File.getContent(BootUpCheck.getPath() + "assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
+				}
+				#else
 				if (PlayState.storyDifficulty == 0)
 				{
 					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
@@ -79,12 +93,27 @@ class Song
 				{
 					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
 				}
+				#end
 				/*rawJson = Assets.getText('assets/preload/data/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
 				#end
 				#if android
 				var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim(); //no extra keys for android cuz fuk u again
 				#end*/
 			} else {
+				#if android
+				if (PlayState.storyDifficulty == 0)
+				{
+					rawJson = File.getContent(BootUpCheck.getPath() + "assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
+				}
+				else if (PlayState.storyDifficulty == 1)
+				{
+					rawJson = File.getContent(BootUpCheck.getPath() + "assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+".json").trim();
+				}
+				else if (PlayState.storyDifficulty == 2)
+				{
+					rawJson = File.getContent(BootUpCheck.getPath() + "assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
+				}
+				#else
 				if (PlayState.storyDifficulty == 0)
 				{
 					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-easy.json").trim();
@@ -97,6 +126,7 @@ class Song
 				{
 					rawJson = File.getContent("assets/data/"+folder.toLowerCase()+"/"+folder.toLowerCase()+"-hard.json").trim();
 				}
+				#end
 				/*rawJson = Assets.getText('assets/preload/data/' + folder.toLowerCase() + '/' + jsonInput.toLowerCase() + '.json').trim();
 				#end
 				#if android

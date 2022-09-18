@@ -25,8 +25,10 @@ class HealthIcon extends FlxSprite
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
-		#if sys
-		var charJson:Dynamic = CoolUtil.parseJson(File.getContent("assets/images/custom_chars/custom_chars.jsonc"));
+		#if android
+		var charJson:Dynamic = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + "assets/images/custom_chars/custom_chars.jsonc"));
+		#else
+		var charJson:Dynamic = CoolUtil.parseJson(File.getContent("assets/images/custom_chars/custom_chars.jsonc")); 
 		#end
 		antialiasing = true;
 		switch (char) {
@@ -92,6 +94,17 @@ class HealthIcon extends FlxSprite
 				animation.add('icon', [21, 21, 25], 0, false, isPlayer);
 			default:
 				// check if there is an icon file
+				#if android
+				if (FileSystem.exists(BootUpCheck.getPath() + 'assets/images/custom_chars/'+char+"/icons.png")) {
+					var rawPic:BitmapData = BitmapData.fromFile(BootUpCheck.getPath() + 'assets/images/custom_chars/'+char+"/icons.png");
+					loadGraphic(rawPic, true, 150, 150);
+					animation.add('icon', Reflect.field(charJson,char).icons, false, isPlayer);
+				} else {
+					trace("ok so we here");
+					loadGraphic('assets/images/iconGrid.png', true, 150, 150);
+					animation.add('icon', Reflect.field(charJson,char).icons, false, isPlayer);
+				}
+				#else
 				if (FileSystem.exists('assets/images/custom_chars/'+char+"/icons.png")) {
 					var rawPic:BitmapData = BitmapData.fromFile('assets/images/custom_chars/'+char+"/icons.png");
 					loadGraphic(rawPic, true, 150, 150);
@@ -101,7 +114,9 @@ class HealthIcon extends FlxSprite
 					loadGraphic('assets/images/iconGrid.png', true, 150, 150);
 					animation.add('icon', Reflect.field(charJson,char).icons, false, isPlayer);
 				}
+				#end
 		}
+		trace(char);
 		animation.play('icon');
 		scrollFactor.set();
 

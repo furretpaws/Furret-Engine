@@ -23,7 +23,11 @@ class MenuCharacter extends FlxSprite
 
 		this.character = character;
 		// use assets it is less laggy
+		#if android
+		var parsedCharJson:Dynamic = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + "assets/images/campaign-ui-char/custom_ui_chars.json"));
+		#else
 		var parsedCharJson:Dynamic = CoolUtil.parseJson(File.getContent("assets/images/campaign-ui-char/custom_ui_chars.json"));
+		#end
 		if (!!Reflect.field(parsedCharJson,character).defaultGraphics) {
 			// use assets, it is less laggy
 			var tex = FlxAtlasFrames.fromSparrow('assets/images/campaign_menu_UI_characters.png', 'assets/images/campaign_menu_UI_characters.xml');
@@ -36,7 +40,11 @@ class MenuCharacter extends FlxSprite
 		}
 
 		// don't use assets because you can use custom like folders
+		#if android
+		var animJson = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + "assets/images/campaign-ui-char/"+Reflect.field(parsedCharJson,character).like+".json"));
+		#else
 		var animJson = CoolUtil.parseJson(File.getContent("assets/images/campaign-ui-char/"+Reflect.field(parsedCharJson,character).like+".json"));
+		#end
 		for (field in Reflect.fields(animJson)) {
 			animation.addByPrefix(field, Reflect.field(animJson, field), 24, (field == "idle"));
 		}
