@@ -36,7 +36,7 @@ class BootUpCheck extends FlxState
         #if debug //DEBUG SHIT
         trace("DEBUG MODE DETECTED!");
         #if android
-        if (FileSystem.exists(getPath() + "/assets"))
+        if (FileSystem.exists(getPath() + "/assets") && permissionsList.contains(android.Permissions.READ_EXTERNAL_STORAGE) && permissionsList.contains(android.Permissions.WRITE_EXTERNAL_STORAGE))
         {
             FlxG.switchState(new TitleState()); //skips debug mode warning due to null object reference, so dont fuck with this
         }
@@ -53,15 +53,21 @@ class BootUpCheck extends FlxState
                     FlxG.switchState(new screens.AndroidNoAssetsWarning()); 
                 }
             }
+            else
+            {
+                FlxG.switchState(new TitleState()); //fuck it
+            }
         }
         #end
         FlxG.switchState(new screens.DebugModeWarning());
+        #elseif !(debug)
+        FlxG.switchState(new TitleState());
         #end
 
         #if android //ANDROID SHIT
         trace("miau");
         trace(getPath());
-        if (FileSystem.exists(getPath() + "/assets"))
+        if (FileSystem.exists(getPath() + "/assets") && permissionsList.contains(android.Permissions.READ_EXTERNAL_STORAGE) && permissionsList.contains(android.Permissions.WRITE_EXTERNAL_STORAGE))
         {
             FlxG.switchState(new TitleState()); //skips debug mode warning due to null object reference, so dont fuck with this
         }
@@ -77,6 +83,10 @@ class BootUpCheck extends FlxState
                 {
                     FlxG.switchState(new screens.AndroidNoAssetsWarning()); 
                 }
+            }
+            else
+            {
+                FlxG.switchState(new TitleState()); //fuck it
             }
         }
         #end

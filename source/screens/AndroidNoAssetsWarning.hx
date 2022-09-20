@@ -97,6 +97,7 @@ class AndroidNoAssetsWarning extends FlxState
 
 		new FlxTimer().start(0.7, function(tmr:FlxTimer)
 		{
+			FlxG.sound.play("assets/sounds/UI/error1.ogg");
 			FlxTween.tween(uhohididsomethingwrong, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
 			FlxTween.tween(alert, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
 			FlxTween.tween(alert2, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});

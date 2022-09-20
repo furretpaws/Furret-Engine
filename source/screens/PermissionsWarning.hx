@@ -77,6 +77,7 @@ class PermissionsWarning extends FlxState
 
         new FlxTimer().start(0.7, function(tmr:FlxTimer)
         {
+            FlxG.sound.play("assets/sounds/UI/info1.ogg");
             FlxTween.tween(info, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
             FlxTween.tween(permission, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
             FlxTween.tween(action, {alpha: 1}, 0.4, {ease: FlxEase.elasticInOut});
@@ -109,7 +110,21 @@ class PermissionsWarning extends FlxState
                 new FlxTimer().start(0.7, function(tmr:FlxTimer)
                 {
                     android.Permissions.requestPermissions([android.Permissions.READ_EXTERNAL_STORAGE, android.Permissions.WRITE_EXTERNAL_STORAGE]);
-                    FlxG.switchState(new AndroidNoAssetsWarning());
+                    new FlxTimer().start(0.4, function(tmr:FlxTimer)
+                    {
+                        if (permissionsList.contains(android.Permissions.READ_EXTERNAL_STORAGE) && permissionsList.contains(android.Permissions.WRITE_EXTERNAL_STORAGE))
+                        {
+                            FlxG.switchState(new AndroidNoAssetsWarning());
+                        }
+                        else
+                        {
+                            FlxG.sound.play("assets/sounds/UI/error2.ogg");
+                            new FlxTimer().start(0.4, function(tmr:FlxTimer)
+                            {
+                                FlxG.resetState();
+                            });
+                        }
+                    });
                 });
             }
         }
