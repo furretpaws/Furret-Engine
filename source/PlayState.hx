@@ -271,6 +271,8 @@ class PlayState extends MusicBeatState
 	var botplayTxt:FlxText;
 	var botplaySine:Float = 0;
 
+	var eventInterp = new hscript.Interp();
+
 	public static var campaignScore:Int = 0;
 
 	var defaultCamZoom:Float = 1.05;
@@ -463,6 +465,242 @@ class PlayState extends MusicBeatState
 		}
 	}
 
+	function createEventInterp():Void
+	{
+		var bf:Dynamic;
+		bf = boyfriend;
+		hscriptStates.set('eventInterp',eventInterp);
+		eventInterp.variables.set("endSong", function() {
+			endSong();
+		});
+		eventInterp.variables.set("Conductor", Conductor);
+		eventInterp.variables.set("curBPM", Conductor.bpm);
+		eventInterp.variables.set("bpm", SONG.bpm);
+		eventInterp.variables.set("FlxAtlasFrames", FlxAtlasFrames);
+		eventInterp.variables.set("scrollSpeed", SONG.speed);
+		eventInterp.variables.set("crochet", Conductor.crochet);
+		eventInterp.variables.set("stepCrochet", Conductor.stepCrochet);
+		eventInterp.variables.set("songLength", FlxG.sound.music.length);
+		eventInterp.variables.set("isStoryMode", PlayState.isStoryMode);
+		eventInterp.variables.set("storyDifficulty", PlayState.storyDifficulty);
+		eventInterp.variables.set("FurretEngineVersion", MainMenuState.furretEngineVer);
+		eventInterp.variables.set("CoolUtil", CoolUtil);
+		eventInterp.variables.set("botPlay", cpuControlled);
+		eventInterp.variables.set("downscroll", FlxG.save.data.downscroll);
+		eventInterp.variables.set("ghostTapping", FlxG.save.data.newInput);
+		eventInterp.variables.set("hitsounds", FlxG.save.data.hitsoundspog);
+		eventInterp.variables.set("judgement", FlxG.save.data.judgement);
+		eventInterp.variables.set("middlescroll", FlxG.save.data.middlescroll);
+		eventInterp.variables.set("noteSplash", FlxG.save.data.noteSplashON);
+		eventInterp.variables.set("camFollowXDad", camFollowXDad);
+		eventInterp.variables.set("camFollowYDad", camFollowYDad);
+		eventInterp.variables.set("camFollowXBoyfriend", camFollowXBoyfriend);
+		eventInterp.variables.set("camFollowYBoyfriend", camFollowYBoyfriend);
+		eventInterp.variables.set("FlxSprite", FlxSprite);
+		eventInterp.variables.set("FlxSound", FlxSound);
+		eventInterp.variables.set("FlxGroup", flixel.group.FlxGroup);
+		eventInterp.variables.set("FlxAngle", flixel.math.FlxAngle);
+		eventInterp.variables.set("Paths", Paths);
+		eventInterp.variables.set("Sound", flash.media.Sound);
+		eventInterp.variables.set("FlxMath", flixel.math.FlxMath);
+		eventInterp.variables.set("Math", flixel.math.FlxMath);
+		eventInterp.variables.set("FlxPoint", flixel.math.FlxPoint);
+		eventInterp.variables.set("Point", flixel.math.FlxPoint);
+		eventInterp.variables.set("FlxRect", flixel.math.FlxRect);
+		eventInterp.variables.set("Rect", flixel.math.FlxRect);
+		eventInterp.variables.set("GlitchEffect", Shaders.GlitchEffect);
+		eventInterp.variables.set("PulseEffect", Shaders.PulseEffect);
+		eventInterp.variables.set("StringTools", StringTools);
+		eventInterp.variables.set("SHADOW", FlxTextBorderStyle.SHADOW);
+		eventInterp.variables.set("OUTLINE", FlxTextBorderStyle.OUTLINE);
+		eventInterp.variables.set("OUTLINE_FAST", FlxTextBorderStyle.OUTLINE_FAST);
+		eventInterp.variables.set("NONE", FlxTextBorderStyle.NONE);
+		eventInterp.variables.set("CENTER", FlxTextAlign.CENTER);
+		eventInterp.variables.set("JUSTIFY", FlxTextAlign.JUSTIFY);
+		eventInterp.variables.set("LEFT", FlxTextAlign.LEFT);
+		eventInterp.variables.set("RIGHT", FlxTextAlign.RIGHT);
+		eventInterp.variables.set("SONG", SONG);
+		eventInterp.variables.set("camFollow", camFollow);
+		eventInterp.variables.set("Sys", Sys);
+		eventInterp.variables.set("FileSystem", sys.FileSystem); //i shouldn't be doing this, people can do a lot of bad things with this
+		eventInterp.variables.set("File", sys.io.File);
+		eventInterp.variables.set("JSON", haxe.Json); //this isn't too bad isn't it?
+		eventInterp.variables.set("dadCameraOffsetX", dadCameraOffsetX);
+		eventInterp.variables.set("dadCameraOffsetY", dadCameraOffsetY);
+		eventInterp.variables.set("bfCameraOffsetX", bfCameraOffsetX);
+		eventInterp.variables.set("bfCameraOffsetY", bfCameraOffsetY);
+		eventInterp.variables.set("value1", '');
+		eventInterp.variables.set("value2", '');
+		eventInterp.variables.set("curbg", curbg);
+		eventInterp.variables.set("playerStrums", playerStrums);
+		eventInterp.variables.set("cpuStrums", cpuStrums);
+		eventInterp.variables.set("strumLineNotes", strumLineNotes);
+		eventInterp.variables.set("elapsedtime", elapsedtime);
+		eventInterp.variables.set("sicksTxt", sicksTxt);
+		eventInterp.variables.set("goodsTxt", goodsTxt);
+		eventInterp.variables.set("badsTxt", badsTxt);
+		eventInterp.variables.set("shitsTxt", shitsTxt);
+		eventInterp.variables.set("missesTxt", missesTxt);
+		eventInterp.variables.set("judgementTextTxt", judgementTextTxt);
+		eventInterp.variables.set("scoreTxt", scoreTxt);
+		eventInterp.variables.set("runningOnFE", runningOnFE);
+		eventInterp.variables.set("nameOfTheSong", nameOfTheSong);
+		eventInterp.variables.set("difficultySong", difficultySong);
+		eventInterp.variables.set("Preferences", Preferences);
+		eventInterp.variables.set("killPlayer", function() {
+			health = health - 404;
+		});
+		eventInterp.variables.set("camHUD", camHUD);
+		eventInterp.variables.set("camGame", camGame);
+		eventInterp.variables.set("healthBarBG", healthBarBG);
+		eventInterp.variables.set("healthBar", healthBar);
+		eventInterp.variables.set("scoreTxt", scoreTxt);
+		eventInterp.variables.set("TitleState", TitleState);
+		eventInterp.variables.set("makeRangeArray", CoolUtil.numberArray);
+		eventInterp.variables.set("FlxG", flixel.FlxG);
+		eventInterp.variables.set("FlxTimer", flixel.util.FlxTimer);
+		eventInterp.variables.set("FlxTween", flixel.tweens.FlxTween);
+		eventInterp.variables.set("Std", Std);
+		eventInterp.variables.set("iconP1", iconP1);
+		eventInterp.variables.set("iconP2", iconP2);
+		eventInterp.variables.set("BLACK", FlxColor.BLACK);
+		eventInterp.variables.set("BLUE", FlxColor.BLUE);
+		eventInterp.variables.set("BROWN", FlxColor.BROWN);
+		eventInterp.variables.set("CYAN", FlxColor.CYAN);
+		eventInterp.variables.set("GRAY", FlxColor.GRAY);
+		eventInterp.variables.set("GREEN", FlxColor.GREEN);
+		eventInterp.variables.set("LIME", FlxColor.LIME);
+		eventInterp.variables.set("MAGENTA", FlxColor.MAGENTA);
+		eventInterp.variables.set("ORANGE", FlxColor.ORANGE);
+		eventInterp.variables.set("PINK", FlxColor.PINK);
+		eventInterp.variables.set("PURPLE", FlxColor.PURPLE);
+		eventInterp.variables.set("RED", FlxColor.RED);
+		eventInterp.variables.set("TRANSPARENT", FlxColor.TRANSPARENT);
+		eventInterp.variables.set("WHITE", FlxColor.WHITE);
+		eventInterp.variables.set("YELLOW", FlxColor.YELLOW);
+		eventInterp.variables.set("StringTools", StringTools);
+		eventInterp.variables.set("FlxTrail", FlxTrail);
+		eventInterp.variables.set("FlxEase", FlxEase);
+		eventInterp.variables.set("Reflect", Reflect);
+		eventInterp.variables.set("health", 0);
+		eventInterp.variables.set("curStep", 0);
+		eventInterp.variables.set("curBeat", 0);
+		eventInterp.variables.set("curSong", SONG.song);
+		eventInterp.variables.set("FlxText", FlxText);
+		eventInterp.variables.set("preloadImage", function(daThingToPreload:String) { //mandatory if you want to add an image to hscript
+			var preload = new FlxSprite(1000,-1000).loadGraphic(Paths.image(daThingToPreload));
+			add(preload);
+			remove(preload);
+		});
+		eventInterp.variables.set("SONG", SONG);
+		eventInterp.variables.set("Boyfriend", Boyfriend);
+		eventInterp.variables.set("boyfriend", bf);
+		eventInterp.variables.set("dad", dad);
+		eventInterp.variables.set("gf", gf);
+		eventInterp.variables.set("setDiscordPresence", function(daPresence:String) {
+			#if windows
+			DiscordClient.changePresence(daPresence, null);
+			#else
+			trace("[!] Ignoring discord presence change as we are not on Windows");
+			#end
+		});
+		eventInterp.variables.set("changeCharacter", function(characterToReplace:String, characterThatWillBeReplaced, X:Int = 999999, Y:Int = 999999) {
+			if (characterThatWillBeReplaced == 'dad')
+			{
+				remove(dad);
+				if (X == 999999 || Y == 999999 || X & Y == 999999)
+				{
+					dad = new Character(dad.x, dad.y, characterToReplace);
+					trace("[!] Haxe script: No X or Y or both specified");
+				}
+				else
+				{
+					dad = new Character(X, Y, characterToReplace);
+				}
+				add(dad);
+				SONG.player2 = characterToReplace;
+				remove(iconP2);
+				iconP2 = new HealthIcon(SONG.player2, false);
+				iconP2.y = healthBar.y - (iconP2.height / 2);
+				iconP2.cameras = [camHUD];
+				add(iconP2);
+				SONG.player2 = player2BeforeChanges;
+			}
+			else if (characterThatWillBeReplaced == 'bf' || characterThatWillBeReplaced == 'boyfriend')
+			{
+				remove(boyfriend);
+				if (X == 999999 || Y == 999999 || X & Y == 999999)
+				{
+					boyfriend = new Boyfriend(dad.x, dad.y, characterToReplace);
+					trace("[!] Haxe script: No X or Y or both specified");
+				}
+				else
+				{
+					boyfriend = new Boyfriend(X, Y, characterToReplace);
+				}
+				add(boyfriend);
+			}
+			else if (characterThatWillBeReplaced == 'dad')
+			{
+				remove(boyfriend);
+				if (X == 999999 || Y == 999999 || X & Y == 999999)
+				{
+					boyfriend = new Boyfriend(dad.x, dad.y, characterToReplace);
+					trace("[!] Haxe script: No X or Y or both specified");
+				}
+				else
+				{
+					boyfriend = new Boyfriend(X, Y, characterToReplace);
+				}
+				add(boyfriend);
+				SONG.player1 = characterToReplace;
+				remove(iconP1);
+				iconP1 = new HealthIcon(SONG.player1, false);
+				iconP1.y = healthBar.y - (iconP1.height / 2);
+				iconP1.cameras = [camHUD];
+				add(iconP1);
+				SONG.player1 = player1BeforeChanges;
+			}
+		});
+		eventInterp.variables.set("getVariableFromAClass", function(varClass:String, variable:String) {
+			var splittt:Array<String> = variable.split('.');
+			if (splittt.length > 1) {
+				var dyn:Dynamic = CoolUtil.getVarFromArray(Type.resolveClass(varClass), splittt[0]);
+				for (i in 1...splittt.length-1) {
+					dyn = CoolUtil.getVarFromArray(dyn, splittt[i]);
+				}
+				return CoolUtil.getVarFromArray(dyn, splittt[splittt.length-1]);
+			}
+			return CoolUtil.getVarFromArray(Type.resolveClass(varClass), variable);
+		});
+		eventInterp.variables.set("setVariableFromAClass", function(varClass:String, variable:String, value:Dynamic) {
+			var splittt:Array<String> = variable.split('.');
+			if (splittt.length > 1) {
+				var dyn:Dynamic = CoolUtil.getVarFromArray(Type.resolveClass(varClass), splittt[0]);
+				for (i in 1...splittt.length-1) {
+					dyn = CoolUtil.getVarFromArray(dyn, splittt[i]);
+				}
+				CoolUtil.setVarFromArray(dyn, splittt[splittt.length-1], value);
+				return true;
+			}
+			CoolUtil.setVarFromArray(Type.resolveClass(varClass), variable, value);
+			return true;
+		});
+		eventInterp.variables.set("Character", Character);
+		eventInterp.variables.set("PlayState", PlayState);
+		eventInterp.variables.set("FlxG", FlxG);
+		eventInterp.variables.set("ease", FlxEase);
+		eventInterp.variables.set("camHUD", camHUD);
+		eventInterp.variables.set("remove", function(something)
+		{
+			remove(something);
+		});
+		eventInterp.variables.set("add", function(something)
+		{
+			add(something);
+		});
+	}
+
 	function getActorByName(id:String):Dynamic
 	{
 		// pre defined names
@@ -549,6 +787,9 @@ class PlayState extends MusicBeatState
 			setAllHaxeVar('gfSpeed', gfSpeed);
 			setAllHaxeVar('health', health);
 		}
+		
+		createEventInterp();
+
 		previousRate = songMultiplier - 0.05;
 		stageAssets = [];
 		isNew = FlxG.save.data.newInput;
@@ -4542,6 +4783,20 @@ class PlayState extends MusicBeatState
 					var zoom = Std.parseFloat(value1);
 					var duration = Std.parseFloat(value2);
 					FlxTween.tween(FlxG.camera, {zoom: value1}, value2, {ease: FlxEase.expoOut,});
+				default: //custom event
+					#if android
+					var getScript = File.getContent(BootUpCheck.getPath() + "assets/events/" + eventNotes[0][2] + ".hx");
+					#else
+					var getScript = File.getContent("assets/events/" + eventNotes[0][2] + ".hx");
+					#end
+					var daScript:String = getScript;
+					var daScriptParser = new hscript.Parser();
+					var script = daScriptParser.parseString(daScript);
+					setHaxeVar('value1', value1, 'eventInterp');
+					setHaxeVar('value2', value2, 'eventInterp');
+					trace("Custom event: " + eventNotes[0][2]);
+					eventInterp.execute(script);
+					
 			}
 			eventNotes.shift();
 		}

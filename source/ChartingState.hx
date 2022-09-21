@@ -29,6 +29,7 @@ import flixel.ui.FlxButton;
 import flixel.ui.FlxSpriteButton;
 import flixel.util.FlxColor;
 import haxe.Json;
+import flixel.input.keyboard.FlxKey;
 import lime.utils.Assets;
 import openfl.events.Event;
 import openfl.events.IOErrorEvent;
@@ -36,6 +37,8 @@ import openfl.media.Sound;
 import openfl.net.FileReference;
 import openfl.utils.ByteArray;
 import openfl.utils.Assets as OpenFlAssets;
+import sys.io.File;
+import sys.FileSystem;
 
 using StringTools;
 
@@ -74,6 +77,10 @@ class ChartingState extends MusicBeatState
 
 	var highlight:FlxSprite;
 
+	var blockKeyInteraction:Bool = false;
+
+	var check:Int = 0;
+
 	var GRID_SIZE:Int = 40;
 	var S_GRID_SIZE:Int = 40;
 	var CAM_OFFSET:Int = 360;
@@ -91,13 +98,16 @@ class ChartingState extends MusicBeatState
 
 	var _song:SwagSong;
 
-	var typingShit:FlxInputText;
-	var player1TextField:FlxInputText;
-	var player2TextField:FlxInputText;
-	var gfTextField:FlxInputText;
-	var cutsceneTextField:FlxInputText;
-	var uiTextField:FlxInputText;
-	var stageTextField:FlxInputText;
+	var typingShit:FlxUIInputText;
+	var player1TextField:FlxUIInputText;
+	var player2TextField:FlxUIInputText;
+	var gfTextField:FlxUIInputText;
+	var cutsceneTextField:FlxUIInputText;
+	var uiTextField:FlxUIInputText;
+	var stageTextField:FlxUIInputText;
+	var UI_songTitle:FlxUIInputText;
+	
+	var blockWhenTypingOnText:Array<FlxUIInputText> = [];
 	/*
 	 * WILL BE THE CURRENT / LAST PLACED NOTE
 	**/
@@ -253,6 +263,13 @@ class ChartingState extends MusicBeatState
 		stageTextField = new FlxUIInputText(80, 120, 70, _song.stage, 8);
 		cutsceneTextField = new FlxUIInputText(80, 140, 70, _song.cutsceneType, 8);
 		uiTextField = new FlxUIInputText(10, 140, 70, _song.uiType, 8);
+
+		blockWhenTypingOnText.push(player1TextField);
+		blockWhenTypingOnText.push(player2TextField);
+		blockWhenTypingOnText.push(gfTextField);
+		blockWhenTypingOnText.push(stageTextField);
+		blockWhenTypingOnText.push(cutsceneTextField);
+		blockWhenTypingOnText.push(uiTextField);
 		var curStage = _song.stage;
 
 		var tab_group_char = new FlxUI(null, UI_box);
@@ -272,8 +289,10 @@ class ChartingState extends MusicBeatState
 	}
 	function addSongUI():Void
 	{
-		var UI_songTitle = new FlxUIInputText(10, 10, 70, _song.song, 8);
+		UI_songTitle = new FlxUIInputText(10, 10, 70, _song.song, 8);
 		typingShit = UI_songTitle;
+
+		blockWhenTypingOnText.push(UI_songTitle);
 
 		var check_voices = new FlxUICheckBox(10, 25, null, null, "Has voice track", 100);
 		check_voices.checked = _song.needsVoices;
@@ -641,6 +660,36 @@ class ChartingState extends MusicBeatState
 		var tab_group_event = new FlxUI(null, UI_box);
 		tab_group_event.name = 'Events';
 
+		//this code might be trash, i don't know how to do this shit so..
+
+		#if android
+		var directory:Array<String> = FileSystem.readDirectory(BootUpCheck.getPath() + "assets/events");
+		#else
+		var directory:Array<String> = FileSystem.readDirectory("assets/events");
+		#end
+		trace(directory);
+		for (i in directory) //I DID IT, I FUCKING DID IT, LMAO, TAKE THAT PSYCH ENGINE CODERS
+		{
+			if (directory[check].endsWith(".txt"))
+			{
+				trace("event!");
+				trace(directory[check]);
+				var splitEvent:Dynamic = directory[check].split(".txt"); //i have no idea of what i am doing with my life
+				var eventToPush:Dynamic = splitEvent[0]; //this is the name of the event
+				#if android
+				eventTypes.push([eventToPush, File.getContent(BootUpCheck.getPath() + "assets/events/" + directory[check])]);
+				#else
+				eventTypes.push([eventToPush, File.getContent("assets/events/" + directory[check])]);
+				#end
+			}
+			else
+			{
+				trace("not an event!");
+			}
+			check++;
+		}
+		check = 0;
+
 		var descText:FlxText = new FlxText(20, 200, 0, eventTypes[0][0]);
 
 		var daEvents:Array<String> = [];
@@ -661,10 +710,12 @@ class ChartingState extends MusicBeatState
 		var text:FlxText = new FlxText(20, 90, 0, "Value 1:");
 		tab_group_event.add(text);
 		value1InputText = new FlxUIInputText(20, 110, 100, "");
+		blockWhenTypingOnText.push(value1InputText);
 
 		var text:FlxText = new FlxText(20, 130, 0, "Value 2:");
 		tab_group_event.add(text);
 		value2InputText = new FlxUIInputText(20, 150, 100, "");
+		blockWhenTypingOnText.push(value2InputText);
 
 		tab_group_event.add(descText);
 		tab_group_event.add(value1InputText);
@@ -1027,6 +1078,42 @@ class ChartingState extends MusicBeatState
 			}
 		}
 
+		/*for (inputText in blockWhenTypingOnText)
+		{
+			if (inputText.hasFocus)
+			{
+				FlxG.sound.muteKeys = [];
+				FlxG.sound.volumeDownKeys = [];
+				FlxG.sound.volumeUpKeys = [];
+				blockKeyInteraction = true;
+				break;
+			}
+			else
+			{
+				FlxG.sound.muteKeys = [FlxKey.ZERO];
+				FlxG.sound.volumeDownKeys = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
+				FlxG.sound.volumeUpKeys = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
+				blockKeyInteraction = false;
+				break;
+			}
+		}*/ //idk if i'm doing something wrong, but this isn't working
+
+		if (typingShit.hasFocus || player1TextField.hasFocus || player2TextField.hasFocus || gfTextField.hasFocus || cutsceneTextField.hasFocus || uiTextField.hasFocus || stageTextField.hasFocus || UI_songTitle.hasFocus || value1InputText.hasFocus || value2InputText.hasFocus)
+		{ //I HATE THIS I HATE THIS I HATE THIS
+			FlxG.sound.muteKeys = [];
+			FlxG.sound.volumeDownKeys = [];
+			FlxG.sound.volumeUpKeys = [];
+			blockKeyInteraction = true;
+		}
+		else
+		{
+			FlxG.sound.muteKeys = [FlxKey.ZERO];
+			FlxG.sound.volumeDownKeys = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
+			FlxG.sound.volumeUpKeys = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
+			blockKeyInteraction = false;
+		}
+
+
 		if (FlxG.mouse.x > gridBG.x
 			&& FlxG.mouse.x < gridBG.x + gridBG.width
 			&& FlxG.mouse.y > gridBG.y
@@ -1039,99 +1126,103 @@ class ChartingState extends MusicBeatState
 				dummyArrow.y = Math.floor(FlxG.mouse.y / GRID_SIZE) * GRID_SIZE;
 		}
 
-		if (FlxG.keys.justPressed.ENTER)
+		if (!blockKeyInteraction)
 		{
-			FlxG.mouse.visible = false;
-			PlayState.SONG = _song;
-			FlxG.sound.music.stop();
-			if(vocals != null) vocals.stop();
-			FlxG.switchState(new PlayState());
-		}
-
-		if (FlxG.keys.justPressed.E)
-		{
-			changeNoteSustain(Conductor.stepCrochet);
-		}
-		if (FlxG.keys.justPressed.Q)
-		{
-			changeNoteSustain(-Conductor.stepCrochet);
-		}
-
-		if (FlxG.keys.justPressed.TAB)
-		{
-			if (FlxG.keys.pressed.SHIFT)
+			if (FlxG.keys.justPressed.ENTER)
 			{
-				UI_box.selected_tab -= 1;
-				if (UI_box.selected_tab < 0)
-					UI_box.selected_tab = 2;
+				FlxG.mouse.visible = false;
+				PlayState.SONG = _song;
+				FlxG.sound.music.stop();
+				if(vocals != null) vocals.stop();
+				FlxG.switchState(new PlayState());
 			}
-			else
+		
+			if (FlxG.keys.justPressed.E)
 			{
-				UI_box.selected_tab += 1;
-				if (UI_box.selected_tab >= 3)
-					UI_box.selected_tab = 0;
+				changeNoteSustain(Conductor.stepCrochet);
 			}
-		}
-
-		if (!typingShit.hasFocus && !value1InputText.hasFocus && !value2InputText.hasFocus)
-		{
-			if (FlxG.keys.justPressed.SPACE)
+			if (FlxG.keys.justPressed.Q)
 			{
-				if (FlxG.sound.music.playing)
-				{
-					FlxG.sound.music.pause();
-					if(vocals != null) vocals.pause();
-				}
-				else
-				{
-					if(vocals != null) {
-						vocals.play();
-						vocals.pause();
-						vocals.time = FlxG.sound.music.time;
-						vocals.play();
-					}
-					FlxG.sound.music.play();
-				}
+				changeNoteSustain(-Conductor.stepCrochet);
 			}
-
-			if (FlxG.keys.justPressed.R)
+		
+			if (FlxG.keys.justPressed.TAB)
 			{
 				if (FlxG.keys.pressed.SHIFT)
-					resetSection(true);
-				else
-					resetSection();
-			}
-
-			if (FlxG.mouse.wheel != 0)
-			{
-				FlxG.sound.music.pause();
-				FlxG.sound.music.time -= (FlxG.mouse.wheel * Conductor.stepCrochet * 0.4);
-				if(vocals != null) {
-					vocals.pause();
-					vocals.time = FlxG.sound.music.time;
-				}
-			}
-
-			if (FlxG.keys.pressed.W || FlxG.keys.pressed.S)
-			{
-				FlxG.sound.music.pause();
-
-				var holdingShift:Float = FlxG.keys.pressed.SHIFT ? 3 : 1;
-				var daTime:Float = 700 * FlxG.elapsed * holdingShift;
-
-				if (FlxG.keys.pressed.W)
 				{
-					FlxG.sound.music.time -= daTime;
+					UI_box.selected_tab -= 1;
+					if (UI_box.selected_tab < 0)
+						UI_box.selected_tab = 2;
 				}
 				else
-					FlxG.sound.music.time += daTime;
-
-				if(vocals != null) {
-					vocals.pause();
-					vocals.time = FlxG.sound.music.time;
+				{
+					UI_box.selected_tab += 1;
+					if (UI_box.selected_tab >= 3)
+						UI_box.selected_tab = 0;
+				}
+			}
+		
+			if (!typingShit.hasFocus && !value1InputText.hasFocus && !value2InputText.hasFocus)
+			{
+				if (FlxG.keys.justPressed.SPACE)
+				{
+					if (FlxG.sound.music.playing)
+					{
+						FlxG.sound.music.pause();
+						if(vocals != null) vocals.pause();
+					}
+					else
+					{
+						if(vocals != null) {
+							vocals.play();
+							vocals.pause();
+							vocals.time = FlxG.sound.music.time;
+							vocals.play();
+						}
+						FlxG.sound.music.play();
+					}
+				}
+		
+				if (FlxG.keys.justPressed.R)
+				{
+					if (FlxG.keys.pressed.SHIFT)
+						resetSection(true);
+					else
+						resetSection();
+				}
+		
+				if (FlxG.mouse.wheel != 0)
+				{
+					FlxG.sound.music.pause();
+					FlxG.sound.music.time -= (FlxG.mouse.wheel * Conductor.stepCrochet * 0.4);
+					if(vocals != null) {
+						vocals.pause();
+						vocals.time = FlxG.sound.music.time;
+					}
+				}
+		
+				if (FlxG.keys.pressed.W || FlxG.keys.pressed.S)
+				{
+					FlxG.sound.music.pause();
+		
+					var holdingShift:Float = FlxG.keys.pressed.SHIFT ? 3 : 1;
+					var daTime:Float = 700 * FlxG.elapsed * holdingShift;
+		
+					if (FlxG.keys.pressed.W)
+					{
+						FlxG.sound.music.time -= daTime;
+					}
+					else
+						FlxG.sound.music.time += daTime;
+		
+					if(vocals != null) {
+						vocals.pause();
+						vocals.time = FlxG.sound.music.time;
+					}
 				}
 			}
 		}
+		
 
 		_song.bpm = tempBpm;
 
@@ -1143,13 +1234,16 @@ class ChartingState extends MusicBeatState
 		var shiftThing:Int = 1;
 		if (FlxG.keys.pressed.SHIFT)
 			shiftThing = 4;
-		if (FlxG.keys.justPressed.RIGHT || FlxG.keys.justPressed.D)
-			changeSection(curSection + shiftThing);
-		if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.A) {
-			if(curSection <= 0) {
-				changeSection(_song.notes.length-1);
-			} else {
-				changeSection(curSection - shiftThing);
+		if (!blockKeyInteraction)
+		{
+			if (FlxG.keys.justPressed.RIGHT || FlxG.keys.justPressed.D)
+				changeSection(curSection + shiftThing);
+			if (FlxG.keys.justPressed.LEFT || FlxG.keys.justPressed.A) {
+				if(curSection <= 0) {
+					changeSection(_song.notes.length-1);
+				} else {
+					changeSection(curSection - shiftThing);
+				}
 			}
 		}
 
@@ -1412,6 +1506,9 @@ class ChartingState extends MusicBeatState
 		} else { //Event note
 			note.loadGraphic(Paths.image('eventArrow'));
 			note.ability = daSus;
+			trace(i[3]);
+			trace(i[4]);
+			trace(daSus);
 			note.value1 = i[3];
 			note.value2 = i[4];
 			note.setGraphicSize(GRID_SIZE, GRID_SIZE);
@@ -1427,6 +1524,9 @@ class ChartingState extends MusicBeatState
 		}
 		note.y = (GRID_SIZE * (isNextSection ? 16 : 0)) + Math.floor(getYfromStrum((daStrumTime - sectionStartTime(isNextSection ? 1 : 0)) % (Conductor.stepCrochet * _song.notes[curSection].lengthInSteps)));
 		return note;
+		i[4] = '';
+		i[3] = ''; //turns it into void objects so it doesn't multiply when adding another event
+		note.ability = '';
 	}
 
 	function setupSusNote(note:Note):FlxSprite {
