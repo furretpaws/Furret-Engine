@@ -1289,13 +1289,18 @@ class ChartingState extends MusicBeatState
 	function updateSectionUI():Void
 	{
 		var sec = _song.notes[curSection];
-
+	
 		stepperLength.value = sec.lengthInSteps;
 		check_mustHitSection.checked = sec.mustHitSection;
-		check_altAnim.checked = sec.altAnim;
+		// check_altAnim.checked = sec.altAnim;
 		check_changeBPM.checked = sec.changeBPM;
+		// note that 0 implies regular anim and 1 implies default alt 
+		if (sec.altAnimNum == null) {
+			sec.altAnimNum == if (sec.altAnim) 1 else 0;
+		}
+		stepperAltAnim.value = sec.altAnimNum;
 		stepperSectionBPM.value = sec.bpm;
-
+	
 		updateHeads();
 	}
 
