@@ -118,8 +118,6 @@ class PlayState extends MusicBeatState
 
 	var interp = new hscript.Interp();
 
-	var secondInterp = new hscript.Interp();
-
 	//3d stage stuff
 	public var curbg:FlxSprite;
 	public static var screenshader:Shaders.PulseEffect = new PulseEffect();
@@ -128,6 +126,8 @@ class PlayState extends MusicBeatState
 	public static var lolmode:Bool = false;
 
 	var vcrEffect:Shaders.VCRDistorsionShader;
+
+	var check:Int = 0;
 
 	public static var rep:Replay;
 	public static var loadRep:Bool = false;
@@ -255,7 +255,6 @@ class PlayState extends MusicBeatState
 
 	var talking:Bool = true;
 	var songScore:Int = 0;
-	var secondInterpInvalid:FlxText;
 	var runningOnFE:FlxText;
 	var nameOfTheSong:FlxText;
 	var difficultySong:FlxText;
@@ -310,7 +309,7 @@ class PlayState extends MusicBeatState
 	function callHscript(func_name:String, args:Array<Dynamic>, usehaxe:String) {
 		// if function doesn't exist
 		if (!hscriptStates.get(usehaxe).variables.exists(func_name)) {
-			trace("Function doesn't exist, silently skipping...");
+			//trace("Function doesn't exist, silently skipping..."); //i don't want the console getting flooded with traces
 			return;
 		}
 		var method = hscriptStates.get(usehaxe).variables.get(func_name);
@@ -1540,15 +1539,6 @@ class PlayState extends MusicBeatState
 		// healthBar
 		add(healthBar);
 
-		secondInterpInvalid = new FlxText(200, 500);
-		secondInterpInvalid.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
-		secondInterpInvalid.scrollFactor.set();
-		secondInterpInvalid.text = '[!] Invalid second script';
-		secondInterpInvalid.visible = false;
-		add(secondInterpInvalid);
-		secondInterpInvalid.cameras = [camHUD];
-		
-
 		runningOnFE = new FlxText(0, FlxG.height/2-360, 0, "", 20);
 		runningOnFE.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
 		runningOnFE.scrollFactor.set();
@@ -1718,22 +1708,25 @@ class PlayState extends MusicBeatState
 			replayTxt.cameras = [camHUD];
 
 		#if android
-		if (FileSystem.exists(BootUpCheck.getPath() + "assets/data/" + curSong.toLowerCase() + "/songScript.hx"))
-		{
-			trace("[!] A song script has been detected!");
-			loadHScript = true;
-		}
+		var directory:Array<String> = FileSystem.readDirectory(BootUpCheck.getPath() + "assets/data/" + curSong.toLowerCase());
 		#else
-		if (FileSystem.exists("assets/data/" + curSong.toLowerCase() + "/songScript.hx"))
-		{
-			trace("[!] A song script has been detected!");
-			loadHScript = true;
-		}
+		var directory:Array<String> = FileSystem.readDirectory("assets/data/" + curSong.toLowerCase());
 		#end
-		else
+		trace(directory);
+		for (i in directory)
 		{
-			trace("There isn't a script for this song");
+			if (directory[check].endsWith(".hx"))
+			{
+				trace("Script detected! " + "assets/data/" + curSong.toLowerCase() + "/" + directory[check]);
+			}
+			else
+			{
+				// do nothing
+			}
+			loadHScript = true;
+			check++;
 		}
+		check = 0;
 
 		// if (SONG.song == 'South')
 		// FlxG.camera.alpha = 0.7;
@@ -2217,61 +2210,65 @@ class PlayState extends MusicBeatState
 			{
 				add(something);
 			});
-			interp.variables.set("addHScript", function(scriptName:String) {
-				trace("[i] Loading 'assets/data/" + curSong.toLowerCase() + "/" + scriptName + ".hx");
-				secondInterp = new hscript.Interp();
-				configureInterp();
-				#if android
-				var getScript = File.getContent(BootUpCheck.getPath() + "assets/data/" + PlayState.SONG.song.toLowerCase() + "/" + scriptName + ".hx");
-				#else
-				var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/" + scriptName + ".hx");
-				#end
-				var daScript:String = getScript;
-				var daScriptParser = new hscript.Parser();
-				var script = daScriptParser.parseString(daScript);
-				secondInterp.execute(script);
-				trace("[OK] Script loaded successfully!");
-			});
 			specifyFlxGActions();
 			#if android
-			var getScript = File.getContent(BootUpCheck.getPath() + "assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
+			var directory:Array<String> = FileSystem.readDirectory(BootUpCheck.getPath() + "assets/data/" + PlayState.SONG.song.toLowerCase());
 			#else
-			var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
+			var directory:Array<String> = FileSystem.readDirectory("assets/data/" + PlayState.SONG.song.toLowerCase());
 			#end
-			var daScript:String = getScript;
-			var daScriptParser = new hscript.Parser();
-			var script:Dynamic = 'metete tu "Local variable script used without being initialized" por el fondo del ano';
-			try {
-				script = daScriptParser.parseString(daScript);
-			}
-			catch(e) {
-				Application.current.window.alert('[!] Invalid script!\n' + e.message, 'Furret Engine');
-				doNotExecute = true;
-			}
-			if (!doNotExecute)
-			{
-				try {
-					interp.execute(script);
-				}
-				catch(e) {
-					Application.current.window.alert('[!] Invalid script!\n' + e.message, 'Furret Engine');
-					Sys.println("[!] Invalid script");
-				}
-				doNotExecute = false;
-			}
-			else
-			{
-				Sys.println("[!] Invalid script");
-			}
 			hscriptStates.set('interp',interp);
-			try {
-				callHscript("start", [SONG.song], 'interp');
+			trace(directory);
+			for (i in directory) //I DID IT, I FUCKING DID IT, LMAO, TAKE THAT PSYCH ENGINE CODERS
+			{
+				if (directory[check].endsWith(".hx"))
+				{
+					#if android
+					var getScript = File.getContent(BootUpCheck.getPath() + "assets/data/" + PlayState.SONG.song.toLowerCase() + "/" + directory[check]);
+					#else
+					var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/" + directory[check]);
+					#end
+					var daScript:String = getScript;
+					var daScriptParser = new hscript.Parser();
+					var script:Dynamic = 'metete tu "Local variable script used without being initialized" por el fondo del ano';
+					try {
+						script = daScriptParser.parseString(daScript);
+					}
+					catch(e) {
+						Application.current.window.alert('[!] Invalid script!\n' + e.message, 'Furret Engine');
+						doNotExecute = true;
+					}
+					if (!doNotExecute)
+					{
+						try {
+							interp.execute(script);
+						}
+						catch(e) {
+							Application.current.window.alert('[!] Invalid script!\n' + e.message, 'Furret Engine');
+							Sys.println("[!] Invalid script");
+						}
+						doNotExecute = false;
+					}
+					else
+					{
+						Sys.println("[!] Invalid script");
+					}
+		
+					try {
+						callHscript("start", [SONG.song], 'interp');
+					}
+					catch(e) {
+						Application.current.window.alert('[!] Invalid script!\n' + e.message, 'Furret Engine');
+						Sys.println("[!] Invalid script");
+					}
+					trace("[OK] A haxe state has been executed");
+				}
+				else
+				{
+					// do nothing
+				}
+				check++;
 			}
-			catch(e) {
-				Application.current.window.alert('[!] Invalid script!\n' + e.message, 'Furret Engine');
-				Sys.println("[!] Invalid script");
-			}
-			trace("[OK] A haxe state has been executed");
+			check = 0;
 		}
 		inCutscene = false;
 
@@ -3663,73 +3660,6 @@ class PlayState extends MusicBeatState
 			interp.variables.set("accuracy", truncateFloat(accuracy, 2));
 			interp.variables.set("ranking", generateRanking());
 		}
-	
-		if (updateVarsNeedsToBeSetUp)
-		{
-			secondInterp.variables.set("curStep", curStep);
-			secondInterp.variables.set("curBeat", curBeat);
-			secondInterp.variables.set("score", songScore);
-			secondInterp.variables.set("misses", misses);
-			secondInterp.variables.set("health", health);
-			secondInterp.variables.set("combo", combo);
-			secondInterp.variables.set("accuracy", truncateFloat(accuracy, 2));
-			secondInterp.variables.set("ranking", generateRanking());
-			#if android
-			var getScript = File.getContent(BootUpCheck.getPath() + "assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
-			#else
-			var getScript = File.getContent("assets/data/" + PlayState.SONG.song.toLowerCase() + "/songScript.hx");
-			#end
-			var daScript:String = getScript;
-			var daScriptParser = new hscript.Parser();
-			var script:Dynamic = 'metete tu "Local variable script used without being initialized" por el fondo del ano';
-			try {
-				script = daScriptParser.parseString(daScript);
-			}
-			catch(e) {
-				secondInterpInvalid.visible = true;
-				secondInterpInvalid.text = ('[!] Invalid second script | ' + e.message);
-				new FlxTimer().start(5, function(tmr:FlxTimer)
-				{
-					secondInterpInvalid.visible = false;
-				});
-				doNotExecute = true;
-			}
-			if (!doNotExecute)
-			{
-				try {
-					secondInterp.execute(script);
-				}
-				catch(e) {
-					secondInterpInvalid.visible = true;
-					secondInterpInvalid.text = ('[!] Invalid second script | ' + e.message);
-					new FlxTimer().start(5, function(tmr:FlxTimer)
-					{
-						secondInterpInvalid.visible = false;
-					});
-					Sys.println("[!] Invalid script");
-				}
-				doNotExecute = false;
-			}
-			else
-			{
-				Sys.println("[!] Invalid script");
-			}
-			hscriptStates.set('interp',interp);
-			try {
-				callHscript("start", [SONG.song], 'interp');
-			}
-			catch(e) {
-				secondInterpInvalid.visible = true;
-				secondInterpInvalid.text = ('[!] Invalid second script | ' + e.message);
-				new FlxTimer().start(5, function(tmr:FlxTimer)
-				{
-					secondInterpInvalid.visible = false;
-				});
-				Sys.println("[!] Invalid script");
-			}
-			hscriptStates.set('secondInterp',secondInterp);
-			updateVarsNeedsToBeSetUp = false;
-		}
 		setAllHaxeVar('camZooming', camZooming);
 		setAllHaxeVar('gfSpeed', gfSpeed);
 		setAllHaxeVar('health', health);
@@ -4519,6 +4449,8 @@ class PlayState extends MusicBeatState
 	
 						daNote.active = false;
 
+						callAllHScript('opponentNoteHit', [Math.abs(daNote.noteData)]);
+
 						daNote.kill();
 						notes.remove(daNote, true);
 						daNote.destroy();
@@ -4838,251 +4770,6 @@ class PlayState extends MusicBeatState
 		interp.variables.set("execute", function(order:String) {
 			return order;
 		});
-	}
-
-	function specifyFlxGActionsForSecondInterps():Void {
-		trace("[OK] FlxG loaded in the haxe state sucessfully!");
-		//da functions
-		secondInterp.variables.set("getFullscreen", function()
-		{
-			return FlxG.fullscreen;
-		});
-		secondInterp.variables.set("setFullscreen", function(tf:Bool)
-		{
-			return FlxG.fullscreen = tf;
-		});
-		secondInterp.variables.set("justPressed", FlxG.keys.justPressed);
-		secondInterp.variables.set("pressed", FlxG.keys.pressed);
-		secondInterp.variables.set("justReleased", FlxG.keys.justReleased);
-		secondInterp.variables.set("resizeGame", function (Width:Int, Height:Int) {
-			return FlxG.resizeGame(Width, Height);
-		});
-		secondInterp.variables.set("resizeWindow", function (Width:Int, Height:Int) {
-			return FlxG.resizeWindow(Width, Height);
-		});
-		secondInterp.variables.set("openURL", function(url:String) {
-			return FlxG.openURL(url);
-		});
-		secondInterp.variables.set("execute", function(order:String) {
-			return order;
-		});
-	}
-
-	function configureInterp():Void { //interp :cold_sweat:
-		var bf = boyfriend;
-		secondInterp.variables.set("endSong", function() {
-			endSong();
-		});
-		secondInterp.variables.set("Conductor", Conductor);
-		secondInterp.variables.set("curBPM", Conductor.bpm);
-		secondInterp.variables.set("bpm", SONG.bpm);
-		secondInterp.variables.set("FlxAtlasFrames", FlxAtlasFrames);
-		secondInterp.variables.set("scrollSpeed", SONG.speed);
-		secondInterp.variables.set("crochet", Conductor.crochet);
-		secondInterp.variables.set("stepCrochet", Conductor.stepCrochet);
-		secondInterp.variables.set("songLength", FlxG.sound.music.length);
-		secondInterp.variables.set("isStoryMode", PlayState.isStoryMode);
-		secondInterp.variables.set("storyDifficulty", PlayState.storyDifficulty);
-		secondInterp.variables.set("FurretEngineVersion", MainMenuState.furretEngineVer);
-		secondInterp.variables.set("CoolUtil", CoolUtil);
-		secondInterp.variables.set("botPlay", cpuControlled);
-		secondInterp.variables.set("downscroll", FlxG.save.data.downscroll);
-		secondInterp.variables.set("ghostTapping", FlxG.save.data.newInput);
-		secondInterp.variables.set("hitsounds", FlxG.save.data.hitsoundspog);
-		secondInterp.variables.set("judgement", FlxG.save.data.judgement);
-		secondInterp.variables.set("middlescroll", FlxG.save.data.middlescroll);
-		secondInterp.variables.set("noteSplash", FlxG.save.data.noteSplashON);
-		secondInterp.variables.set("camFollowXDad", camFollowXDad);
-		secondInterp.variables.set("camFollowYDad", camFollowYDad);
-		secondInterp.variables.set("camFollowXBoyfriend", camFollowXBoyfriend);
-		secondInterp.variables.set("camFollowYBoyfriend", camFollowYBoyfriend);
-		secondInterp.variables.set("FlxSprite", FlxSprite);
-		secondInterp.variables.set("FlxSound", FlxSound);
-		secondInterp.variables.set("FlxGroup", flixel.group.FlxGroup);
-		secondInterp.variables.set("FlxAngle", flixel.math.FlxAngle);
-		secondInterp.variables.set("Paths", Paths);
-		secondInterp.variables.set("Sound", flash.media.Sound);
-		secondInterp.variables.set("FlxMath", flixel.math.FlxMath);
-		secondInterp.variables.set("Math", flixel.math.FlxMath);
-		secondInterp.variables.set("FlxPoint", flixel.math.FlxPoint);
-		secondInterp.variables.set("Point", flixel.math.FlxPoint);
-		secondInterp.variables.set("FlxRect", flixel.math.FlxRect);
-		secondInterp.variables.set("Rect", flixel.math.FlxRect);
-		secondInterp.variables.set("StringTools", StringTools);
-		secondInterp.variables.set("SONG", SONG);
-		secondInterp.variables.set("camFollow", camFollow);
-		secondInterp.variables.set("dadCameraOffsetX", dadCameraOffsetX);
-		secondInterp.variables.set("dadCameraOffsetY", dadCameraOffsetY);
-		secondInterp.variables.set("bfCameraOffsetX", bfCameraOffsetX);
-		secondInterp.variables.set("bfCameraOffsetY", bfCameraOffsetY);
-		secondInterp.variables.set("curbg", curbg);
-		secondInterp.variables.set("playerStrums", playerStrums);
-		secondInterp.variables.set("cpuStrums", cpuStrums);
-		secondInterp.variables.set("strumLineNotes", strumLineNotes);
-		secondInterp.variables.set("elapsedtime", elapsedtime);
-		secondInterp.variables.set("sicksTxt", sicksTxt);
-		secondInterp.variables.set("goodsTxt", goodsTxt);
-		secondInterp.variables.set("badsTxt", badsTxt);
-		secondInterp.variables.set("shitsTxt", shitsTxt);
-		secondInterp.variables.set("missesTxt", missesTxt);
-		secondInterp.variables.set("runningOnFE", runningOnFE);
-		secondInterp.variables.set("nameOfTheSong", nameOfTheSong);
-		secondInterp.variables.set("difficultySong", difficultySong);
-		secondInterp.variables.set("Preferences", Preferences);
-		secondInterp.variables.set("start", function (song) {});
-		secondInterp.variables.set("beatHit", function (beat) {});
-		secondInterp.variables.set("update", function (elapsed) {});
-		secondInterp.variables.set("stepHit", function(step) {});
-		secondInterp.variables.set("camHUD", camHUD);
-		secondInterp.variables.set("camGame", camGame);
-		secondInterp.variables.set("healthBarBG", healthBarBG);
-		secondInterp.variables.set("healthBar", healthBar);
-		secondInterp.variables.set("scoreTxt", scoreTxt);
-		secondInterp.variables.set("TitleState", TitleState);
-		secondInterp.variables.set("makeRangeArray", CoolUtil.numberArray);
-		secondInterp.variables.set("FlxG", flixel.FlxG);
-		secondInterp.variables.set("FlxTimer", flixel.util.FlxTimer);
-		secondInterp.variables.set("FlxTween", flixel.tweens.FlxTween);
-		secondInterp.variables.set("Std", Std);
-		secondInterp.variables.set("iconP1", iconP1);
-		secondInterp.variables.set("iconP2", iconP2);
-		secondInterp.variables.set("BLACK", FlxColor.BLACK);
-		secondInterp.variables.set("BLUE", FlxColor.BLUE);
-		secondInterp.variables.set("BROWN", FlxColor.BROWN);
-		secondInterp.variables.set("CYAN", FlxColor.CYAN);
-		secondInterp.variables.set("GRAY", FlxColor.GRAY);
-		secondInterp.variables.set("GREEN", FlxColor.GREEN);
-		secondInterp.variables.set("LIME", FlxColor.LIME);
-		secondInterp.variables.set("MAGENTA", FlxColor.MAGENTA);
-		secondInterp.variables.set("ORANGE", FlxColor.ORANGE);
-		secondInterp.variables.set("PINK", FlxColor.PINK);
-		secondInterp.variables.set("PURPLE", FlxColor.PURPLE);
-		secondInterp.variables.set("RED", FlxColor.RED);
-		secondInterp.variables.set("TRANSPARENT", FlxColor.TRANSPARENT);
-		secondInterp.variables.set("WHITE", FlxColor.WHITE);
-		secondInterp.variables.set("YELLOW", FlxColor.YELLOW);
-		secondInterp.variables.set("StringTools", StringTools);
-		secondInterp.variables.set("FlxTrail", FlxTrail);
-		secondInterp.variables.set("FlxEase", FlxEase);
-		secondInterp.variables.set("Reflect", Reflect);
-		secondInterp.variables.set("curStep", 0);
-		secondInterp.variables.set("curBeat", 0);
-		secondInterp.variables.set("curSong", SONG.song);
-		secondInterp.variables.set("FlxText", FlxText);
-		secondInterp.variables.set("preloadImage", function(daThingToPreload:String) { //mandatory if you want to add an image to hscript
-			var preload = new FlxSprite(1000,-1000).loadGraphic(Paths.image(daThingToPreload));
-			add(preload);
-			remove(preload);
-		});
-		secondInterp.variables.set("SONG", SONG);
-		secondInterp.variables.set("Boyfriend", Boyfriend);
-		secondInterp.variables.set("boyfriend", bf);
-		secondInterp.variables.set("dad", dad);
-		secondInterp.variables.set("gf", gf);
-		secondInterp.variables.set("setDiscordPresence", function(daPresence:String) {
-			#if windows
-			DiscordClient.changePresence(daPresence, null);
-			#else
-			trace("[!] Ignoring discord presence change as we are not on Windows");
-			#end
-		});
-		secondInterp.variables.set("changeCharacter", function(characterToReplace:String, characterThatWillBeReplaced, X:Int = 999999, Y:Int = 999999) {
-			if (characterThatWillBeReplaced == 'dad')
-			{
-				remove(dad);
-				if (X == 999999 || Y == 999999 || X & Y == 999999)
-				{
-					dad = new Character(dad.x, dad.y, characterToReplace);
-					trace("[!] Haxe script: No X or Y or both specified");
-				}
-				else
-				{
-					dad = new Character(X, Y, characterToReplace);
-				}
-				add(dad);
-				SONG.player2 = characterToReplace;
-				remove(iconP2);
-				iconP2 = new HealthIcon(SONG.player2, false);
-				iconP2.y = healthBar.y - (iconP2.height / 2);
-				iconP2.cameras = [camHUD];
-				add(iconP2);
-				SONG.player2 = player2BeforeChanges;
-			}
-			else if (characterThatWillBeReplaced == 'bf' || characterThatWillBeReplaced == 'boyfriend')
-			{
-				remove(boyfriend);
-				if (X == 999999 || Y == 999999 || X & Y == 999999)
-				{
-					boyfriend = new Boyfriend(dad.x, dad.y, characterToReplace);
-					trace("[!] Haxe script: No X or Y or both specified");
-				}
-				else
-				{
-					boyfriend = new Boyfriend(X, Y, characterToReplace);
-				}
-				add(boyfriend);
-			}
-			else if (characterThatWillBeReplaced == 'dad')
-			{
-				remove(boyfriend);
-				if (X == 999999 || Y == 999999 || X & Y == 999999)
-				{
-					boyfriend = new Boyfriend(dad.x, dad.y, characterToReplace);
-					trace("[!] Haxe script: No X or Y or both specified");
-				}
-				else
-				{
-					boyfriend = new Boyfriend(X, Y, characterToReplace);
-				}
-				add(boyfriend);
-				SONG.player1 = characterToReplace;
-				remove(iconP1);
-				iconP1 = new HealthIcon(SONG.player1, false);
-				iconP1.y = healthBar.y - (iconP1.height / 2);
-				iconP1.cameras = [camHUD];
-				add(iconP1);
-				SONG.player1 = player1BeforeChanges;
-			}
-		});
-		secondInterp.variables.set("getVariableFromAClass", function(varClass:String, variable:String) {
-			var splittt:Array<String> = variable.split('.');
-			if (splittt.length > 1) {
-				var dyn:Dynamic = CoolUtil.getVarFromArray(Type.resolveClass(varClass), splittt[0]);
-				for (i in 1...splittt.length-1) {
-					dyn = CoolUtil.getVarFromArray(dyn, splittt[i]);
-				}
-				return CoolUtil.getVarFromArray(dyn, splittt[splittt.length-1]);
-			}
-			return CoolUtil.getVarFromArray(Type.resolveClass(varClass), variable);
-		});
-		secondInterp.variables.set("setVariableFromAClass", function(varClass:String, variable:String, value:Dynamic) {
-			var splittt:Array<String> = variable.split('.');
-			if (splittt.length > 1) {
-				var dyn:Dynamic = CoolUtil.getVarFromArray(Type.resolveClass(varClass), splittt[0]);
-				for (i in 1...splittt.length-1) {
-					dyn = CoolUtil.getVarFromArray(dyn, splittt[i]);
-				}
-				CoolUtil.setVarFromArray(dyn, splittt[splittt.length-1], value);
-				return true;
-			}
-			CoolUtil.setVarFromArray(Type.resolveClass(varClass), variable, value);
-			return true;
-		});
-		specifyFlxGActionsForSecondInterps();
-		secondInterp.variables.set("Character", Character);
-		secondInterp.variables.set("PlayState", PlayState);
-		secondInterp.variables.set("FlxG", FlxG);
-		secondInterp.variables.set("ease", FlxEase);
-		secondInterp.variables.set("camHUD", camHUD);
-		secondInterp.variables.set("remove", function(something)
-		{
-			remove(something);
-		});
-		secondInterp.variables.set("add", function(something)
-		{
-			add(something);
-		});
-		updateVarsNeedsToBeSetUp = true;
 	}
 
 	function endSong():Void
@@ -6953,6 +6640,8 @@ class PlayState extends MusicBeatState
 		
 					note.wasGoodHit = true;
 					vocals.volume = 1;
+
+					callAllHScript('goodNoteHit', [note.noteData]);
 		
 					note.kill();
 					notes.remove(note, true);

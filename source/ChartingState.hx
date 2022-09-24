@@ -663,32 +663,39 @@ class ChartingState extends MusicBeatState
 		//this code might be trash, i don't know how to do this shit so..
 
 		#if android
-		var directory:Array<String> = FileSystem.readDirectory(BootUpCheck.getPath() + "assets/events");
+		if (FileSystem.exists(BootUpCheck.getPath() + "assets/events"))
 		#else
-		var directory:Array<String> = FileSystem.readDirectory("assets/events");
+		if (FileSystem.exists("assets/events")) //this is why i should test things before publishing it
 		#end
-		trace(directory);
-		for (i in directory) //I DID IT, I FUCKING DID IT, LMAO, TAKE THAT PSYCH ENGINE CODERS
 		{
-			if (directory[check].endsWith(".txt"))
+			#if android
+			var directory:Array<String> = FileSystem.readDirectory(BootUpCheck.getPath() + "assets/events");
+			#else
+			var directory:Array<String> = FileSystem.readDirectory("assets/events");
+			#end
+			trace(directory);
+			for (i in directory) //I DID IT, I FUCKING DID IT, LMAO, TAKE THAT PSYCH ENGINE CODERS
 			{
-				trace("event!");
-				trace(directory[check]);
-				var splitEvent:Dynamic = directory[check].split(".txt"); //i have no idea of what i am doing with my life
-				var eventToPush:Dynamic = splitEvent[0]; //this is the name of the event
-				#if android
-				eventTypes.push([eventToPush, File.getContent(BootUpCheck.getPath() + "assets/events/" + directory[check])]);
-				#else
-				eventTypes.push([eventToPush, File.getContent("assets/events/" + directory[check])]);
-				#end
+				if (directory[check].endsWith(".txt"))
+				{
+					trace("event!");
+					trace(directory[check]);
+					var splitEvent:Dynamic = directory[check].split(".txt"); //i have no idea of what i am doing with my life
+					var eventToPush:Dynamic = splitEvent[0]; //this is the name of the event
+					#if android
+					eventTypes.push([eventToPush, File.getContent(BootUpCheck.getPath() + "assets/events/" + directory[check])]);
+					#else
+					eventTypes.push([eventToPush, File.getContent("assets/events/" + directory[check])]);
+					#end
+				}
+				else
+				{
+					// do nothing
+				}
+				check++;
 			}
-			else
-			{
-				trace("not an event!");
-			}
-			check++;
+			check = 0;
 		}
-		check = 0;
 
 		var descText:FlxText = new FlxText(20, 200, 0, eventTypes[0][0]);
 
