@@ -1,5 +1,9 @@
 package;
 
+#if desktop
+import Discord.DiscordClient;
+import sys.thread.Thread;
+#end
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -20,22 +24,8 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import flixel.text.FlxText;
-import io.newgrounds.NG;
 import lime.app.Application;
-import flixel.input.keyboard.FlxKey;
 import openfl.Assets;
-
-#if windows
-import Discord.DiscordClient;
-#end
-#if sys
-import sys.io.File;
-
-#end
-#if desktop
-import sys.thread.Thread;
-#end
 
 using StringTools;
 
@@ -44,12 +34,10 @@ class TitleState extends MusicBeatState
 	static var initialized:Bool = false;
 
 	var blackScreen:FlxSprite;
-	static public var soundExt:String = ".ogg";
 	var credGroup:FlxGroup;
 	var credTextShit:Alphabet;
 	var textGroup:FlxGroup;
 	var ngSpr:FlxSprite;
-	var firstTime:FlxText;
 
 	var curWacky:Array<String> = [];
 
@@ -57,30 +45,7 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
-		#if polymod
-		polymod.Polymod.init({modRoot: "mods", dirs: ['introMod']});
-		#end
-		
-		#if sys
-		if (!sys.FileSystem.exists(Sys.getCwd() + "/assets/replays"))
-			sys.FileSystem.createDirectory(Sys.getCwd() + "/assets/replays");
-		#end
-
-		@:privateAccess
-		{
-			trace("Loaded " + openfl.Assets.getLibrary("default").assetsLoaded + " assets (DEFAULT)");
-		}
-		
 		PlayerSettings.init();
-
-		#if windows
-		DiscordClient.initialize();
-
-		Application.current.onExit.add (function (exitCode) {
-			DiscordClient.shutdown();
-		 });
-		 
-		#end
 
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
@@ -88,93 +53,7 @@ class TitleState extends MusicBeatState
 
 		super.create();
 
-		// NGio.noLogin(APIStuff.API);
-
-		#if ng
-		var ng:NGio = new NGio(APIStuff.API, APIStuff.EncKey);
-		trace('NEWGROUNDS LOL');
-		#end
-
 		FlxG.save.bind('funkin', 'ninjamuffin99');
-
-		KadeEngineData.initSave();
-
-		if(FlxG.save.data.leftBind == null)
-		{
-			FlxG.save.data.leftBind = "A";
-		}
-		if(FlxG.save.data.downBind == null)
-		{
-			FlxG.save.data.downBind = "S";
-		}
-		if(FlxG.save.data.upBind == null)
-		{
-			FlxG.save.data.upBind = "W";
-		}
-		if(FlxG.save.data.rightBind == null)
-		{
-			FlxG.save.data.rightBind = "D";
-		}
-		if (FlxG.save.data.mania6LeftBind == null)
-		{
-			FlxG.save.data.mania6LeftBind = "S";
-		}
-		if (FlxG.save.data.mania6UpBind == null)
-		{
-			FlxG.save.data.mania6UpBind = "D";
-		}
-		if (FlxG.save.data.mania6RightBind == null)
-		{
-			FlxG.save.data.mania6RightBind = "F";
-		}
-		if (FlxG.save.data.maniaCenterBind == null)
-		{
-			FlxG.save.data.maniaCenterBind = FlxKey.SPACE;
-		}
-		if (FlxG.save.data.mania6Left2Bind == null)
-		{
-			FlxG.save.data.mania6Left2Bind = "J";
-		}
-		if (FlxG.save.data.mania6DownBind == null)
-		{
-			FlxG.save.data.mania6DownBind = "K";
-		}
-		if (FlxG.save.data.mania6Right2Bind == null)
-		{
-			FlxG.save.data.mania6Right2Bind = "L";
-		}
-		if (FlxG.save.data.mania8LeftBind == null)
-		{
-			FlxG.save.data.mania8LeftBind = "A";
-		}
-		if (FlxG.save.data.mania8DownBind == null)
-		{
-			FlxG.save.data.mania8DownBind = "S";
-		}
-		if (FlxG.save.data.mania8UpBind == null)
-		{
-			FlxG.save.data.mania8UpBind = "D";
-		}
-		if (FlxG.save.data.mania8RightBind == null)
-		{
-			FlxG.save.data.mania8RightBind = "F";
-		}
-		if (FlxG.save.data.mania8Left2Bind == null)
-		{
-			FlxG.save.data.mania8Left2Bind = "H";
-		}
-		if (FlxG.save.data.mania8Down2Bind == null)
-		{
-			FlxG.save.data.mania8Down2Bind = "J";
-		}
-		if (FlxG.save.data.mania8Up2Bind == null)
-		{
-			FlxG.save.data.mania8Up2Bind = "K";
-		}
-		if (FlxG.save.data.mania8Right2Bind == null)
-		{
-			FlxG.save.data.mania8Right2Bind = "L";
-		}
 
 		Highscore.load();
 
@@ -192,15 +71,12 @@ class TitleState extends MusicBeatState
 				StoryMenuState.weekUnlocked[0] = true;
 		}
 
-		#if FREEPLAY
-		var parsed:Dynamic = CoolUtil.parseJson(File.getContent('assets/data/freeplaySongJson.jsonc'));
+		FurretEngineData.init();
 
-		if(parsed.length==1){
-			FreeplayState.id = 0;
-			FlxG.switchState(new FreeplayState());
-		}else{
-			FlxG.switchState(new FreeplayCategory());
-		}
+		EngineFunctions.loadSavedKeybinds();
+
+		#if FREEPLAY
+		FlxG.switchState(new FreeplayState());
 		#elseif CHARTING
 		FlxG.switchState(new ChartingState());
 		#else
@@ -208,6 +84,14 @@ class TitleState extends MusicBeatState
 		{
 			startIntro();
 		});
+		#end
+
+		#if desktop
+		DiscordClient.initialize();
+		
+		Application.current.onExit.add (function (exitCode) {
+			DiscordClient.shutdown();
+		 });
 		#end
 	}
 
@@ -378,14 +262,6 @@ class TitleState extends MusicBeatState
 
 		if (pressedEnter && !transitioning && skippedIntro)
 		{
-			#if !switch
-			NGio.unlockMedal(60960);
-
-			// If it's Friday according to da clock
-			if (Date.now().getDay() == 5)
-				NGio.unlockMedal(61034);
-			#end
-
 			titleText.animation.play('press');
 
 			FlxG.camera.flash(FlxColor.WHITE, 1);
@@ -398,6 +274,7 @@ class TitleState extends MusicBeatState
 			{
 				FlxG.switchState(new MainMenuState());
 			});
+			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 		}
 
 		if (pressedEnter && !skippedIntro)
@@ -420,21 +297,6 @@ class TitleState extends MusicBeatState
 		}
 	}
 
-	function firstTimeWarning()
-	{
-		firstTime = new FlxText(0, FlxG.height/2-360, 0, "", 20);
-		firstTime.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
-		firstTime.scrollFactor.set();
-		firstTime.alpha = 1;
-		firstTime.text = "It seems this is your first time using this engine. Keybinds are now automatically set to ASWD";
-		add(firstTime);
-		var daTimer = new FlxTimer().start(4, function(tmr:FlxTimer)
-		{
-			FlxTween.tween(firstTime, {alpha: 0}, 2, {ease: FlxEase.expoOut,});
-			firstTime.alpha = 1;
-		});
-		daTimer.reset();
-	}
 	function addMoreText(text:String)
 	{
 		var coolText:Alphabet = new Alphabet(0, 0, text, true, false);
@@ -467,10 +329,6 @@ class TitleState extends MusicBeatState
 
 		FlxG.log.add(curBeat);
 
-		if (FlxG.save.data.leftBind && FlxG.save.data.downBind && FlxG.save.data.upBind && FlxG.save.data.rightBind)
-		{
-			firstTimeWarning();
-		}
 		switch (curBeat)
 		{
 			case 1:
@@ -486,18 +344,10 @@ class TitleState extends MusicBeatState
 			// credTextShit.text = 'In association \nwith';
 			// credTextShit.screenCenter();
 			case 5:
-				if (Main.watermarks)
-					createCoolText(['Furret Engine', 'by']);
-				else
-					createCoolText(['In Partnership', 'with']);
+				createCoolText(['In association', 'with']);
 			case 7:
-				if (Main.watermarks)
-					addMoreText('Furret');
-				else
-				{
-					addMoreText('Newgrounds');
-					ngSpr.visible = true;
-				}
+				addMoreText('newgrounds');
+				ngSpr.visible = true;
 			// credTextShit.text += '\nNewgrounds';
 			case 8:
 				deleteCoolText();
@@ -510,7 +360,7 @@ class TitleState extends MusicBeatState
 				createCoolText([curWacky[0]]);
 			// credTextShit.visible = true;
 			case 11:
-				createCoolText([curWacky[1]]);
+				addMoreText(curWacky[1]);
 			// credTextShit.text += '\nlmao';
 			case 12:
 				deleteCoolText();

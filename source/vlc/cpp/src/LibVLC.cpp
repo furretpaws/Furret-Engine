@@ -1,7 +1,7 @@
 #include <mutex>
 #include <iostream>
 #include <string>
-#include <stdInt.h>
+#include <StdInt.h>
 #include <windows.h> 
 
 using std::string;
@@ -379,14 +379,17 @@ void LibVLC::setXwindow(uint32_t drawable)
 {
 	libvlc_media_player_set_xwindow(*this, drawable);
 }
+
 uint32_t LibVLC::xwindow()
 {
 	return libvlc_media_player_get_xwindow(*this);
 }
+
 void LibVLC::setHwnd(void * drawable)
 {
 	libvlc_media_player_set_hwnd(*this, drawable);
 }
+
 void* LibVLC::hwnd()
 {
 	return libvlc_media_player_get_hwnd(*this);

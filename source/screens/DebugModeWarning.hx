@@ -53,7 +53,11 @@ class DebugModeWarning extends MusicBeatState
 		if (FlxG.keys.justPressed.ENTER)
 		{
 			leftState = true;
+			#if html5
+			FlxG.switchState(new HTML5Initializer());
+			#else
 			FlxG.switchState(new TitleState());
+			#end
 		}
 		super.update(elapsed);
 	}

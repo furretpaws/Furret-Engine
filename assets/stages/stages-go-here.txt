@@ -1,0 +1,3 @@
+Make a folder with the name of the stage, inside that folder put all the images
+and a script called "stageData.hx", inside the script you will have to write the code
+for the stage

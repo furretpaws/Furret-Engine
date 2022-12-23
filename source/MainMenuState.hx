@@ -1,9 +1,13 @@
 package;
 
+#if desktop
+import Discord.DiscordClient;
+#end
 import Controls.KeyboardScheme;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.effects.FlxFlicker;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -11,22 +15,12 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import io.newgrounds.NG;
 import lime.app.Application;
-import lime.utils.Assets;
-#if sys
-import sys.io.File;
-import sys.FileSystem;
-#end
-#if windows
-import Discord.DiscordClient;
-#end
 
 using StringTools;
 
 class MainMenuState extends MusicBeatState
 {
-	public static var rotation:Array<String> = ["ASWD","DFJK","ZXNM","QWOP","ASKL","WEIO","HJKL"];
 	var curSelected:Int = 0;
 
 	var menuItems:FlxTypedGroup<FlxSprite>;
@@ -37,26 +31,22 @@ class MainMenuState extends MusicBeatState
 	var optionShit:Array<String> = ['story mode', 'freeplay'];
 	#end
 
-	var newGaming:FlxText;
-	var newGaming2:FlxText;
-	var newInput:Bool = true;
-
 	public static var nightly:String = "";
 
-	public static var furretEngineVer:String = "1.71" + nightly; //sharkmitty ilysm<3333
-	public static var gameVer:String = "0.2.7.1";
+	public static var furretEngineVer:String = "1.8b" + nightly; // sharkmitty ilysm<3333
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
 
-	var parsed:Dynamic;
-
 	override function create()
-	{ 
-		#if windows
+	{
+		#if desktop
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
+
+		transIn = FlxTransitionableState.defaultTransIn;
+		transOut = FlxTransitionableState.defaultTransOut;
 
 		if (!FlxG.sound.music.playing)
 		{
@@ -67,7 +57,7 @@ class MainMenuState extends MusicBeatState
 
 		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
 		bg.scrollFactor.x = 0;
-		bg.scrollFactor.y = 0.15;
+		bg.scrollFactor.y = 0.18;
 		bg.setGraphicSize(Std.int(bg.width * 1.1));
 		bg.updateHitbox();
 		bg.screenCenter();
@@ -109,20 +99,17 @@ class MainMenuState extends MusicBeatState
 		}
 
 		FlxG.camera.follow(camFollow, null, 0.06);
-		FlxG.camera.followLerp = CoolUtil.camLerpShit(0.06);
 
-		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, (Main.watermarks ? "Furret Engine " + furretEngineVer + " ->" + " " :"") + gameVer + " FNF", 12);
+		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, "Furret Engine 1.8 / Friday Night Funkin' 0.2.8", 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
 
-		PlayerSettings.player1.controls.loadKeyBinds();
+		// NG.core.calls.event.logEvent('swag').send();
+
+		PlayerSettings.player1.controls.loadKeybinds(true);
 
 		changeItem();
-
-		#if mobileC
-		addVirtualPad(UP_DOWN, A_B);
-		#end
 
 		super.create();
 	}
@@ -134,6 +121,12 @@ class MainMenuState extends MusicBeatState
 		if (FlxG.sound.music.volume < 0.8)
 		{
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
+		}
+
+		if (FlxG.keys.justPressed.EIGHT)
+		{
+			FlxG.switchState(new customization.StageEditor());
+			FlxG.sound.music.stop();
 		}
 
 		if (!selectedSomethin)
@@ -176,7 +169,7 @@ class MainMenuState extends MusicBeatState
 					{
 						if (curSelected != spr.ID)
 						{
-							FlxTween.tween(spr, {alpha: 0}, 1.3, {
+							FlxTween.tween(spr, {alpha: 0}, 0.4, {
 								ease: FlxEase.quadOut,
 								onComplete: function(twn:FlxTween)
 								{
@@ -194,32 +187,16 @@ class MainMenuState extends MusicBeatState
 								{
 									case 'story mode':
 										FlxG.switchState(new StoryMenuState());
+										trace("Story Menu Selected");
 									case 'freeplay':
-										var parsed:Dynamic;
-										#if android
-										if (BootUpCheck.ignoreAssetsFolder)
-										{
-											parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
-										}
-										else
-										{
-											parsed = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + 'assets/data/freeplaySongJson.jsonc'));
-										}
-										#else
-										parsed = CoolUtil.parseJson(Assets.getText('assets/data/freeplaySongJson.jsonc'));
-										#end
-	
-										if(parsed.length==1){
-											FreeplayState.id = 0;
-											FlxG.switchState(new FreeplayState());
-										}else{
-											FlxG.switchState(new FreeplayCategory());
-										}
-	
+										FlxG.switchState(new FreeplayState());
+
 										trace("Freeplay Menu Selected");
 
 									case 'options':
-										FlxG.switchState(new OptionsMenu());
+										/*FlxTransitionableState.skipNextTransIn = true;
+											FlxTransitionableState.skipNextTransOut = true; */
+										FlxG.switchState(new options.OptionsMenu());
 								}
 							});
 						}

@@ -7,9 +7,6 @@ import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 
-#if sys
-import sys.io.File;
-#end
 class GameOverSubstate extends MusicBeatSubstate
 {
 	var bf:Boyfriend;
@@ -43,7 +40,7 @@ class GameOverSubstate extends MusicBeatSubstate
 		camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);
 		add(camFollow);
 
-		FlxG.sound.play('assets/sounds/fnf_loss_sfx.ogg');
+		FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
 		Conductor.changeBPM(100);
 
 		// FlxG.camera.followLerp = 1;
@@ -69,21 +66,8 @@ class GameOverSubstate extends MusicBeatSubstate
 
 			if (PlayState.isStoryMode)
 				FlxG.switchState(new StoryMenuState());
-			else{
-				#if android
-				var parsed:Dynamic = CoolUtil.parseJson(File.getContent(BootUpCheck.getPath() + 'assets/data/freeplaySongJson.jsonc'));
-				#else
-				var parsed:Dynamic = CoolUtil.parseJson(File.getContent('assets/data/freeplaySongJson.jsonc'));
-				#end
-
-				if(parsed.length==1){
-					FreeplayState.id = 0;
-					FlxG.switchState(new FreeplayState());
-				}else{
-					FlxG.switchState(new FreeplayCategory());
-				}
-			}
-			PlayState.loadRep = false;
+			else
+				FlxG.switchState(new FreeplayState());
 		}
 
 		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)

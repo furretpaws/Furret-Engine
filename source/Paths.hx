@@ -4,13 +4,10 @@ import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
-import flash.media.Sound;
-
-using StringTools;
 
 class Paths
 {
-	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
+	inline public static var SOUND_EXT = #if web "ogg" #else "ogg" #end;
 
 	static var currentLevel:String;
 
@@ -38,13 +35,6 @@ class Paths
 		return getPreloadPath(file);
 	}
 
-	static public function returnSound(path:String)
-	{
-		var soundToReturn;
-		soundToReturn = Sound.fromFile(path); //this took me so fucking long to figure :skull:
-		return soundToReturn;
-	}
-
 	static public function getLibraryPath(file:String, library = "preload")
 	{
 		return if (library == "preload" || library == "default") getPreloadPath(file); else getLibraryPathForce(file, library);
@@ -55,7 +45,7 @@ class Paths
 		return '$library:assets/$library/$file';
 	}
 
-	inline public static function getPreloadPath(file:String = '')
+	inline static function getPreloadPath(file:String)
 	{
 		return 'assets/$file';
 	}
@@ -65,44 +55,14 @@ class Paths
 		return getPath(file, type, library);
 	}
 
-	inline static public function lua(key:String,?library:String)
-	{
-		return getPath('data/$key.lua', TEXT, library);
-	}
-
-	inline static public function videojson(key:String,?library:String)
-	{
-		return getPath('data/$key.json', TEXT, library);
-	}
-
-	inline static public function luaImage(key:String, ?library:String)
-	{
-		return getPath('data/$key.png', IMAGE, library);
-	}
-
 	inline static public function txt(key:String, ?library:String)
 	{
 		return getPath('data/$key.txt', TEXT, library);
 	}
 
-	inline static public function jsonc(key:String, ?library:String)
-	{
-		return getPath('data/$key.jsonc', TEXT, library);
-	}
-
-	inline static public function formatToSongPath(path:String) {
-		return path.toLowerCase().replace(' ', '-');
-	}
-
 	inline static public function xml(key:String, ?library:String)
 	{
 		return getPath('data/$key.xml', TEXT, library);
-	}
-
-	inline static public function video(key:String, ?library:String)
-	{
-		trace('assets/videos/$key.mp4');
-		return getPath('videos/$key.mp4', BINARY, library);
 	}
 
 	inline static public function json(key:String, ?library:String)
@@ -127,14 +87,12 @@ class Paths
 
 	inline static public function voices(song:String)
 	{
-		trace('assets/music/${song}_Voices.$SOUND_EXT');
-		return 'assets/music/${song}_Voices.$SOUND_EXT';
+		return 'songs:assets/songs/${song.toLowerCase()}/Voices.ogg';
 	}
 
 	inline static public function inst(song:String)
 	{
-		trace('assets/music/${song}_Inst.$SOUND_EXT');
-		return 'assets/music/${song}_Inst.$SOUND_EXT';
+		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
 	}
 
 	inline static public function image(key:String, ?library:String)

@@ -61,7 +61,7 @@ class BootUpCheck extends FlxState
         #end
         FlxG.switchState(new screens.DebugModeWarning());
         #elseif !(debug)
-        FlxG.switchState(new TitleState());
+        FlxG.switchState(new PreAlphaWarning());
         #end
 
         #if android //ANDROID SHIT

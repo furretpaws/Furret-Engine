@@ -3,10 +3,6 @@ package;
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
 import flixel.FlxSubState;
-#if mobileC
-import flixel.input.actions.FlxActionInput;
-import ui.FlxVirtualPad;
-#end
 
 class MusicBeatSubstate extends FlxSubState
 {
@@ -18,7 +14,7 @@ class MusicBeatSubstate extends FlxSubState
 	private var lastBeat:Float = 0;
 	private var lastStep:Float = 0;
 
-	public static var curStep:Int = 0;
+	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 	private var controls(get, never):Controls;
 

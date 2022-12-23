@@ -6,10 +6,6 @@ import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
 import flixel.util.FlxTimer;
-#if mobileC
-import flixel.input.actions.FlxActionInput;
-import ui.FlxVirtualPad;
-#end
 
 class MusicBeatState extends FlxUIState
 {
@@ -30,16 +26,6 @@ class MusicBeatState extends FlxUIState
 
 		super.create();
 	}
-
-	public function fancyOpenURL(schmancy:String)
-	{
-		#if linux
-		Sys.command('/usr/bin/xdg-open', [schmancy, "&"]);
-		#else
-		FlxG.openURL(schmancy);
-		#end
-	}
-
 
 	override function update(elapsed:Float)
 	{

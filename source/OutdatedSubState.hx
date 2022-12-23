@@ -11,21 +11,18 @@ class OutdatedSubState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
 
-	public static var needVer:String = "IDFK LOL";
-
 	override function create()
 	{
 		super.create();
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
+		var ver = "v" + Application.current.meta.get('version');
 		var txt:FlxText = new FlxText(0, 0, FlxG.width,
-			"Hi!\n"
-			+ "You are currently in the EK Version (Extra keys)\n"
-			+ "\n"
-			+ "Please keep in mind that this version was just a test and it might be broken\n"
-			+ "\n"
-			+ "DFJK keybinds are locked and ui packs won't work!\n"
-			+ "Press ESCAPE or ENTER to continue",
+			"HEY! You're running an outdated version of the game!\nCurrent version is "
+			+ ver
+			+ " while the most recent version is "
+			+ NGio.GAME_VER
+			+ "! Press Space to go to itch.io, or ESCAPE to ignore this!!",
 			32);
 		txt.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
 		txt.screenCenter();
@@ -36,8 +33,7 @@ class OutdatedSubState extends MusicBeatState
 	{
 		if (controls.ACCEPT)
 		{
-			leftState = true;
-			FlxG.switchState(new MainMenuState());
+			FlxG.openURL("https://ninja-muffin24.itch.io/funkin");
 		}
 		if (controls.BACK)
 		{

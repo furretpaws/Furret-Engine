@@ -10,8 +10,12 @@ parents-christmas
 monster-christmas
 bf-christmas
 gf-christmas
+gf-pixel
 monster
 bf-pixel
 senpai
 senpai-angry
 spirit
+tankman
+gf-tankmen
+picoSpeaker
