@@ -43,7 +43,7 @@ class MainMenuState extends MusicBeatState
 
 	public static var nightly:String = "";
 
-	public static var furretEngineVer:String = "1.7" + nightly; //sharkmitty ilysm<3333
+	public static var furretEngineVer:String = "1.71" + nightly; //sharkmitty ilysm<3333
 	public static var gameVer:String = "0.2.7.1";
 
 	var magenta:FlxSprite;
