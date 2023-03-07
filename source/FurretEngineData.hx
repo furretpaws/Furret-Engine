@@ -44,6 +44,10 @@ class FurretEngineData
         {
             FlxG.save.data.hideFPSCounter = false;
         }
+        if (FlxG.save.data.antialize == null)
+        {
+            FlxG.save.data.antialize = false;
+        }
         if (FlxG.save.data.ratingX == null)
         {
             FlxG.save.data.ratingX = 664;

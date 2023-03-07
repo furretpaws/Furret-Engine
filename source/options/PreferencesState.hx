@@ -61,10 +61,14 @@ class PreferencesState extends MusicBeatState
 		Reflect.setProperty(FlxG.save.data, options[curSelected], !optionValues[curSelected]);
 		optionValues[curSelected] = !optionValues[curSelected];
 		typedGroupCheck.members[curSelected].changeCheck();
-		trace(optionValues);
+		//trace(optionValues);
 		if (curSelected == 6)
 		{
 			Main.toggleFPS(FlxG.save.data.hideFPSCounter);
+		}
+		if (curSelected == 7)
+		{
+			//you did it but now we gotta make all the antializing checks well check for this. please furret engine creator code that.
 		}
 	}
 
@@ -169,6 +173,7 @@ class PreferencesState extends MusicBeatState
 		addOption("Hide time bar", "If checked, the time bar will be hidden.", "bool", "hideTimeBar");
 		addOption("Hide rating and combo", "If checked, the rating and combo will be hidden", "bool", "hideRC");
 		addOption("Hide FPS counter", "If checked, the FPS counter will be hidden", "bool", "hideFPSCounter");
+		addOption("Antializing", "Enables or disables antializing.", "bool", "antialize");
 
 		description.text = descriptions[curSelected];
 

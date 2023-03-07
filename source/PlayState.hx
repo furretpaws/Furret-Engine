@@ -405,9 +405,9 @@ class PlayState extends MusicBeatState
 
 		switch(SONG.stage.toLowerCase())
 		{
-			case 'spooky': 
-            {
-            	curStage = 'spooky';
+		case 'spooky': 
+                  {
+            	        curStage = 'spooky';
 	        	halloweenLevel = true;
 
 		    	var hallowTex = Paths.getSparrowAtlas('halloween_bg');
@@ -1071,12 +1071,10 @@ class PlayState extends MusicBeatState
 							gf.y += Y;
 						});
 						/*stageInterp.variables.set("setDadCameraPosition", function(X:Int, Y:Int) {
-							dadCameraOffsetX = X;
-							dadCameraOffsetY = Y;
+							camPos.set(X, Y);
 						});
 						stageInterp.variables.set("setBfCameraPosition", function(X:Int, Y:Int) {
-							bfCameraOffsetX = X;
-							bfCameraOffsetY = Y;
+							camPos.set(X, Y);
 						});*/
 						stageInterp.variables.set("modifySize", function(daSprite:FlxSprite, size:Float) {
 							daSprite.setGraphicSize(Std.int(daSprite.width * 0.9));
@@ -2085,6 +2083,7 @@ class PlayState extends MusicBeatState
 						ease: FlxEase.cubeInOut,
 						onComplete: function(twn:FlxTween)
 						{
+							remove(ready, true);
 							ready.destroy();
 						}
 					});
@@ -2102,6 +2101,7 @@ class PlayState extends MusicBeatState
 						ease: FlxEase.cubeInOut,
 						onComplete: function(twn:FlxTween)
 						{
+							remove(set, true);
 							set.destroy();
 						}
 					});
@@ -2121,6 +2121,7 @@ class PlayState extends MusicBeatState
 						ease: FlxEase.cubeInOut,
 						onComplete: function(twn:FlxTween)
 						{
+							remove(go, true);
 							go.destroy();
 						}
 					});
