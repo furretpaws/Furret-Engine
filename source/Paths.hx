@@ -23,8 +23,6 @@ import haxe.Json;
 
 import flash.media.Sound;
 
-using StringTools;
-
 class Paths
 {
 	inline public static var SOUND_EXT = #if web "ogg" #else "ogg" #end;
@@ -202,5 +200,61 @@ class Paths
 	inline static public function getPackerAtlas(key:String, ?library:String)
 	{
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
+	}
+	
+	inline static public function mods(key:String = '') {
+		return 'mods/' + key;
+	}
+
+	inline static public function modsJson(key:String) {
+		return modFolders('data/' + key + '.json');
+	}
+
+	inline static public function modsSounds(path:String, key:String) {
+		return modFolders(path + '/' + key + '.' + SOUND_EXT);
+	}
+
+	inline static public function modsImages(key:String) {
+		return modFolders('images/' + key + '.png');
+	}
+
+	inline static public function modsXml(key:String) {
+		return modFolders('images/' + key + '.xml');
+	}
+
+	inline static public function modsTxt(key:String) {
+		return modFolders('images/' + key + '.txt');
+	}
+
+	static public function modFolders(key:String) {
+		if(currentModDirectory != null && currentModDirectory.length > 0) {
+			var fileToCheck:String = mods(currentModDirectory + '/' + key);
+			if(FileSystem.exists(fileToCheck)) {
+				return fileToCheck;
+			}
+		}
+
+		for(mod in getGlobalMods()){
+			var fileToCheck:String = mods(mod + '/' + key);
+			if(FileSystem.exists(fileToCheck))
+				return fileToCheck;
+
+		}
+		return 'mods/' + key;
+	}
+
+	public static var globalMods:Array<String> = [];
+
+	static public function getGlobalMods()
+		return globalMods;
+
+	static public function pushGlobalMods() // prob a better way to do this but idc
+	{
+                 trace("what");
+	}
+
+	static public function getModDirectories():Array<String> {
+		var list:Array<String> = [];
+		return list;
 	}
 }
