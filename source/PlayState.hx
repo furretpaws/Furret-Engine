@@ -445,7 +445,89 @@ class PlayState extends MusicBeatState
 
 		switch (SONG.stage.toLowerCase())
 		{
+<<<<<<< HEAD
 			case 'spooky':
+=======
+		case 'spooky': 
+                  {
+            	        curStage = 'spooky';
+	        	halloweenLevel = true;
+
+		    	var hallowTex = Paths.getSparrowAtlas('halloween_bg');
+
+	        	halloweenBG = new FlxSprite(-200, -100);
+		    	halloweenBG.frames = hallowTex;
+	        	halloweenBG.animation.addByPrefix('idle', 'halloweem bg0');
+	        	halloweenBG.animation.addByPrefix('lightning', 'halloweem bg lightning strike', 24, false);
+	        	halloweenBG.animation.play('idle');
+	        	halloweenBG.antialiasing = true;
+	        	add(halloweenBG);
+
+		    	isHalloween = true;
+			}
+			case 'philly':
+			{
+				curStage = 'philly';
+
+		        var bg:FlxSprite = new FlxSprite(-100).loadGraphic(Paths.image('philly/sky'));
+		        bg.scrollFactor.set(0.1, 0.1);
+		        add(bg);
+
+	                var city:FlxSprite = new FlxSprite(-10).loadGraphic(Paths.image('philly/city'));
+		        city.scrollFactor.set(0.3, 0.3);
+		        city.setGraphicSize(Std.int(city.width * 0.85));
+		        city.updateHitbox();
+		        add(city);
+
+		        phillyCityLights = new FlxTypedGroup<FlxSprite>();
+		        add(phillyCityLights);
+
+		        for (i in 0...5)
+		        {
+		                var light:FlxSprite = new FlxSprite(city.x).loadGraphic(Paths.image('philly/win' + i));
+		                light.scrollFactor.set(0.3, 0.3);
+		                light.visible = false;
+		                light.setGraphicSize(Std.int(light.width * 0.85));
+		                light.updateHitbox();
+		                light.antialiasing = true;
+		                phillyCityLights.add(light);
+		        }
+
+		        var streetBehind:FlxSprite = new FlxSprite(-40, 50).loadGraphic(Paths.image('philly/behindTrain'));
+		        add(streetBehind);
+
+	                phillyTrain = new FlxSprite(2000, 360).loadGraphic(Paths.image('philly/train'));
+		        add(phillyTrain);
+
+		        trainSound = new FlxSound().loadEmbedded(Paths.sound('train_passes'));
+		        FlxG.sound.list.add(trainSound);
+
+		        // var cityLights:FlxSprite = new FlxSprite().loadGraphic(AssetPaths.win0.png);
+
+		        var street:FlxSprite = new FlxSprite(-40, streetBehind.y).loadGraphic(Paths.image('philly/street'));
+	            add(street);
+			}
+			case 'limo':
+			{
+				curStage = 'limo';
+				defaultCamZoom = 0.90;
+
+				var skyBG:FlxSprite = new FlxSprite(-120, -50).loadGraphic(Paths.image('limo/limoSunset'));
+				skyBG.scrollFactor.set(0.1, 0.1);
+				add(skyBG);
+
+				var bgLimo:FlxSprite = new FlxSprite(-200, 480);
+				bgLimo.frames = Paths.getSparrowAtlas('limo/bgLimo');
+				bgLimo.animation.addByPrefix('drive', "background limo pink", 24);
+				bgLimo.animation.play('drive');
+				bgLimo.scrollFactor.set(0.4, 0.4);
+				add(bgLimo);
+
+				grpLimoDancers = new FlxTypedGroup<BackgroundDancer>();
+				add(grpLimoDancers);
+
+				for (i in 0...5)
+>>>>>>> dc86540c873f9c2af3be8a47fdae073ceda43886
 				{
 					curStage = 'spooky';
 					halloweenLevel = true;
@@ -785,6 +867,7 @@ class PlayState extends MusicBeatState
 				}
 			case 'warzone':
 				{
+<<<<<<< HEAD
 					defaultCamZoom = 0.9;
 					curStage = 'warzone';
 					var sky:FlxSprite = new FlxSprite(-400, -400).loadGraphic(Paths.image('warzone/tankSky'));
@@ -1048,6 +1131,64 @@ class PlayState extends MusicBeatState
 			default:
 				{
 					if (SONG.stage.toLowerCase() == null || SONG.stage.toLowerCase() == '')
+=======
+					if (EngineFunctions.exists("assets/stages/" + SONG.stage.toLowerCase() + "/stageData.hx")) //i love haxe - code taken from furret engine v1.7
+					{
+						curStage = SONG.stage.toLowerCase();
+						var stageInterp = new hscript.Interp();
+						var bitmap:BitmapData;
+						stageInterp.variables.set("defaultCamZoom", defaultCamZoom);
+						stageInterp.variables.set("setCamZoom", function(daZoom:Float) {
+							defaultCamZoom = daZoom;
+						});
+						stageInterp.variables.set("CoolUtil", CoolUtil);
+						stageInterp.variables.set("MP4Handler", MP4Handler);
+						stageInterp.variables.set("EngineFunctions", EngineFunctions);
+						stageInterp.variables.set("curStage", curStage);
+						stageInterp.variables.set("FlxSprite", FlxSprite);
+						stageInterp.variables.set("FlxAtlasFrames", FlxAtlasFrames);
+						stageInterp.variables.set("Std", Std);
+						stageInterp.variables.set("FlxG", FlxG);
+						stageInterp.variables.set("boyfriend", boyfriend);
+						stageInterp.variables.set("gf", gf);
+						stageInterp.variables.set("dad", dad);
+						stageInterp.variables.set("setBfPosition", function(X:Int, Y:Int) {
+							boyfriend.x += X;
+							boyfriend.y += Y;
+						});
+						stageInterp.variables.set("setDadPosition", function(X:Int, Y:Int) {
+							dad.x += X;
+							dad.y += Y;
+						});
+						stageInterp.variables.set("setGfPosition", function(X:Int, Y:Int) {
+							gf.x += X;
+							gf.y += Y;
+						});
+						/*stageInterp.variables.set("setDadCameraPosition", function(X:Int, Y:Int) {
+							camPos.set(X, Y);
+						});
+						stageInterp.variables.set("setBfCameraPosition", function(X:Int, Y:Int) {
+							camPos.set(X, Y);
+						});*/
+						stageInterp.variables.set("modifySize", function(daSprite:FlxSprite, size:Float) {
+							daSprite.setGraphicSize(Std.int(daSprite.width * 0.9));
+						});
+						stageInterp.variables.set("add", function(varSprite:FlxSprite) {
+							add(varSprite);
+						});
+						stageInterp.variables.set("remove", function(varSprite:FlxSprite) {
+							remove(varSprite);
+						});
+						var getScript = EngineFunctions.getContent("assets/stages/" + SONG.stage + "/stageData.hx");
+						var daScript:String = getScript;
+						var daScriptParser = new hscript.Parser();
+						daScriptParser.allowTypes = true;
+						daScriptParser.allowMetadata = true;
+						var script = daScriptParser.parseString(daScript);
+						stageInterp.execute(script);
+					}
+					else
+>>>>>>> dc86540c873f9c2af3be8a47fdae073ceda43886
 					{
 						defaultCamZoom = 0.9;
 						curStage = 'stage';
@@ -2237,6 +2378,7 @@ class PlayState extends MusicBeatState
 						ease: FlxEase.cubeInOut,
 						onComplete: function(twn:FlxTween)
 						{
+							remove(ready, true);
 							ready.destroy();
 						}
 					});
@@ -2254,6 +2396,7 @@ class PlayState extends MusicBeatState
 						ease: FlxEase.cubeInOut,
 						onComplete: function(twn:FlxTween)
 						{
+							remove(set, true);
 							set.destroy();
 						}
 					});
@@ -2273,6 +2416,7 @@ class PlayState extends MusicBeatState
 						ease: FlxEase.cubeInOut,
 						onComplete: function(twn:FlxTween)
 						{
+							remove(go, true);
 							go.destroy();
 						}
 					});

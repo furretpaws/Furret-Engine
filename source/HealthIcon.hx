@@ -18,12 +18,17 @@ class HealthIcon extends FlxSprite
 		antialiasing = true;
 		switch(char)
 		{
+<<<<<<< HEAD
 			case 'bf' | 'bf-holding-gf':
 				animation.add(char, [0, 1], 0, false, isPlayer);
 			case 'bf-car':
 				animation.add(char, [0, 1], 0, false, isPlayer);
 			case 'bf-christmas':
 				animation.add(char, [0, 1], 0, false, isPlayer);
+=======
+			case 'bf' | 'bf-holding-gf' | 'bf-car' | 'bf-christmas':
+				animation.add('icon', [0, 1], 0, false, isPlayer);
+>>>>>>> dc86540c873f9c2af3be8a47fdae073ceda43886
 			case 'bf-pixel':
 				animation.add(char, [21, 21], 0, false, isPlayer);
 			case 'spooky':

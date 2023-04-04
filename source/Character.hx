@@ -1,9 +1,12 @@
 package;
 
 import haxe.Json;
+import haxe.format.JsonParser;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.animation.FlxBaseAnimation;
+import sys.io.File;
+import sys.FileSystem;
 import flixel.graphics.frames.FlxAtlasFrames;
 
 using StringTools;
@@ -20,6 +23,7 @@ class Character extends FlxSprite
 	public var characterJson:Dynamic = null;
 
 	public var holdTimer:Float = 0;
+	public var healthColorArray:Array<Int> = [255, 0, 0];
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
@@ -28,6 +32,7 @@ class Character extends FlxSprite
 		animOffsets = new Map<String, Array<Dynamic>>();
 		curCharacter = character;
 		this.isPlayer = isPlayer;
+		//antialiasing = FurretEngineData.antialize;
 
 		var tex:FlxAtlasFrames;
 		antialiasing = true;
@@ -49,21 +54,18 @@ class Character extends FlxSprite
 				animation.addByIndices('hairBlow', "GF Dancing Beat Hair blowing", [0, 1, 2, 3], "", 24);
 				animation.addByIndices('hairFall', "GF Dancing Beat Hair Landing", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "", 24, false);
 				animation.addByPrefix('scared', 'GF FEAR', 24);
-
 				addOffset('cheer');
 				addOffset('sad', -2, -2);
 				addOffset('danceLeft', 0, -9);
 				addOffset('danceRight', 0, -9);
-
 				addOffset("singUP", 0, 4);
 				addOffset("singRIGHT", 0, -20);
 				addOffset("singLEFT", 0, -19);
 				addOffset("singDOWN", 0, -20);
 				addOffset('hairBlow', 45, -8);
 				addOffset('hairFall', 0, -9);
-
 				addOffset('scared', -2, -17);
-
+				
 				playAnim('danceRight');
 
 			case 'gf-christmas':

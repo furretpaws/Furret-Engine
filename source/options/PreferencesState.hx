@@ -61,14 +61,18 @@ class PreferencesState extends MusicBeatState
 		Reflect.setProperty(FlxG.save.data, options[curSelected], !optionValues[curSelected]);
 		optionValues[curSelected] = !optionValues[curSelected];
 		typedGroupCheck.members[curSelected].changeCheck();
-		trace(optionValues);
+		//trace(optionValues);
 		if (curSelected == 6)
 		{
 			Main.toggleFPS(FlxG.save.data.hideFPSCounter);
 		}
 		if (curSelected == 7)
 		{
+<<<<<<< HEAD
 			FlxG.autoPause = FlxG.save.data.autoPause;
+=======
+			//you did it but now we gotta make all the antializing checks well check for this. please furret engine creator code that.
+>>>>>>> dc86540c873f9c2af3be8a47fdae073ceda43886
 		}
 	}
 
@@ -173,7 +177,11 @@ class PreferencesState extends MusicBeatState
 		addOption("Hide time bar", "If checked, the time bar will be hidden.", "bool", "hideTimeBar");
 		addOption("Hide rating and combo", "If checked, the rating and combo will be hidden", "bool", "hideRC");
 		addOption("Hide FPS counter", "If checked, the FPS counter will be hidden", "bool", "hideFPSCounter");
+<<<<<<< HEAD
 		addOption("Auto pause", "If checked, the game will automatically pause when the window is inactive", "bool", "autoPause");
+=======
+		addOption("Antializing", "Enables or disables antializing.", "bool", "antialize");
+>>>>>>> dc86540c873f9c2af3be8a47fdae073ceda43886
 
 		description.text = descriptions[curSelected];
 
