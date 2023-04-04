@@ -35,17 +35,19 @@ class Alphabet extends FlxSpriteGroup
 	var lastSprite:AlphaCharacter;
 	var xPosResetted:Bool = false;
 	var lastWasSpace:Bool = false;
+	var inverted:Bool = false;
 
 	var splitWords:Array<String> = [];
 
 	var isBold:Bool = false;
 
-	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false)
+	public function new(x:Float, y:Float, text:String = "", ?bold:Bool = false, typed:Bool = false, ?inverted:Bool)
 	{
 		super(x, y);
 
 		_finalText = text;
 		this.text = text;
+		this.inverted = inverted;
 		isBold = bold;
 
 		if (text != "")
@@ -92,7 +94,7 @@ class Alphabet extends FlxSpriteGroup
 				}
 
 				// var letter:AlphaCharacter = new AlphaCharacter(30 * loopNum, 0);
-				var letter:AlphaCharacter = new AlphaCharacter(xPos, 0);
+				var letter:AlphaCharacter = new AlphaCharacter(xPos, 0, this.inverted);
 
 				if (isBold)
 					letter.createBold(character);
@@ -242,10 +244,18 @@ class AlphaCharacter extends FlxSprite
 
 	public var row:Int = 0;
 
-	public function new(x:Float, y:Float)
+	public function new(x:Float, y:Float, inverted:Bool = false)
 	{
 		super(x, y);
-		var tex = Paths.getSparrowAtlas('alphabet');
+		var tex:Dynamic = null;
+		if (inverted)
+		{
+			tex = Paths.getSparrowAtlas('inverted-alphabet');
+		}
+		else
+		{
+			tex = Paths.getSparrowAtlas('alphabet');
+		}
 		frames = tex;
 
 		antialiasing = true;

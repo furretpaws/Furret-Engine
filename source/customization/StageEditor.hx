@@ -88,6 +88,11 @@ class StageEditor extends MusicBeatState
 	
     override public function create()
     {
+		if (FlxG.sound.music.playing)
+		{
+			FlxG.sound.music.stop();
+		}
+		
 		camStage = new FlxCamera();
 		camHUD = new FlxCamera();
 		camHUD.bgColor.alpha = 0;

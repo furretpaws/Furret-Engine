@@ -52,7 +52,7 @@ class PreferencesState extends MusicBeatState
 		var checkboxthing:Checkbox = new Checkbox(checked, initCheckXY[0], initCheckXY[1] + offset);
 		typedGroupCheck.add(checkboxthing);
 
-		offset += 75;
+		offset += 65;
 		trace("added");
 	}
 
@@ -65,6 +65,10 @@ class PreferencesState extends MusicBeatState
 		if (curSelected == 6)
 		{
 			Main.toggleFPS(FlxG.save.data.hideFPSCounter);
+		}
+		if (curSelected == 7)
+		{
+			FlxG.autoPause = FlxG.save.data.autoPause;
 		}
 	}
 
@@ -169,6 +173,7 @@ class PreferencesState extends MusicBeatState
 		addOption("Hide time bar", "If checked, the time bar will be hidden.", "bool", "hideTimeBar");
 		addOption("Hide rating and combo", "If checked, the rating and combo will be hidden", "bool", "hideRC");
 		addOption("Hide FPS counter", "If checked, the FPS counter will be hidden", "bool", "hideFPSCounter");
+		addOption("Auto pause", "If checked, the game will automatically pause when the window is inactive", "bool", "autoPause");
 
 		description.text = descriptions[curSelected];
 

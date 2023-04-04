@@ -18,7 +18,7 @@ class PreAlphaWarning extends MusicBeatState
 		super.create();
         var txt:FlxText = new FlxText(0, 0, FlxG.width,
 			"WARNING!\n"
-			+ "This copy of Furret Engine 1.8 is a pre-alpha version.\n"
+			+ "This copy of Furret Engine 1.9 is a pre-alpha version.\n"
 			+ "\n"
 			+ "Most of the things aren't added yet or they are probably glitched\n"
 			+ "If you want to make a mod please use Furret Engine 1.7. This version is experimental\n"

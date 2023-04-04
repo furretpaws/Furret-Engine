@@ -3,7 +3,7 @@ package;
 import flixel.FlxG;
 
 import lime.utils.Assets;
-#if desktop
+#if sys
 import sys.io.File;
 import sys.FileSystem;
 #end
@@ -76,14 +76,14 @@ class EngineFunctions //brief explanation: functions used for files and stuff. s
             #end
             {
                 #if android
-                content = File.getContent(BootUpCheck() + path);
+                content = File.getContent(BootUpCheck.getPath() + path);
                 #else
                 content = File.getContent(path);
                 #end
             }
             else
             {
-                trace("File doesn't exist");
+                throw("File doesn't exist (" + path + ")");
                 content = "File doesn't exist";
             }
         }
@@ -113,7 +113,7 @@ class EngineFunctions //brief explanation: functions used for files and stuff. s
             else
             {
                 content = ["File doesn't exist"]; //waaaa
-                trace("File doesn't exist");
+                throw("File doesn't exist (" + path + ")");
             }
         }
         return content;
@@ -155,7 +155,7 @@ class EngineFunctions //brief explanation: functions used for files and stuff. s
         else if (!useManifestFiles)
         {
             #if android
-            if (FileSystem.exists(BootUpCheck.getPath() + path)
+            if (FileSystem.exists(BootUpCheck.getPath() + path))
             #else
             if (FileSystem.exists(path))
             #end

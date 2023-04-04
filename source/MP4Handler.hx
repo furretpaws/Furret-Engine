@@ -1,5 +1,6 @@
 package;
 
+#if (sys && !mobile)
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
@@ -7,12 +8,18 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import openfl.events.Event;
 import vlc.VlcBitmap;
+#end
+
+/**
+	code mostly from nom_lol
+	modified by furret
+**/
 
 // THIS IS FOR TESTING
 // DONT STEAL MY CODE >:(
 class MP4Handler
 {
-	#if sys
+	#if (sys && !mobile)
 	public var finishCallback:Void->Void;
 	public var stateCallback:FlxState;
 

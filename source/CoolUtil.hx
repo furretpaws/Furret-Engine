@@ -41,6 +41,11 @@ class CoolUtil
 	}
 
 	public static function getBitmap(file:String):BitmapData{
+		if (PlayState.customMod != "")
+		{
+			file = "mods/" + PlayState.customMod + "/" + file;
+		}
+		trace(file);
 		#if android
 		file = getPath() + file;
 		#end
@@ -53,6 +58,9 @@ class CoolUtil
 	}
 
 	public static function getContent(file:String):String{
+		if (PlayState.customMod != "") {
+			file = "mods/" + PlayState.customMod + "/" + file;
+		}
 		var getContentThing = EngineFunctions.getContent(file); //made so older scripts work in fe 1.8
 		return getContentThing;
 	}
@@ -64,7 +72,7 @@ class CoolUtil
 
 	public static function coolTextFile(path:String):Array<String>
 	{
-		var daList:Array<String> = Assets.getText(path).trim().split('\n');
+		var daList:Array<String> = EngineFunctions.getContent(path).trim().split('\n');
 
 		for (i in 0...daList.length)
 		{

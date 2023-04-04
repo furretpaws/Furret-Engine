@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
@@ -25,6 +26,12 @@ class Note extends FlxSprite
 	public var isSustainNote:Bool = false;
 
 	public var noteScore:Float = 1;
+
+	public var noteClicked:Bool = false;
+
+	public var eventType:String = '';
+	public var eventVal1:String = '';
+	public var eventVal2:String = '';
 
 	public static var swagWidth:Float = 160 * 0.7;
 	public static var PURP_NOTE:Int = 0;
@@ -170,6 +177,13 @@ class Note extends FlxSprite
 		}
 	}
 
+	function noteClick() {
+		if (!noteClicked) {
+			FlxG.sound.play("assets/sounds/note_click.ogg");
+		}
+		noteClicked = true;
+	}
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -178,20 +192,21 @@ class Note extends FlxSprite
 		{
 			// The * 0.5 is so that it's easier to hit them too late, instead of too early
 			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
-				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.4))
+				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
 				canBeHit = true;
 			else
 				canBeHit = false;
-
+	
 			if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
 				tooLate = true;
 		}
 		else
 		{
-			canBeHit = true;
-
+			canBeHit = false;
+	
 			if (strumTime <= Conductor.songPosition)
 				wasGoodHit = true;
+	
 		}
 
 		if (tooLate)

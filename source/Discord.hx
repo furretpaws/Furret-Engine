@@ -1,7 +1,7 @@
 package;
 
 import Sys.sleep;
-#if sys
+#if windows
 import discord_rpc.DiscordRpc;
 #end
 
@@ -12,7 +12,7 @@ class DiscordClient
 	public function new()
 	{
 		trace("Discord Client starting...");
-		#if sys
+		#if windows
 		DiscordRpc.start({
 			clientID: "1053457240901824543",
 			onReady: onReady,
@@ -24,28 +24,28 @@ class DiscordClient
 
 		while (true)
 		{
-			#if sys
+			#if windows
 			DiscordRpc.process();
 			sleep(2);
 			#end
 			//trace("Discord Client Update");
 		}
 
-		#if sys
+		#if windows
 		DiscordRpc.shutdown();
 		#end
 	}
 
 	public static function shutdown()
 	{
-		#if sys
+		#if windows
 		DiscordRpc.shutdown();
 		#end
 	}
 	
 	static function onReady()
 	{
-		#if sys
+		#if windows
 		DiscordRpc.presence({
 			details: "In the Menus",
 			state: null,
@@ -67,7 +67,7 @@ class DiscordClient
 
 	public static function initialize()
 	{
-		#if sys
+		#if windows
 		var DiscordDaemon = sys.thread.Thread.create(() ->
 		{
 			new DiscordClient();
@@ -85,7 +85,7 @@ class DiscordClient
 			endTimestamp = startTimestamp + endTimestamp;
 		}
 
-		#if sys
+		#if windows
 		DiscordRpc.presence({
 			details: details,
 			state: state,

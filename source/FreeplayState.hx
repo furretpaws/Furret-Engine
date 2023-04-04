@@ -24,25 +24,62 @@ class FreeplayState extends MusicBeatState
 	var curSelected:Int = 0;
 	var curDifficulty:Int = 1;
 
+	public static var instance:FreeplayState;
+
 	var scoreText:FlxText;
 	var diffText:FlxText;
 	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
+
+	public static var noDeath:Bool = false;
+	public static var singAsOpponent:Bool = false;
+	public static var pitch:Float = 1;
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 	private var curPlaying:Bool = false;
 
 	private var iconArray:Array<HealthIcon> = [];
 
+	private var modEntries:Array<String> = []; //this is so fucking dumb but at least it works right? :(
+
 	override function create()
 	{
+		instance = this;
+		noDeath = false;
+		singAsOpponent = false;
+		pitch = 1;
+
 		var initSonglist = CoolUtil.coolTextFile("assets/data/freeplaySonglist.txt");
 
 		for (i in 0...initSonglist.length)
 		{
 			var daSplit:Array<String> = initSonglist[i].split(':');
 			songs.push(new SongMetadata(daSplit[0], Std.parseInt(daSplit[2]), daSplit[1]));
+			modEntries.push("No mod");
 		}
+
+		trace(FlxG.save.data.modsLoaded.length);
+		#if sys
+		trace(FlxG.save.data.modsLoaded.length);
+		if (FlxG.save.data.modsLoaded.length == 0) {
+			trace("no mods");
+		} else {
+			trace("THERE ARE MODS LOADED");
+
+			for (mod in 0...FlxG.save.data.modsLoaded.length) {
+				if (EngineFunctions.exists("mods/" + FlxG.save.data.modsLoaded[mod] + "/assets/data/freeplaySonglist.txt")) {
+					var initSonglist = CoolUtil.coolTextFile("mods/" + FlxG.save.data.modsLoaded[mod] + "/assets/data/freeplaySonglist.txt");
+
+					for (i in 0...initSonglist.length)
+					{
+						modEntries.push(FlxG.save.data.modsLoaded[mod]);
+						var daSplit:Array<String> = initSonglist[i].split(':');
+						songs.push(new SongMetadata(daSplit[0], Std.parseInt(daSplit[2]), daSplit[1]));
+					}
+				}
+			}
+		}
+		#end
 
 		/* 
 			if (FlxG.sound.music != null)
@@ -54,7 +91,7 @@ class FreeplayState extends MusicBeatState
 
 		#if desktop
 		// Updating Discord Rich Presence
-		DiscordClient.changePresence("In the Menus", null);
+		DiscordClient.changePresence("In the freeplay song selector\nMods loaded: " + FlxG.save.data.modsLoaded.length, null);
 		#end
 
 		var isDebug:Bool = false;
@@ -171,6 +208,11 @@ class FreeplayState extends MusicBeatState
 
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, 0.4));
 
+		if (InternalSettings.gameplayCustomizer && FlxG.keys.justPressed.CONTROL)
+		{
+			openSubState(new GameplayChangersSubstate("da freeeeeeeeplay oh ma god"));
+		}
+
 		if (Math.abs(lerpScore - intendedScore) <= 10)
 			lerpScore = intendedScore;
 
@@ -219,12 +261,38 @@ class FreeplayState extends MusicBeatState
 				PlayState.storyDifficulty = curDifficulty;
 
 				PlayState.storyWeek = songs[curSelected].week;
+				PlayState._noDeath = noDeath;
+				PlayState._pitch = pitch;
+				PlayState.customMod = "";
 				trace('CUR WEEK' + PlayState.storyWeek);
 				LoadingState.loadAndSwitchState(new PlayState());
 			}
 			else
 			{
+				#if sys
+				if (FlxG.save.data.modsLoaded.length != 0) {
+					trace(EngineFunctions.exists("mods/" + modEntries[curSelected] + "/assets/data/" + songs[curSelected].songName.toLowerCase() + "/" + poop + ".json"));
+					if (EngineFunctions.exists("mods/" + modEntries[curSelected] + "/assets/data/" + songs[curSelected].songName.toLowerCase() + "/" + poop + ".json"))
+					{
+						PlayState.SONG = Song.loadFromJsonFullPath("mods/" + modEntries[curSelected] + "/assets/data/" + songs[curSelected].songName.toLowerCase() + "/" + poop + ".json");
+						PlayState.isStoryMode = false;
+						PlayState.storyDifficulty = curDifficulty;
+
+						PlayState.storyWeek = songs[curSelected].week;
+						PlayState._noDeath = noDeath;
+						PlayState._pitch = pitch;
+						PlayState.customMod = modEntries[curSelected];
+						trace('CUR WEEK' + PlayState.storyWeek);
+						LoadingState.loadAndSwitchState(new PlayState());
+					}
+					else
+					{
+						Application.current.window.alert("The chart of this song does not exist. The song won't be loaded");
+					}
+				}
+				#else
 				Application.current.window.alert("The chart of this song does not exist. The song won't be loaded");
+				#end
 			}
 		}
 	}

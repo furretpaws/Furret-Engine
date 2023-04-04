@@ -33,7 +33,8 @@ class OptionsMenu extends MusicBeatState
 		}
 		else if (curSelected < 0)
 		{
-			optionsGroup.members[3].alpha = 1;
+			optionsGroup.members[optionsGroup.length-1].alpha = 1;
+			trace(optionsGroup.length-1);
 		}
 		else
 		{

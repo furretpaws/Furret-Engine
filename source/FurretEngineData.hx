@@ -52,6 +52,14 @@ class FurretEngineData
         {
             FlxG.save.data.ratingY = 224;
         }
+        if (FlxG.save.data.autoPause == null)
+        {
+            FlxG.save.data.autoPause = true;
+        }
+        if (FlxG.save.data.modsLoaded == null)
+        {
+            FlxG.save.data.modsLoaded = [];
+        }
 
         #if sys
         if (openfl.system.Capabilities.os.contains("Android") && Sys.systemName() == "Linux")

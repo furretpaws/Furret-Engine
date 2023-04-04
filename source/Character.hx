@@ -16,6 +16,9 @@ class Character extends FlxSprite
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = 'bf';
 
+	public var customCharacter:Bool = false;
+	public var characterJson:Dynamic = null;
+
 	public var holdTimer:Float = 0;
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
@@ -597,9 +600,18 @@ class Character extends FlxSprite
 				#if sys
 				var containsJson:Bool = false;
 				trace("Custom character detected!");
-				if (EngineFunctions.exists("assets/characters/" + curCharacter.toLowerCase()))
+				var path:String = "";
+				if (PlayState.customMod != "")
 				{
-					var readDirectory:Array<String> = EngineFunctions.readDirectory("assets/characters/" + curCharacter.toLowerCase());
+					path = "mods/" + PlayState.customMod + "/assets/characters/";
+				}
+				else
+				{
+					path = "assets/characters/";
+				}
+				if (EngineFunctions.exists(path + curCharacter.toLowerCase()))
+				{
+					var readDirectory:Array<String> = EngineFunctions.readDirectory(path + curCharacter.toLowerCase());
 					for (i in 0...readDirectory.length)
 					{
 						if (readDirectory[i] == curCharacter.toLowerCase() + ".json")
@@ -610,9 +622,11 @@ class Character extends FlxSprite
 
 					if (containsJson)
 					{
-						var jsonParse = Json.parse(EngineFunctions.getContent("assets/characters/" + curCharacter.toLowerCase() + "/" + curCharacter.toLowerCase() + ".json"));
+						customCharacter = true;
+						var jsonParse = Json.parse(EngineFunctions.getContent(path + curCharacter.toLowerCase() + "/" + curCharacter.toLowerCase() + ".json"));
+						characterJson = Json.parse(EngineFunctions.getContent(path + curCharacter.toLowerCase() + "/" + curCharacter.toLowerCase() + ".json"));
 
-						var tex:FlxAtlasFrames = FlxAtlasFrames.fromSparrow(CoolUtil.getBitmap("assets/characters/" + curCharacter.toLowerCase() + "/" + jsonParse.image + ".png"), EngineFunctions.getContent("assets/characters/" + curCharacter.toLowerCase() + "/" + jsonParse.image + ".xml"));
+						var tex:FlxAtlasFrames = FlxAtlasFrames.fromSparrow(CoolUtil.getBitmap("assets/characters/" + curCharacter.toLowerCase() + "/" + jsonParse.image + ".png"), EngineFunctions.getContent(path + curCharacter.toLowerCase() + "/" + jsonParse.image + ".xml"));
 						frames = tex;
 
 						for (i in 0...jsonParse.animations.length)
@@ -681,44 +695,100 @@ class Character extends FlxSprite
 
 		if (isPlayer)
 		{
-			flipX = !flipX;
+			if (customCharacter) {
+				flipX = !flipX;
 
-			// Doesn't flip for BF, since his are already in the right place???
-			if (!curCharacter.startsWith('bf'))
-			{
-				// var animArray
-				var oldRight = animation.getByName('singRIGHT').frames;
-				animation.getByName('singRIGHT').frames = animation.getByName('singLEFT').frames;
-				animation.getByName('singLEFT').frames = oldRight;
-
-				// IF THEY HAVE MISS ANIMATIONS??
-				if (animation.getByName('singRIGHTmiss') != null)
+				// Doesn't flip for BF, since his are already in the right place???
+				trace(customCharacter);
+				trace(characterJson.playable);
+				if (!characterJson.playable)
 				{
-					var oldMiss = animation.getByName('singRIGHTmiss').frames;
-					animation.getByName('singRIGHTmiss').frames = animation.getByName('singLEFTmiss').frames;
-					animation.getByName('singLEFTmiss').frames = oldMiss;
+					// var animArray
+					var oldRight = animation.getByName('singRIGHT').frames;
+					animation.getByName('singRIGHT').frames = animation.getByName('singLEFT').frames;
+					animation.getByName('singLEFT').frames = oldRight;
+
+					// IF THEY HAVE MISS ANIMATIONS??
+					if (animation.getByName('singRIGHTmiss') != null)
+					{
+						var oldMiss = animation.getByName('singRIGHTmiss').frames;
+						animation.getByName('singRIGHTmiss').frames = animation.getByName('singLEFTmiss').frames;
+						animation.getByName('singLEFTmiss').frames = oldMiss;
+					}
 				}
+
+				if (characterJson.camOffsets != null && Type.getClassName(Type.getClass(FlxG.state)).contains("PlayState")) {
+					PlayState.setBfCamOffsets(characterJson.camOffsets[0], characterJson.camOffsets[1]);
+				}
+			}
+			else
+			{
+				flipX = !flipX;
+
+				// Doesn't flip for BF, since his are already in the right place???
+				if (!curCharacter.startsWith('bf'))
+				{
+					// var animArray
+					var oldRight = animation.getByName('singRIGHT').frames;
+					animation.getByName('singRIGHT').frames = animation.getByName('singLEFT').frames;
+					animation.getByName('singLEFT').frames = oldRight;
+
+					// IF THEY HAVE MISS ANIMATIONS??
+					if (animation.getByName('singRIGHTmiss') != null)
+					{
+						var oldMiss = animation.getByName('singRIGHTmiss').frames;
+						animation.getByName('singRIGHTmiss').frames = animation.getByName('singLEFTmiss').frames;
+						animation.getByName('singLEFTmiss').frames = oldMiss;
+					}
+				}
+			}
+		}
+		
+		if (!isPlayer && customCharacter)
+		{
+			if (characterJson.camOffsets != null) {
+				PlayState.setDadCamOffsets(characterJson.camOffsets[0], characterJson.camOffsets[1]);
 			}
 		}
 	}
 
 	override function update(elapsed:Float)
 	{
-		if (!curCharacter.startsWith('bf'))
-		{
-			if (animation.curAnim.name.startsWith('sing'))
+		if (customCharacter) {
+			if (!characterJson.playable)
 			{
-				holdTimer += elapsed;
+				if (animation.curAnim.name.startsWith('sing'))
+				{
+					holdTimer += elapsed;
+				}
+		
+				var dadVar:Float = 4;
+		
+				if (curCharacter == 'dad')
+					dadVar = 6.1;
+				if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
+				{
+					dance();
+					holdTimer = 0;
+				}
 			}
-
-			var dadVar:Float = 4;
-
-			if (curCharacter == 'dad')
-				dadVar = 6.1;
-			if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
+		} else {
+			if (!curCharacter.startsWith('bf'))
 			{
-				dance();
-				holdTimer = 0;
+				if (animation.curAnim.name.startsWith('sing'))
+				{
+					holdTimer += elapsed;
+				}
+		
+				var dadVar:Float = 4;
+		
+				if (curCharacter == 'dad')
+					dadVar = 6.1;
+				if (holdTimer >= Conductor.stepCrochet * dadVar * 0.001)
+				{
+					dance();
+					holdTimer = 0;
+				}
 			}
 		}
 
@@ -804,7 +874,22 @@ class Character extends FlxSprite
 					else
 						playAnim('danceLeft');
 				default:
-					playAnim('idle');
+					if (customCharacter) {
+						if (characterJson.LRidle) {
+							danced = !danced;
+
+							if (danced)
+								playAnim('danceRight');
+							else
+								playAnim('danceLeft');
+						} else {
+							playAnim('idle');
+						}
+					}
+					else
+					{
+						playAnim('idle'); //eh
+					}
 			}
 		}
 	}

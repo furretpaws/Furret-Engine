@@ -28,8 +28,14 @@ class Conductor
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
+	public static var playbackRate:Float = 1;
+
 	public function new()
 	{
+	}
+
+	public static function setPlaybackRate(f:Float) {
+		playbackRate = f;
 	}
 
 	public static function mapBPMChanges(song:SwagSong)
@@ -54,7 +60,7 @@ class Conductor
 
 			var deltaSteps:Int = song.notes[i].lengthInSteps;
 			totalSteps += deltaSteps;
-			totalPos += ((60 / curBPM) * 1000 / 4) * deltaSteps;
+			totalPos += ((60 / (curBPM * playbackRate)) * 1000 / 4) * deltaSteps;
 		}
 		trace("new BPM map BUDDY " + bpmChangeMap);
 	}
@@ -62,6 +68,14 @@ class Conductor
 	public static function changeBPM(newBpm:Int)
 	{
 		bpm = newBpm;
+
+		crochet = ((60 / bpm) * 1000);
+		stepCrochet = crochet / 4;
+	}
+
+	public static function recalculateStuff(?multi:Float = 1)
+	{
+		safeZoneOffset = Math.floor((safeFrames / 60) * 1000) * multi;
 
 		crochet = ((60 / bpm) * 1000);
 		stepCrochet = crochet / 4;

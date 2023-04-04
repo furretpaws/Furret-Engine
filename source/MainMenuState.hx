@@ -33,7 +33,7 @@ class MainMenuState extends MusicBeatState
 
 	public static var nightly:String = "";
 
-	public static var furretEngineVer:String = "1.8b" + nightly; // sharkmitty ilysm<3333
+	public static var furretEngineVer:String = "1.9-PRE ALPHA" + nightly; // sharkmitty ilysm<3333
 
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
@@ -43,6 +43,21 @@ class MainMenuState extends MusicBeatState
 		#if desktop
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
+		#end
+
+		#if sys
+		if (FlxG.save.data.modsLoaded != null)
+		{ 
+			for (i in 0...FlxG.save.data.modsLoaded.length)
+			{
+				if (!EngineFunctions.exists("mods/" + FlxG.save.data.modsLoaded[i]))
+				{
+					trace("Removing last loaded mod \"" + FlxG.save.data.modsLoaded[i] + "\" since it doesn't exist anymore in the mods folder");
+					FlxG.save.data.modsLoaded.remove(FlxG.save.data.modsLoaded[i]);
+				}
+			}
+			FlxG.save.flush();
+		}
 		#end
 
 		transIn = FlxTransitionableState.defaultTransIn;
@@ -100,7 +115,17 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.camera.follow(camFollow, null, 0.06);
 
-		var versionShit:FlxText = new FlxText(5, FlxG.height - 18, 0, "Furret Engine 1.8 / Friday Night Funkin' 0.2.8", 12);
+		var versionShit:FlxText = new FlxText(4, 698, 0, "Furret Engine "+furretEngineVer+" / Friday Night Funkin' 0.2.8", 12);
+		versionShit.scrollFactor.set();
+		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(versionShit);
+
+		var versionShit:FlxText = new FlxText(4, 678, 0, "This is a " + Sys.systemName() + " build running on " + FurretEngineData.os, 12);
+		versionShit.scrollFactor.set();
+		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(versionShit);
+
+		var versionShit:FlxText = new FlxText(4, 658, 0, "Press 7 to open the mod loader", 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(versionShit);
@@ -123,10 +148,29 @@ class MainMenuState extends MusicBeatState
 			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
 		}
 
+		if (FlxG.keys.justPressed.J)
+		{
+			FlxG.save.data.modLoaded = [];
+		}
+
 		if (FlxG.keys.justPressed.EIGHT)
 		{
 			FlxG.switchState(new customization.StageEditor());
 			FlxG.sound.music.stop();
+		}
+
+		if (FlxG.keys.justPressed.SEVEN)
+		{
+			#if sys
+			if (InternalSettings.mods && !InternalSettings.editors)
+			{
+				FlxG.switchState(new modutil.ModLoaderState());
+			}
+			else
+			{
+				FlxG.switchState(new customization.EditorGateway());
+			}
+			#end
 		}
 
 		if (!selectedSomethin)
