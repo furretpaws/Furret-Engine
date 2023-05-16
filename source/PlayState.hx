@@ -29,6 +29,7 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxAngle;
 import flixel.math.FlxMath;
+import openfl.filters.BitmapFilter;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.system.FlxSound;
@@ -74,9 +75,16 @@ class PlayState extends MusicBeatState
 
 	public static var customMod:String = "";
 
+	public var background_left:FlxSprite;
+    public var background_right:FlxSprite;
+
 	public var dad:Character;
 	public var gf:Character;
 	public var boyfriend:Boyfriend;
+
+	//shaders uwu
+	var vcr:VCRDistortionShader;
+	var bloom:Shaders.BloomEffect;
 
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
@@ -86,6 +94,7 @@ class PlayState extends MusicBeatState
 	var doNotExecute:Bool = false;
 
 	public var strumLine:FlxSprite;
+	public var curbg:FlxSprite;
 	public var curSection:Int = 0;
 
 	public var camFollow:FlxObject;
@@ -93,6 +102,9 @@ class PlayState extends MusicBeatState
 	private var eventNotes:Array<Dynamic> = [];
 
 	public static var prevCamFollow:FlxObject;
+
+	public static var camHUDShaders:Array<BitmapFilter> = [];
+	public static var camGameShaders:Array<BitmapFilter> = [];
 
 	var tankmanAscend:Bool = false; // funni (2021 nostalgia oh my god)
 
@@ -309,6 +321,9 @@ class PlayState extends MusicBeatState
 		bfCameraOffsets = [0, 0];
 		dadCameraOffsets = [0, 0];
 
+		camHUDShaders = [];
+		camGameShaders = [];
+
 		if (loadHScript)
 		{
 			setAllHaxeVar('camZooming', camZooming);
@@ -445,89 +460,7 @@ class PlayState extends MusicBeatState
 
 		switch (SONG.stage.toLowerCase())
 		{
-<<<<<<< HEAD
 			case 'spooky':
-=======
-		case 'spooky': 
-                  {
-            	        curStage = 'spooky';
-	        	halloweenLevel = true;
-
-		    	var hallowTex = Paths.getSparrowAtlas('halloween_bg');
-
-	        	halloweenBG = new FlxSprite(-200, -100);
-		    	halloweenBG.frames = hallowTex;
-	        	halloweenBG.animation.addByPrefix('idle', 'halloweem bg0');
-	        	halloweenBG.animation.addByPrefix('lightning', 'halloweem bg lightning strike', 24, false);
-	        	halloweenBG.animation.play('idle');
-	        	halloweenBG.antialiasing = true;
-	        	add(halloweenBG);
-
-		    	isHalloween = true;
-			}
-			case 'philly':
-			{
-				curStage = 'philly';
-
-		        var bg:FlxSprite = new FlxSprite(-100).loadGraphic(Paths.image('philly/sky'));
-		        bg.scrollFactor.set(0.1, 0.1);
-		        add(bg);
-
-	                var city:FlxSprite = new FlxSprite(-10).loadGraphic(Paths.image('philly/city'));
-		        city.scrollFactor.set(0.3, 0.3);
-		        city.setGraphicSize(Std.int(city.width * 0.85));
-		        city.updateHitbox();
-		        add(city);
-
-		        phillyCityLights = new FlxTypedGroup<FlxSprite>();
-		        add(phillyCityLights);
-
-		        for (i in 0...5)
-		        {
-		                var light:FlxSprite = new FlxSprite(city.x).loadGraphic(Paths.image('philly/win' + i));
-		                light.scrollFactor.set(0.3, 0.3);
-		                light.visible = false;
-		                light.setGraphicSize(Std.int(light.width * 0.85));
-		                light.updateHitbox();
-		                light.antialiasing = true;
-		                phillyCityLights.add(light);
-		        }
-
-		        var streetBehind:FlxSprite = new FlxSprite(-40, 50).loadGraphic(Paths.image('philly/behindTrain'));
-		        add(streetBehind);
-
-	                phillyTrain = new FlxSprite(2000, 360).loadGraphic(Paths.image('philly/train'));
-		        add(phillyTrain);
-
-		        trainSound = new FlxSound().loadEmbedded(Paths.sound('train_passes'));
-		        FlxG.sound.list.add(trainSound);
-
-		        // var cityLights:FlxSprite = new FlxSprite().loadGraphic(AssetPaths.win0.png);
-
-		        var street:FlxSprite = new FlxSprite(-40, streetBehind.y).loadGraphic(Paths.image('philly/street'));
-	            add(street);
-			}
-			case 'limo':
-			{
-				curStage = 'limo';
-				defaultCamZoom = 0.90;
-
-				var skyBG:FlxSprite = new FlxSprite(-120, -50).loadGraphic(Paths.image('limo/limoSunset'));
-				skyBG.scrollFactor.set(0.1, 0.1);
-				add(skyBG);
-
-				var bgLimo:FlxSprite = new FlxSprite(-200, 480);
-				bgLimo.frames = Paths.getSparrowAtlas('limo/bgLimo');
-				bgLimo.animation.addByPrefix('drive', "background limo pink", 24);
-				bgLimo.animation.play('drive');
-				bgLimo.scrollFactor.set(0.4, 0.4);
-				add(bgLimo);
-
-				grpLimoDancers = new FlxTypedGroup<BackgroundDancer>();
-				add(grpLimoDancers);
-
-				for (i in 0...5)
->>>>>>> dc86540c873f9c2af3be8a47fdae073ceda43886
 				{
 					curStage = 'spooky';
 					halloweenLevel = true;
@@ -867,7 +800,6 @@ class PlayState extends MusicBeatState
 				}
 			case 'warzone':
 				{
-<<<<<<< HEAD
 					defaultCamZoom = 0.9;
 					curStage = 'warzone';
 					var sky:FlxSprite = new FlxSprite(-400, -400).loadGraphic(Paths.image('warzone/tankSky'));
@@ -1131,64 +1063,6 @@ class PlayState extends MusicBeatState
 			default:
 				{
 					if (SONG.stage.toLowerCase() == null || SONG.stage.toLowerCase() == '')
-=======
-					if (EngineFunctions.exists("assets/stages/" + SONG.stage.toLowerCase() + "/stageData.hx")) //i love haxe - code taken from furret engine v1.7
-					{
-						curStage = SONG.stage.toLowerCase();
-						var stageInterp = new hscript.Interp();
-						var bitmap:BitmapData;
-						stageInterp.variables.set("defaultCamZoom", defaultCamZoom);
-						stageInterp.variables.set("setCamZoom", function(daZoom:Float) {
-							defaultCamZoom = daZoom;
-						});
-						stageInterp.variables.set("CoolUtil", CoolUtil);
-						stageInterp.variables.set("MP4Handler", MP4Handler);
-						stageInterp.variables.set("EngineFunctions", EngineFunctions);
-						stageInterp.variables.set("curStage", curStage);
-						stageInterp.variables.set("FlxSprite", FlxSprite);
-						stageInterp.variables.set("FlxAtlasFrames", FlxAtlasFrames);
-						stageInterp.variables.set("Std", Std);
-						stageInterp.variables.set("FlxG", FlxG);
-						stageInterp.variables.set("boyfriend", boyfriend);
-						stageInterp.variables.set("gf", gf);
-						stageInterp.variables.set("dad", dad);
-						stageInterp.variables.set("setBfPosition", function(X:Int, Y:Int) {
-							boyfriend.x += X;
-							boyfriend.y += Y;
-						});
-						stageInterp.variables.set("setDadPosition", function(X:Int, Y:Int) {
-							dad.x += X;
-							dad.y += Y;
-						});
-						stageInterp.variables.set("setGfPosition", function(X:Int, Y:Int) {
-							gf.x += X;
-							gf.y += Y;
-						});
-						/*stageInterp.variables.set("setDadCameraPosition", function(X:Int, Y:Int) {
-							camPos.set(X, Y);
-						});
-						stageInterp.variables.set("setBfCameraPosition", function(X:Int, Y:Int) {
-							camPos.set(X, Y);
-						});*/
-						stageInterp.variables.set("modifySize", function(daSprite:FlxSprite, size:Float) {
-							daSprite.setGraphicSize(Std.int(daSprite.width * 0.9));
-						});
-						stageInterp.variables.set("add", function(varSprite:FlxSprite) {
-							add(varSprite);
-						});
-						stageInterp.variables.set("remove", function(varSprite:FlxSprite) {
-							remove(varSprite);
-						});
-						var getScript = EngineFunctions.getContent("assets/stages/" + SONG.stage + "/stageData.hx");
-						var daScript:String = getScript;
-						var daScriptParser = new hscript.Parser();
-						daScriptParser.allowTypes = true;
-						daScriptParser.allowMetadata = true;
-						var script = daScriptParser.parseString(daScript);
-						stageInterp.execute(script);
-					}
-					else
->>>>>>> dc86540c873f9c2af3be8a47fdae073ceda43886
 					{
 						defaultCamZoom = 0.9;
 						curStage = 'stage';
@@ -1436,6 +1310,28 @@ class PlayState extends MusicBeatState
 		add(dad);
 		add(boyfriend);
 
+		background_left = new FlxSprite(50, 0);
+        background_left.makeGraphic(500, 2500, FlxColor.BLACK);
+        background_left.alpha = 0.5;
+        background_left.cameras = [camHUD];
+		if (!FlxG.save.data.midscroll) {
+			background_left.visible = FlxG.save.data.hide_background_on_left;
+		} else {
+			background_left.visible = false;
+		}
+        add(background_left);
+
+        if (!FlxG.save.data.midscroll) {
+			background_right = new FlxSprite(700, 0);
+		} else {
+			background_right = new FlxSprite(370, 0);
+		}
+        background_right.makeGraphic(500, 2500, FlxColor.BLACK);
+        background_right.alpha = 0.5;
+		background_right.visible = FlxG.save.data.hide_background_on_right;
+        background_right.cameras = [camHUD];
+        add(background_right);
+
 		var doof:DialogueBox = new DialogueBox(false, dialogue);
 		// doof.x += 70;
 		// doof.y = FlxG.height * 0.5;
@@ -1473,6 +1369,8 @@ class PlayState extends MusicBeatState
 		dadStrums = new FlxTypedGroup<FlxSprite>();
 
 		// startCountdown();
+
+		vcr = new VCRDistortionShader();
 
 		generateSong(SONG.song);
 
@@ -1971,7 +1869,7 @@ class PlayState extends MusicBeatState
 			interp.variables.set("ghostTapping", FlxG.save.data.newInput);
 			interp.variables.set("hitsounds", FlxG.save.data.hitsoundspog);
 			interp.variables.set("judgement", FlxG.save.data.judgement);
-			interp.variables.set("middlescroll", FlxG.save.data.middlescroll);
+			interp.variables.set("middlescroll", FlxG.save.data.midscroll);
 			interp.variables.set("noteSplash", FlxG.save.data.noteSplashON);
 			interp.variables.set("Shader", openfl.display.Shader);
 			interp.variables.set("CustomShader", CustomShader);
@@ -2023,6 +1921,44 @@ class PlayState extends MusicBeatState
 			interp.variables.set("FlxMath", flixel.math.FlxMath);
 			interp.variables.set("FlxPoint", flixel.math.FlxPoint);
 			interp.variables.set("Point", flixel.math.FlxPoint);
+			interp.variables.set("setVoidShader", (obj:FlxSprite, wa:Float, wf:Float, ws:Float) -> {
+				var testshader:Shaders.GlitchEffect = new Shaders.GlitchEffect();
+				testshader.waveAmplitude = wa;
+				testshader.waveFrequency = wf;
+				testshader.waveSpeed = ws;
+					
+				obj.shader = testshader.shader;
+				curbg = obj;
+			});
+			interp.variables.set("addVCREffect", (cccccccccccc:String) -> {
+				var s:String = cccccccccccc.toLowerCase();
+				if (s == "camgame") {
+					camGameShaders.push(new ShaderFilter(vcr));
+					camGame.setFilters(camGameShaders);
+				} else if (s == "camhud") {
+					camHUDShaders.push(new ShaderFilter(vcr));
+					camHUD.setFilters(camHUDShaders);
+				}
+			});
+			interp.variables.set("addBloomEffect", (cccccccccccc:String, bs:Float, int:Float) -> {
+				var s:String = cccccccccccc.toLowerCase();
+				var bloomShader:Shaders.BloomEffect = new Shaders.BloomEffect(bs, int);
+				if (s == "camgame") {
+					camGameShaders.push(new ShaderFilter(bloomShader.shader));
+					camGame.setFilters(camGameShaders);
+				} else if (s == "camhud") {
+					camHUDShaders.push(new ShaderFilter(bloomShader.shader));
+					camHUD.setFilters(camHUDShaders);
+				}
+			});
+			interp.variables.set("removeAllShadersFromCamera", (cccccccccccc:String) -> {
+				var s:String = cccccccccccc.toLowerCase();
+				if (s == "camgame") {
+					camGame.setFilters([]);
+				} else if (s == "camhud") {
+					camHUD.setFilters([]);
+				}
+			});
 			interp.variables.set("FlxRect", flixel.math.FlxRect);
 			interp.variables.set("Rect", flixel.math.FlxRect);
 			interp.variables.set("StringTools", StringTools);
@@ -2736,7 +2672,7 @@ class PlayState extends MusicBeatState
 			{
 				babyArrow.y -= 10;
 				babyArrow.alpha = 0;
-				FlxTween.tween(babyArrow, {y: babyArrow.y + 10, alpha: 1}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
+				FlxTween.tween(babyArrow, {y: babyArrow.y + 10, alpha: FlxG.save.data.note_opacity}, 1, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * i)});
 			}
 
 			babyArrow.ID = i;
@@ -2896,6 +2832,15 @@ class PlayState extends MusicBeatState
 		if (customShader != null)
 		{
 			customShader.update(elapsed, FlxG.mouse);
+		}
+
+		if (curbg != null)
+		{
+			if (curbg.active) // only the furiosity background is active
+			{
+				var shad = cast(curbg.shader, Shaders.GlitchShader);
+				shad.uTime.value[0] += elapsed;
+			}
 		}
 
 		if (tankmanAscend)
@@ -3577,7 +3522,7 @@ class PlayState extends MusicBeatState
 						interp.variables.set("ghostTapping", FlxG.save.data.newInput);
 						interp.variables.set("hitsounds", FlxG.save.data.hitsoundspog);
 						interp.variables.set("judgement", FlxG.save.data.judgement);
-						interp.variables.set("middlescroll", FlxG.save.data.middlescroll);
+						interp.variables.set("middlescroll", FlxG.save.data.midscroll);
 						interp.variables.set("noteSplash", FlxG.save.data.noteSplashON);
 						interp.variables.set("Shader", openfl.display.Shader);
 						interp.variables.set("CustomShader", CustomShader);
@@ -4060,7 +4005,7 @@ class PlayState extends MusicBeatState
 					add(sploosh);
 					sploosh.cameras = [camHUD];
 					sploosh.animation.play('splash ' + FlxG.random.int(0, 1) + " " + daNote.noteData);
-					sploosh.alpha = 0.6;
+					sploosh.alpha = 0.6*FlxG.save.data.note_opacity;
 					sploosh.offset.x += 90;
 					sploosh.offset.y += 80;
 					sploosh.animation.finishCallback = function(name) sploosh.kill();

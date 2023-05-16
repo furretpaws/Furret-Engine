@@ -7,5 +7,5 @@ class InternalSettings
 
     public static var gameplayCustomizer:Bool = true; //Custom rates, no death, etc..
     public static var mods:Bool = true; //Custom mods, I have nothing more to say
-    public static var editors:Bool = false; //Editors like the character editor or the stage editor
+    public static var editors:Bool = true; //Editors like the character editor or the stage editor
 }

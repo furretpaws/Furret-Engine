@@ -4,6 +4,10 @@ import flixel.FlxSprite;
 import flixel.FlxCamera;
 import flixel.FlxG;
 import flixel.text.FlxText;
+import flixel.addons.ui.FlxUICheckBox;
+import flixel.addons.ui.FlxUITabMenu;
+import flixel.addons.ui.FlxUISlider;
+import flixel.addons.ui.FlxUI;
 import flixel.util.FlxColor;
 import flixel.tweens.*;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -14,6 +18,15 @@ class CustomizeGameplay extends MusicBeatState
 
     public var strumLine:FlxSprite;
     public var strumLineNotes:FlxTypedGroup<FlxSprite>;
+    public var alphaaaaaaaaa:Float = FlxG.save.data.note_opacity;
+    public var arrayArrowsUwu:Array<FlxSprite> = [];
+    public var backgroundleft:Bool = FlxG.save.data.hide_background_on_left;
+    public var backgroundright:Bool = FlxG.save.data.hide_background_on_right;
+    public var background_left:FlxSprite;
+    public var background_right:FlxSprite;
+
+    var UI_box:FlxUITabMenu;
+    var thing:FlxUI;
 
 	public var playerStrums:FlxTypedGroup<FlxSprite>;
 	public var dadStrums:FlxTypedGroup<FlxSprite>;
@@ -21,7 +34,11 @@ class CustomizeGameplay extends MusicBeatState
     public var camHUD:FlxCamera;
 	public var camGame:FlxCamera;
 
+    public var showLeft:FlxUICheckBox;
+    public var showRight:FlxUICheckBox;
+
     var rating:FlxSprite;
+    var slider:FlxUISlider;
 
     var boyfriend:Character;
 	var gf:Character;
@@ -63,6 +80,18 @@ class CustomizeGameplay extends MusicBeatState
 		stageCurtains.active = false;
         add(stageCurtains);
 
+        background_left = new FlxSprite(50, 0);
+        background_left.makeGraphic(500, 2500, FlxColor.BLACK);
+        background_left.alpha = 0.5;
+        background_left.cameras = [camHUD];
+        add(background_left);
+
+        background_right = new FlxSprite(700, 0);
+        background_right.makeGraphic(500, 2500, FlxColor.BLACK);
+        background_right.alpha = 0.5;
+        background_right.cameras = [camHUD];
+        add(background_right);
+
         gf = new Character(343, 74, "gf", false);
 		add(gf);
 
@@ -81,7 +110,7 @@ class CustomizeGameplay extends MusicBeatState
 		add(FurretEngineWatermark);
         FurretEngineWatermark.cameras = [camHUD];
 
-        FlxG.camera.zoom = 0.6;
+        FlxG.camera.zoom = 1;
 
         strumLine = new FlxSprite(0, 50).makeGraphic(FlxG.width, 10);
 		strumLine.scrollFactor.set();
@@ -114,12 +143,43 @@ class CustomizeGameplay extends MusicBeatState
 		rating.antialiasing = true;
 
         add(rating);
+
+        var tabs = [
+			{name: 'Settings', label: 'Settings'}
+		];
+
+		UI_box = new FlxUITabMenu(null, tabs, true);
+		UI_box.x = 4;
+		UI_box.y = 240;
+		UI_box.resize(350, 450);
+        UI_box.cameras = [camHUD];
+		add(UI_box);
+
+        thing = new FlxUI(null, UI_box);
+        thing.name = "Settings";
+
+        slider = new FlxUISlider(this, 'alphaaaaaaaaa', 4, 16, 0, 1, 150, null, 5, FlxColor.WHITE, FlxColor.BLACK);
+		slider.visible = true;
+        slider.nameLabel.text = 'Arrow opacity';
+		thing.add(slider);
+
+        showLeft = new FlxUICheckBox(4,128,null,null,"Show background on left side",100);
+        showRight = new FlxUICheckBox(4,164,null,null,"Show background on left side",100);
+        thing.add(showLeft);
+        thing.add(showRight);
+        showLeft.checked = FlxG.save.data.hide_background_on_left;
+        showRight.checked = FlxG.save.data.hide_background_on_right;
+
+        UI_box.addGroup(thing);
     }
 
     function quit():Void
     {
         FlxG.save.data.ratingX = rating.x;
         FlxG.save.data.ratingY = rating.y;
+        FlxG.save.data.note_opacity = alphaaaaaaaaa;
+        FlxG.save.data.hide_background_on_left = backgroundleft;
+        FlxG.save.data.hide_background_on_right = backgroundright;
         FlxG.save.flush();
         FlxG.switchState(new options.OptionsMenu());
     }
@@ -256,6 +316,8 @@ class CustomizeGameplay extends MusicBeatState
             babyArrow.x += 90; //así no se mete el pito -isa 2022
             babyArrow.x += ((FlxG.width / 2) * player);
 
+            arrayArrowsUwu.push(babyArrow);
+
             strumLineNotes.add(babyArrow);
         }
     }
@@ -264,6 +326,15 @@ class CustomizeGameplay extends MusicBeatState
     {
         keyShit();
         boyfriend.holdTimer = 0;
+        for (i in 0...arrayArrowsUwu.length) {
+            arrayArrowsUwu[i].alpha = this.alphaaaaaaaaa;
+        }
+
+        backgroundleft = showLeft.checked;
+        backgroundright = showRight.checked;
+
+        background_left.visible = backgroundleft;
+        background_right.visible = backgroundright;
 
         if (FlxG.mouse.overlaps(rating))
         {

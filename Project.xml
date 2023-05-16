@@ -132,6 +132,8 @@
 	<haxelib name="hscript"/>
 	<haxelib name="extension-androidtools" if="android"/>
 
+	<define name="mobileC" if="mobile"/>
+
 	<config:android permission="android.permission.READ_EXTERNAL_STORAGE" if="android"/>
 	<config:android permission="android.permission.WRITE_EXTERNAL_STORAGE" if="android"/>
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->

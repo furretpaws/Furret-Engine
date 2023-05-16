@@ -64,6 +64,18 @@ class FurretEngineData
         {
             FlxG.save.data.modsLoaded = [];
         }
+        if (FlxG.save.data.note_opacity == null)
+        {
+            FlxG.save.data.note_opacity = 1.0;
+        }
+        if (FlxG.save.data.hide_background_on_left == null)
+        {
+            FlxG.save.data.hide_background_on_left = false;
+        }
+        if (FlxG.save.data.hide_background_on_right == null)
+        {
+            FlxG.save.data.hide_background_on_right = false;
+        }
 
         #if sys
         if (openfl.system.Capabilities.os.contains("Android") && Sys.systemName() == "Linux")
