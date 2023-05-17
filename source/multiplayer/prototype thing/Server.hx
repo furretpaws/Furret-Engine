@@ -14,10 +14,11 @@ class Server {
         this.port = port;
         this.socket = new Socket();
         this.sessionHandler = new SessionHandler(this);
-        haxe.EntryPoint.addThread(continueSocket);
+        sys.thread.Thread.create((continueSocket));
     }
 
     function continueSocket() {
+        trace("?");
         try {
             socket.bind(new Host(ip), port);
         } catch (err:String) {

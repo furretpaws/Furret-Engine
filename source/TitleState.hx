@@ -1,9 +1,9 @@
 package;
 
-#if desktop
+#if (desktop && cpp)
 import Discord.DiscordClient;
-import sys.thread.Thread;
 #end
+import sys.thread.Thread;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;

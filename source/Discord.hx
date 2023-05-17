@@ -1,7 +1,7 @@
 package;
 
 import Sys.sleep;
-#if windows
+#if (windows && cpp)
 import discord_rpc.DiscordRpc;
 #end
 

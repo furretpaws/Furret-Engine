@@ -15,7 +15,7 @@ import flixel.util.FlxTimer;
 class EditorGateway extends MusicBeatState
 {
 	var bg:FlxSprite;
-	var optionList:Array<String> = ['Stage editor', 'Character editor', 'Mods'];
+	var optionList:Array<String> = ['Stage editor', 'Character editor', 'Mods', 'Multiplayer Mode'];
 	var curSelected:Int = 0; // isn't that obvious?
 	var chosesoncemeting:FlxText;
 	private var optionsGroup:FlxTypedGroup<Alphabet>;
@@ -119,6 +119,10 @@ class EditorGateway extends MusicBeatState
 					FlxG.switchState(new customization.CustomizeGameplay());
 				case 2:
 					FlxG.switchState(new modutil.ModLoaderState());
+				case 3:
+					if (FlxG.sound.music != null)
+						FlxG.sound.music.stop();
+					FlxG.switchState(new multiplayer.MultiplayerState());
 			}
 		}
 	}

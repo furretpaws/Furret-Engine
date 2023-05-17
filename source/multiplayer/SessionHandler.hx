@@ -75,6 +75,7 @@ class SessionHandler {
                         session.send(bytes);
                         session.socket.close();
                         sessions.remove(session);
+                        server.onPrivateEvents(bytes.toString(), session);
                         continueLol = false;
                     }
                     if (continueLol) {
@@ -97,6 +98,7 @@ class SessionHandler {
                                 }));
                                 session.send(bytes);
                                 session.socket.close();
+                                server.onPrivateEvents(bytes.toString(), session);
                                 sessions.remove(session);
                             case "JOIN":
                                 var canJoin:Bool = true;
@@ -112,6 +114,7 @@ class SessionHandler {
                                             }));
                                             session.send(bytes);
                                             session.socket.close();
+                                            server.onPrivateEvents(bytes.toString(), session);
                                             sessions.remove(session);
                                             continueLol = false;
                                         }
@@ -127,6 +130,7 @@ class SessionHandler {
                                     }));
                                     session.send(bytes);
                                     session.socket.close();
+                                    server.onPrivateEvents(bytes.toString(), session);
                                     sessions.remove(session);
                                     continueLol = false;
                                 }
@@ -143,12 +147,14 @@ class SessionHandler {
                                     }));
                                     session.state = "connected";
                                     session.send(bytes);
+                                    server.onPrivateEvents(bytes.toString(), session);
                                     var bytes:Bytes = Bytes.ofString(haxe.Json.stringify({
                                         action: "PLAYER_JOINED",
                                         d: {
                                             user: session.username
                                         }
                                     }));
+                                    server.onEvent(bytes.toString());
                                     sendGlobalMessage(bytes);
                                     var users:Array<String> = [];
                                     for (i in 0...sessions.length) {
@@ -162,6 +168,7 @@ class SessionHandler {
                                             count: users.length
                                         }
                                     }));
+                                    server.onEvent(bytes.toString());
                                     sendGlobalMessage(bytes);
                                 }
                         }
@@ -196,6 +203,8 @@ class SessionHandler {
                                     action: "OWNERSHIP_GRANTED",
                                     d: null
                                 }));
+                                server.onPrivateEvents(bytes.toString(), session);
+                                session.send(bytes);
                             case "REQUEST_DOWNLOAD_MODE":
                                 voting_download_mode = {
                                     filename: json.d.filename, 
@@ -211,7 +220,7 @@ class SessionHandler {
                                 sendGlobalMessage(bytes);
                             case "UPLOAD_FILE": 
                                 var bytes:Bytes = Bytes.ofString(haxe.Json.stringify({
-                                    action: "UPLOAD_FILE_RESPONSE",
+                                    action: "UPLOAD_FILE",
                                     d: {
                                         filename: "images/imageuwu.png",
                                         user: json.d.user

@@ -6,7 +6,7 @@ class Client {
     static var socket:Socket;
     static function main() {
         socket = new Socket();
-        socket.connect(new Host("127.0.0.1"), 8080);
+        socket.connect(new Host("127.0.0.1"), 80);
         var req:Bytes = Bytes.ofString(haxe.Json.stringify({
             action: "JOIN",
             d: {

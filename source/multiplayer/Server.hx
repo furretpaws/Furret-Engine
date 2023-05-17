@@ -16,7 +16,7 @@ class Server {
         this.socket = new Socket();
         this.sessionHandler = new SessionHandler(this);
         this.key = ownershipKey;
-        haxe.EntryPoint.addThread(continueSocket);
+        sys.thread.Thread.create(continueSocket);
     }
 
     function continueSocket() {
@@ -26,7 +26,7 @@ class Server {
             onError("Couldn't bind to " + ip + ":" + port);
         }
         socket.listen(32);
-        haxe.EntryPoint.runInMainThread(this.sessionHandler.startHandling);
+        sys.thread.Thread.runWithEventLoop(this.sessionHandler.startHandling);
         while(true) {
             try {
                 var clientSocket:Socket = socket.accept();
@@ -36,6 +36,10 @@ class Server {
                 trace(err);
             }
         }
+    }
+
+    dynamic public function onPrivateEvents(d:String, session:Session) {
+
     }
 
     dynamic public function onEvent(d:String) {
