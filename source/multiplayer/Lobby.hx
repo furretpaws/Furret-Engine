@@ -111,25 +111,25 @@ class Lobby extends MusicBeatState {
                     }
                     FlxG.switchState(new MainMenuState());
                 }
-            });
-            //Sys.sleep(0.5); //IDK WHY DOES THIS HAVE TO BE HERE BUT IT DOES WORK
-            var auth:Bytes = Bytes.ofString(haxe.Json.stringify({
-                action: "JOIN",
-                d: {
-                    username: username.text,
-                    furretEngineVer: MainMenuState.furretEngineVer
-                }
-            }));
-            this.client.sendData(auth);
-            if (this.serverKey != null && this.server != null) {
-                var thing:Bytes = Bytes.ofString(haxe.Json.stringify({
-                    action: "TAKE_OWNERSHIP",
+                //Sys.sleep(0.5); //IDK WHY DOES THIS HAVE TO BE HERE BUT IT DOES WORK
+                var auth:Bytes = Bytes.ofString(haxe.Json.stringify({
+                    action: "JOIN",
                     d: {
-                        key: this.serverKey,
+                        username: username.text,
+                        furretEngineVer: MainMenuState.furretEngineVer
                     }
                 }));
-                //this.client.sendData(thing);
-            }
+                this.client.sendData(auth);
+                if (this.serverKey != null && this.server != null) {
+                    var thing:Bytes = Bytes.ofString(haxe.Json.stringify({
+                        action: "TAKE_OWNERSHIP",
+                        d: {
+                            key: this.serverKey,
+                        }
+                    }));
+                    //this.client.sendData(thing);
+                }
+            });
         });
         joinButton.label.setFormat("assets/fonts/vcr.ttf", 12, FlxColor.WHITE, FlxTextAlign.CENTER, OUTLINE, FlxColor.BLACK);
         joinButton.setGraphicSize(146, 29);

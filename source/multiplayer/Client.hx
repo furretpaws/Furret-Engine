@@ -11,7 +11,7 @@ class Client {
         socketData = new SomeBytes();
         socket = new Socket();
         try {
-            socket.connect(new Host(ip), port);
+            socket.connect(new Host("127.0.0.1"), 80);
         } catch (error:String) {
             onError(error);
         }
