@@ -123,6 +123,7 @@
 	<!--In case you want to use the addons package-->
 	<haxelib name="flixel-addons" />
 	<haxelib name="hscript" />
+	<haxelib name="hxcpp-debug-server"/>
 
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />

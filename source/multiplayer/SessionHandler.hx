@@ -14,6 +14,7 @@ class SessionHandler {
     var voting_download_mode:Dynamic = null;
     var download_mode_votes:Int = 0;
     var ready_mode_votes:Int = 0;
+    var someoneHasOwnership:Bool = false;
     var match:Bool = false;
     public function new(sv:Server) {
         this.server = sv;
@@ -195,16 +196,27 @@ class SessionHandler {
                     if (continueLol) {
                         switch(json.action) {
                             case "TAKE_OWNERSHIP":
-                                if (json.d.key == server.key) {
-                                    session.ownership = true;
+                                if (!someoneHasOwnership) {
+                                    if (json.d.key == server.key) {
+                                        session.ownership = true;
+                                    }
+                                    var bytes:Bytes = Bytes.ofString(haxe.Json.stringify({
+                                        failed: false,
+                                        action: "OWNERSHIP_GRANTED",
+                                        d: null
+                                    }));
+                                    server.onPrivateEvents(bytes.toString(), session);
+                                    session.send(bytes);
                                 }
+                            case "LOBBY_PLAY_ANIM":
                                 var bytes:Bytes = Bytes.ofString(haxe.Json.stringify({
-                                    failed: false,
-                                    action: "OWNERSHIP_GRANTED",
-                                    d: null
+                                    action: "LOBBY_PLAY_ANIM",
+                                    d: {
+                                        user: session.username,
+                                        anim: json.d.anim
+                                    }
                                 }));
-                                server.onPrivateEvents(bytes.toString(), session);
-                                session.send(bytes);
+                                sendGlobalMessage(bytes);
                             case "REQUEST_DOWNLOAD_MODE":
                                 voting_download_mode = {
                                     filename: json.d.filename, 
