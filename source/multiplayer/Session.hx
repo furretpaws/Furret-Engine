@@ -1,11 +1,12 @@
 package multiplayer;
 
 import sys.net.Socket;
+import haxe.io.BytesOutput;
 
 class Session {
     public var socket:Socket = null;
     public var state:String = "opened";
-    public var socketData:SomeBytes = null;
+    public var socketData:BytesOutput = null;
     public var username:String = null;
     public var host:String = null;
     public var ready:Bool = false;
@@ -16,7 +17,7 @@ class Session {
     public var arrow_just_unhold:Array<Bool> = [false, false, false, false];
     public function new (socket:Socket) {
         this.socket = socket;
-        this.socketData = new SomeBytes();
+        this.socketData = new BytesOutput();
     }
     public function changeUsername(username:String) {
         this.username = username;

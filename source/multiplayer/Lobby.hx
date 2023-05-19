@@ -99,37 +99,40 @@ class Lobby extends MusicBeatState {
         joinButton = new FlxButton(567, 412, "JOIN!", function() {
             var IPnPort:Array<String> = this.IP.split(":");
             trace(IPnPort);
-            sys.thread.Thread.create(()->{
-                this.client = new Client(IPnPort[0], Std.parseInt(IPnPort[1]));
-                this.client.onData = (d:Bytes) -> {
-                    trace(d.toString());
+            trace("1");
+            this.client = new Client(IPnPort[0], Std.parseInt(IPnPort[1]));
+            trace("1");
+            this.client.onData = (d:Bytes) -> {
+                trace(d.toString());
+            }
+            trace("1");
+            this.client.onError = (d:String) -> {
+                trace(d);
+                try {
+                    this.client.socket.close();
                 }
-                this.client.onError = (d:String) -> {
-                    trace(d);
-                    try {
-                        this.client.socket.close();
-                    }
-                    FlxG.switchState(new MainMenuState());
+                FlxG.switchState(new MainMenuState());
+            }
+            //Sys.sleep(0.5); //IDK WHY DOES THIS HAVE TO BE HERE BUT IT DOES WORK
+            trace("1");
+            var auth:Bytes = Bytes.ofString(haxe.Json.stringify({
+                action: "JOIN",
+                d: {
+                    username: username.text,
+                    furretEngineVer: MainMenuState.furretEngineVer
                 }
-                //Sys.sleep(0.5); //IDK WHY DOES THIS HAVE TO BE HERE BUT IT DOES WORK
-                var auth:Bytes = Bytes.ofString(haxe.Json.stringify({
-                    action: "JOIN",
+            }));
+            trace("1");
+            this.client.sendData(auth);
+            if (this.serverKey != null && this.server != null) {
+                var thing:Bytes = Bytes.ofString(haxe.Json.stringify({
+                    action: "TAKE_OWNERSHIP",
                     d: {
-                        username: username.text,
-                        furretEngineVer: MainMenuState.furretEngineVer
+                        key: this.serverKey,
                     }
                 }));
-                this.client.sendData(auth);
-                if (this.serverKey != null && this.server != null) {
-                    var thing:Bytes = Bytes.ofString(haxe.Json.stringify({
-                        action: "TAKE_OWNERSHIP",
-                        d: {
-                            key: this.serverKey,
-                        }
-                    }));
-                    //this.client.sendData(thing);
-                }
-            });
+                //this.client.sendData(thing);
+            }
         });
         joinButton.label.setFormat("assets/fonts/vcr.ttf", 12, FlxColor.WHITE, FlxTextAlign.CENTER, OUTLINE, FlxColor.BLACK);
         joinButton.setGraphicSize(146, 29);

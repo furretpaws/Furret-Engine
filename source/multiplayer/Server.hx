@@ -26,7 +26,11 @@ class Server {
             onError("Couldn't bind to " + ip + ":" + port);
         }
         socket.listen(32);
-        sys.thread.Thread.runWithEventLoop(this.sessionHandler.startHandling);
+        sys.thread.Thread.create(()->{
+            while(true) {
+                this.sessionHandler.startHandling();
+            }
+        });
         while(true) {
             try {
                 var clientSocket:Socket = socket.accept();

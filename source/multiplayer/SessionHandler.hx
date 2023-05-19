@@ -24,28 +24,46 @@ class SessionHandler {
     }
 
     public function startHandling() {
-        timer = new Timer(1);
-        timer.run = () -> {
-            users = sessions.length;
-            for (i in 0...sessions.length) {
-                try {
-                    var out = new SomeBytes();
-                    var input = sessions[i].socket.input;
-                    var data = Bytes.alloc(1024);
-	    		    var readed = input.readBytes(data, 0, data.length);
-	    		    if (readed <= 0) break;
-	    		    out.writeBytes(data.sub(0, readed));
-                    var bytes:Bytes = out.readAllAvailableBytes();
-	    	        if (bytes.length != 0) {
-                        sessions[i].socketData.writeBytes(bytes);
-                        handleBytes(sessions[i]);
-                    }
-                } catch (err) {
-                    trace(err);
-                    trace("An error has occurred in one of the clients. Probably the connection has been terminated. Removing his session...");
-                    sessions.remove(sessions[i]);
+        /*users = sessions.length;
+        for (i in 0...sessions.length) {
+            trace("handle");
+            try {
+                var out = new SomeBytes();
+                var input = sessions[i].socket.input;
+                var data = Bytes.alloc(1024);
+	    	    var readed = input.readBytes(data, 0, data.length);
+                trace(readed);
+	    	    if (readed <= 0) break;
+	    	    out.writeBytes(data.sub(0, readed));
+                var bytes:Bytes = out.readAllAvailableBytes();
+	            if (bytes.length != 0) {
+                    sessions[i].socketData.writeBytes(bytes);
+                    handleBytes(sessions[i]);
                 }
+            } catch (err) {
+                trace(err);
+                trace("An error has occurred in one of the clients. Probably the connection has been terminated. Removing his session...");
+                sessions.remove(sessions[i]);
             }
+        }*/
+        for (i in 0...sessions.length) { //how do i make this async?
+            trace("handle shit");
+            sessions[i].socketData = new haxe.io.BytesOutput();
+            checkBytes(sessions[i]);
+            handleBytes(session[i]);
+        }
+    }
+
+    function checkBytes(session:Session){
+        var b:haxe.io.Bytes = haxe.io.Bytes.alloc(1024);
+        var l = session.socket.input.readBytes(b, 0, 1024 );
+        trace(l);
+        if (l == 1024) {
+            session.socketData.writeBytes(b, 0, b.length);
+            trace("TRY AGAIN");
+            checkBytes(session);
+        } else {
+            session.socketData.writeBytes(b, 0, l);
         }
     }
 
@@ -56,7 +74,7 @@ class SessionHandler {
     }
 
     private function handleBytes(session:Session) {
-        var bytes:haxe.io.Bytes = session.socketData.readAllAvailableBytes();
+        var bytes:haxe.io.Bytes = session.socketData.getBytes();
         if (!nextFileUpload) {
             switch(session.state) {
                 case "opened": //Awaiting a JSON request from him.
