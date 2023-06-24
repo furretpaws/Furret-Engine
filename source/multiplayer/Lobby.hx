@@ -9,6 +9,7 @@ import haxe.io.Bytes;
 import flixel.util.FlxColor;
 import flixel.FlxSprite;
 import flixel.addons.ui.FlxUIInputText;
+import socket.Client;
 import flixel.util.FlxTimer;
 import flixel.FlxG;
 
@@ -26,6 +27,7 @@ class Lobby extends MusicBeatState {
     var requestButton:FlxButton;
     var server:Server;
     var client:Client;
+    var downloading:String = "";
 
     //ui shit
     var requiredUsername:FlxText;
@@ -99,32 +101,42 @@ class Lobby extends MusicBeatState {
         joinButton = new FlxButton(567, 412, "JOIN!", function() {
             var IPnPort:Array<String> = this.IP.split(":");
             trace(IPnPort);
-            trace("1");
-            this.client = new Client(IPnPort[0], Std.parseInt(IPnPort[1]));
-            trace("1");
+            this.client = new socket.Client(IPnPort[0], Std.parseInt(IPnPort[1]));
             this.client.onData = (d:Bytes) -> {
                 trace(d.toString());
-            }
-            trace("1");
-            this.client.onError = (d:String) -> {
-                trace(d);
+                var failed:Bool = false;
+                var json:Dynamic = null;
                 try {
-                    this.client.socket.close();
+                    json = haxe.Json.parse(d.toString());
+                } catch (err) {
+                    failed = true;
                 }
-                FlxG.switchState(new MainMenuState());
+                if (!failed) {
+                    switch(json.event) {
+                        case "READY":
+                            bgTint.visible = false;
+                            blackBox.visible = false;
+                            requiredUsername.visible = false;
+                            username.visible = false;
+                            joinButton.visible = false;
+                            multiplayerLabel.visible = true;
+                            connectedTo.visible = true;
+                            disconnectButton.visible = true;
+                            requestButton.visible = true;
+                    }
+                }
             }
-            //Sys.sleep(0.5); //IDK WHY DOES THIS HAVE TO BE HERE BUT IT DOES WORK
-            trace("1");
+            client.connect();
             var auth:Bytes = Bytes.ofString(haxe.Json.stringify({
-                action: "JOIN",
+                event: "CONNECT",
                 d: {
                     username: username.text,
-                    furretEngineVer: MainMenuState.furretEngineVer
+                    version: MainMenuState.furretEngineVer,
+                    os: FurretEngineData.os
                 }
             }));
-            trace("1");
-            this.client.sendData(auth);
-            if (this.serverKey != null && this.server != null) {
+            this.client.send(auth);
+            /*if (this.serverKey != null && this.server != null) {
                 var thing:Bytes = Bytes.ofString(haxe.Json.stringify({
                     action: "TAKE_OWNERSHIP",
                     d: {
@@ -132,7 +144,7 @@ class Lobby extends MusicBeatState {
                     }
                 }));
                 //this.client.sendData(thing);
-            }
+            }*/
         });
         joinButton.label.setFormat("assets/fonts/vcr.ttf", 12, FlxColor.WHITE, FlxTextAlign.CENTER, OUTLINE, FlxColor.BLACK);
         joinButton.setGraphicSize(146, 29);
@@ -168,7 +180,8 @@ class Lobby extends MusicBeatState {
         add(connectedTo);
 
         disconnectButton = new FlxButton(16, 16, "Disconnect", function() {
-            this.socket.close();
+            @:privateAccess
+            this.client.socket.close();
             FlxG.switchState(new MainMenuState());
         });
         disconnectButton.label.setFormat("assets/fonts/vcr.ttf", 16, FlxColor.WHITE, FlxTextAlign.CENTER, OUTLINE, FlxColor.BLACK);
@@ -184,7 +197,8 @@ class Lobby extends MusicBeatState {
         }
 
         requestButton = new FlxButton(207, 16, "Request song", function() {
-            this.socket.close();
+            @:privateAccess
+            this.client.socket.close();
             FlxG.switchState(new MainMenuState());
         });
         requestButton.label.setFormat("assets/fonts/vcr.ttf", 16, FlxColor.WHITE, FlxTextAlign.CENTER, OUTLINE, FlxColor.BLACK);
@@ -206,5 +220,11 @@ class Lobby extends MusicBeatState {
 
     override public function update(elapsed:Float) {
         super.update(elapsed);
+    }
+}
+
+class LobbyCharacter extends Character {
+    public function new(char, x, y, username) {
+        super(char, x, y);
     }
 }

@@ -173,7 +173,7 @@ class JoinServer extends FlxSubState {
             }
             if (didThatWork) {
                 var req:Bytes = Bytes.ofString(haxe.Json.stringify({
-                    action: "GET_INFO"
+                    event: "GET_INFO"
                 }));
                 socket.output.writeFullBytes(req, 0, req.length);
                 var respond:Bool = false;
@@ -216,7 +216,7 @@ class JoinServer extends FlxSubState {
                 yesButton.visible = true;
                 noButton.visible = true;
                 ipabouttoconnect.text = "IP: " + ipInputText.text;
-                playersabouttoconnect.text = "Players: " + json.d.users;
+                playersabouttoconnect.text = "Players: " + json.d.players;
                 var daTextUwu:String = "...";
                 if (json.d.onAMatch) {
                     daTextUwu = "Yes";

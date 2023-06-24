@@ -4327,14 +4327,16 @@ class PlayState extends MusicBeatState
 			combo = 0;
 			songScore -= 100;
 
-			var deathSound:FlxSound = new FlxSound();
-			switch (curSong.toLowerCase())
-			{
-				default:
-					deathSound.loadEmbedded(Paths.soundRandom('missnote', 1, 3));
+			if (_noDeath) { //since bro is probably recording a spamtrack i won't use these sounds as they are annoying
+				var deathSound:FlxSound = new FlxSound();
+				switch (curSong.toLowerCase())
+				{
+					default:
+						deathSound.loadEmbedded(Paths.soundRandom('missnote', 1, 3));
+				}
+				deathSound.volume = FlxG.random.float(0.1, 0.2);
+				deathSound.play();
 			}
-			deathSound.volume = FlxG.random.float(0.1, 0.2);
-			deathSound.play();
 
 			switch (direction)
 			{
@@ -4396,20 +4398,22 @@ class PlayState extends MusicBeatState
 	{
 		if (!note.wasGoodHit)
 		{
-			if (!note.isSustainNote)
-			{
-				popUpScore(note.strumTime, note);
-				combo += 1;
+			if (!cpuControlled) {
+				if (!note.isSustainNote)
+				{
+					popUpScore(note.strumTime, note);
+					combo += 1;
+				}
+				else
+				{
+					notesHit++;
+				}
+		
+				if (note.noteData >= 0)
+					health += 0.023;
+				else
+					health += 0.004;
 			}
-			else
-			{
-				notesHit++;
-			}
-
-			if (note.noteData >= 0)
-				health += 0.023;
-			else
-				health += 0.004;
 
 			switch (note.noteData)
 			{

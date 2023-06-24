@@ -24,7 +24,7 @@ class SessionHandler {
     }
 
     public function startHandling() {
-        /*users = sessions.length;
+        users = sessions.length;
         for (i in 0...sessions.length) {
             trace("handle");
             try {
@@ -45,25 +45,6 @@ class SessionHandler {
                 trace("An error has occurred in one of the clients. Probably the connection has been terminated. Removing his session...");
                 sessions.remove(sessions[i]);
             }
-        }*/
-        for (i in 0...sessions.length) { //how do i make this async?
-            trace("handle shit");
-            sessions[i].socketData = new haxe.io.BytesOutput();
-            checkBytes(sessions[i]);
-            handleBytes(session[i]);
-        }
-    }
-
-    function checkBytes(session:Session){
-        var b:haxe.io.Bytes = haxe.io.Bytes.alloc(1024);
-        var l = session.socket.input.readBytes(b, 0, 1024 );
-        trace(l);
-        if (l == 1024) {
-            session.socketData.writeBytes(b, 0, b.length);
-            trace("TRY AGAIN");
-            checkBytes(session);
-        } else {
-            session.socketData.writeBytes(b, 0, l);
         }
     }
 
@@ -74,7 +55,7 @@ class SessionHandler {
     }
 
     private function handleBytes(session:Session) {
-        var bytes:haxe.io.Bytes = session.socketData.getBytes();
+        var bytes:haxe.io.Bytes = session.socketData.readAllAvailableBytes();
         if (!nextFileUpload) {
             switch(session.state) {
                 case "opened": //Awaiting a JSON request from him.

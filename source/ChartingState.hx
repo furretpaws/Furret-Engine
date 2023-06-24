@@ -672,6 +672,8 @@ class ChartingState extends MusicBeatState
 		}
 
 		#if sys
+		trace(sys.FileSystem.exists("assets/songs/"+_song.song.toLowerCase()));
+		trace(_song.song.toLowerCase());
 		var vocalSound = Sound.fromFile(path+"assets/songs/" + _song.song.toLowerCase() + "/Voices.ogg");
 		vocals = new FlxSound().loadEmbedded(vocalSound);
 		#else

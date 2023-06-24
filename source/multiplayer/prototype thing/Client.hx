@@ -20,7 +20,7 @@ class Client {
             onError(error);
             trace("1");
         }
-        sys.thread.Thread.runWithEventLoop(()->{
+        sys.thread.Thread.create(()->{
             while(true) {
                 trace("1");
                 var input = socket.input;
