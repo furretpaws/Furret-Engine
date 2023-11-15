@@ -1882,7 +1882,7 @@ class PlayState extends MusicBeatState
 			interp.variables.set("Paths", Paths);
 			interp.variables.set("MP4Handler", MP4Handler);
 			interp.variables.set("videoIsPlaying", videoIsPlaying);
-			#if (sys && !mobile)
+			#if windows
 			interp.variables.set("addMP4Sprite", function(tag:MP4Handler, videoPath:String, x:Float, y:Float, width:Int, height:Int, ?camHUD:Bool)
 			{
 				if (EngineFunctions.exists(videoPath))
@@ -1983,7 +1983,7 @@ class PlayState extends MusicBeatState
 			interp.variables.set("SONG", SONG);
 			interp.variables.set("camFollow", camFollow);
 			interp.variables.set("Sys", Sys);
-			#if (sys && !mobile)
+			#if windows
 			interp.variables.set("FileSystem", sys.FileSystem); // i shouldn't be doing this, people can do a lot of bad things with this
 			interp.variables.set("File", sys.io.File);
 			#end
@@ -2763,7 +2763,7 @@ class PlayState extends MusicBeatState
 		}
 		#end
 
-		#if (sys && !mobile)
+		#if windows
 		if (videoIsPlaying && FlxG.autoPause)
 		{
 			MP4Handler.resumeAllBitmaps();
@@ -2782,7 +2782,7 @@ class PlayState extends MusicBeatState
 		}
 		#end
 
-		#if (sys && !mobile)
+		#if windows
 		if (videoIsPlaying && FlxG.autoPause)
 		{
 			MP4Handler.pauseAllBitmaps();
@@ -3535,7 +3535,7 @@ class PlayState extends MusicBeatState
 						interp.variables.set("Paths", Paths);
 						interp.variables.set("MP4Handler", MP4Handler);
 						interp.variables.set("videoIsPlaying", videoIsPlaying);
-						#if (sys && !mobile)
+						#if windows
 						interp.variables.set("addMP4Sprite", function(tag:MP4Handler, videoPath:String, x:Float, y:Float, width:Int, height:Int, ?camHUD:Bool)
 						{
 							if (EngineFunctions.exists(videoPath))
@@ -3598,7 +3598,7 @@ class PlayState extends MusicBeatState
 						interp.variables.set("SONG", SONG);
 						interp.variables.set("camFollow", camFollow);
 						interp.variables.set("Sys", Sys);
-						#if (sys && !mobile)
+						#if windows
 						interp.variables.set("FileSystem", sys.FileSystem); // i shouldn't be doing this, people can do a lot of bad things with this
 						interp.variables.set("File", sys.io.File);
 						#end
@@ -3839,7 +3839,7 @@ class PlayState extends MusicBeatState
 			#end
 		}
 
-		#if (sys && !mobile)
+		#if windows
 		if (videoIsPlaying)
 		{
 			#if (!mobile)

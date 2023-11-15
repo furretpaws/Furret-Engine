@@ -26,7 +26,7 @@ class PauseSubState extends MusicBeatSubstate
 	{
 		super();
 
-		#if (sys && !mobile)
+		#if windows
 		if (PlayState.videoIsPlaying)
 		{
 			MP4Handler.pauseAllBitmaps();
@@ -110,7 +110,7 @@ class PauseSubState extends MusicBeatSubstate
 
 			switch (daSelected)
 			{
-				#if (sys && !mobile)
+				#if windows
 				case "Resume":
 					close();
 					if (PlayState.videoIsPlaying)

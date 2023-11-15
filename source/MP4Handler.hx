@@ -19,7 +19,7 @@ import vlc.VlcBitmap;
 // DONT STEAL MY CODE >:(
 class MP4Handler
 {
-	#if (sys && !mobile)
+	#if windows
 	public var finishCallback:Void->Void;
 	public var stateCallback:FlxState;
 

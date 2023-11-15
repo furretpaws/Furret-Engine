@@ -15,6 +15,7 @@ import lime.utils.UInt8Array;
  * @author Tommy S
  */
 //
+#if windows
 @:buildXml('<include name="../../../../source/vlc/LibVLCBuild.xml" />')
 @:include("LibVLC.h")
 @:unreflective
@@ -125,3 +126,4 @@ extern class LibVLC
 		untyped __cpp__('::delete this');
 	}
 }
+#end
